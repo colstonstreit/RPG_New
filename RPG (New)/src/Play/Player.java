@@ -12,7 +12,7 @@ public class Player extends Entity.Dynamic {
 	public Player(Game game, double x, double y) {
 		super(game, "Player");
 		this.pos = new Vec2(x, y);
-		solidVsStatic = true;
+		solidVsStatic = false;
 		solidVsDynamic = true;
 		size = new Vec2(0.75, 0.75);
 	}
