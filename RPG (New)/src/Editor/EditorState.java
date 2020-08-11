@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -22,58 +23,81 @@ import Engine.Sprite;
 import Engine.State;
 import Engine.Tools;
 import Engine.Tools.Vec2;
+import Engine.Tools.fRect;
 import Play.Tile;
 
 public class EditorState extends State {
 
+	// TILE DRAW SIZES
 	public static int tSize = 32; // size that tiles should be rendered
 	private static final int tSizeSelectionArea = 64; // size that tiles in selection menu should be drawn
 
+	// IMPORTANT COLORS
 	private static final Color onButtonColor = new Color(0, 255, 0, 220); // color of buttons that are "on"
 	private static final Color offButtonColor = new Color(255, 0, 0, 220); // color of buttons that are "off"
 	private static final Color genericButtonColor = new Color(180, 180, 180, 180); // the button's generic (default) color
 	private static final Color highlightButtonColor = new Color(255, 255, 0, 220); // color of buttons that are highlighted or different (yellow)
 
-	private final Tools.fRect tileArea = game.getFRect().getSubRect(0.9, 0, 0.1, 1); // Rectangle containing where the tile selection is drawn
+	// IMPORTANT REGIONS
+	private final fRect tileArea = game.getFRect().getSubRect(0.9, 0, 0.1, 1); // Rectangle containing where the tile selection is drawn
 	private final Rectangle tileSpace = tileArea.getSubRect(0.02, 0.005, 0.96, 0.99).cast(); // space within the tileArea where tiles actually drawn
-	private final Tools.fRect buttonArea = game.getFRect().getSubRect(0.70, 0, 0.2, 1); // area within which buttons are placed
-	private final Tools.fRect layerButtonArea = buttonArea.getSubRect(0.1, 0.02, 0.8, 0.13); // area where layer buttons are placed
+	private final fRect buttonArea = game.getFRect().getSubRect(0.70, 0, 0.2, 1); // area within which buttons are placed
+	private final fRect layerButtonArea = buttonArea.getSubRect(0.1, 0.02, 0.8, 0.13); // area where layer buttons are placed
 
+	// IMPORTANT FLAGS
 	public static boolean pressingButton = false; // whether or not the user has pressed a button on this cycle of mouse hovering (and pressing)
-	public static boolean drawingGrid = false; // whether or not the map should draw the white tile grid
+	public static boolean drawingGrid = true; // whether or not the map should draw the white tile grid
 	public static boolean deleting = false; // whether or not the editor is in delete mode
 
-	private static ArrayList<Tools.fRect> tileRects = new ArrayList<Tools.fRect>(); // list of rectangles in tile area where tiles should be drawn
+	// TILE AREA STUFF
+	private static ArrayList<fRect> tileRects = new ArrayList<fRect>(); // list of rectangles in tile area where tiles should be drawn
 	public static int selectedTileIndex = 0; // the index of the currently selected tile (same as in Assets and in Tile)
 
+	// ACTION LIST
 	public enum Action { SetMove, SetSelect, SetBrush, FillRect, AddColumn, RemoveColumn, AddRow, RemoveRow, SetSolid; } // enum of different potential actions
 	public static Action currentAction = Action.SetMove; // current action (is moving the map by mouse by default)
 
+	// ADD/REMOVE ROW/COLUMN STUFF
 	public static final int sizeChangingDelay = 150; // delay between row/column additions/removals
 	public static long sizeChangingTimer = System.currentTimeMillis(); // timer to keep track of row/colum additions/removals
 
+	// SET_SOLID STUFF
 	public static final int solidAddingDelay = 500; // delay between actions of making certain map tiles solid
 	public static long solidAddingTimer = System.currentTimeMillis(); // timer to keep track of actions making certain map tiles solid
 	public static int lastTXChanged = -1, lastTYChanged = -1; // the coordinates of the last tile that was made solid
 
+	// MOVING STUFF
 	private static int ox = 100, oy = 100; // the position at which the map is drawn
 	private static int lastOX = 0, lastOY = 0; // the last x and y offsets before the mouse started being dragged
 
+	// LAYER STUFF
 	public static int selectedLayer = 0; // the index of the currently selected layer
 	public static final int numLayersAllowed = 3; // how many layers the map is allowed to have
 	public static boolean[] layerBools = new boolean[numLayersAllowed]; // a list of booleans determining whether or not each layer should be drawn
 	private Button[] layerButtons; // a list of the layer buttons for easy access
 
-	public static Tools.fRect draggedArea = null; // contains the rectangle that is currently being dragged in fillRect mode
+	// FILL_RECT, SET_SELECT STUFF
+	private static fRect dragged = null;
+	private static boolean firstPressed = true;
+	private static boolean hasDragged = false;
+	private static Vec2 firstCorner = null;
+	private static final int moveSelectionDelay = 75;
+	public static long moveSelectionTimer = System.currentTimeMillis();
+	private static MapData tempMapData;
 
-	private EditorTileMap map = null; // the map that is being made
-	private ArrayList<Button> buttons = new ArrayList<Button>(); // the list of buttons for the GUI to access
+	// UNDO STUFF
+	public static LinkedList<MapData> previousStates = new LinkedList<MapData>();
+
+	// MAP AND BUTTON LIST
+	private static EditorTileMap map = null; // the map that is being made
+	private static ArrayList<Button> buttons = new ArrayList<Button>(); // the list of buttons for the GUI to access
 
 	public EditorState(Game game) {
 		super(game);
 
 		// Create the map
 		map = new EditorTileMap(game, 20, 20);
+		addMapState();
 
 		// Create the tileRects where each individual tile of Tile.tiles() will be rendered for selection area
 		int numTilesWide = tileSpace.width / (tSizeSelectionArea + 1);
@@ -81,13 +105,13 @@ public class EditorState extends State {
 		for (int i = 0; i < tiles.length; i++) {
 			if (tiles[i] == null) break;
 			int indexModNumWide = i % numTilesWide;
-			tileRects.add(new Tools.fRect(tileSpace.x + indexModNumWide * (tSizeSelectionArea + 1), tileSpace.y + (tSizeSelectionArea + 1) * (i / numTilesWide),
+			tileRects.add(new fRect(tileSpace.x + indexModNumWide * (tSizeSelectionArea + 1), tileSpace.y + (tSizeSelectionArea + 1) * (i / numTilesWide),
 					tSizeSelectionArea, tSizeSelectionArea));
 		}
 
-		// Create the right-hand side of buttons
+		// Create generic buttons
+		addButton("Set Gridlines", "SetGrid").setColor(onButtonColor);
 		addButton("Set Delete", "SetDelete").setColor(offButtonColor);
-		addButton("Set Gridlines", "SetGrid").setColor(offButtonColor);
 		addButton("Set Moving", "SetMove");
 		addButton("Set Brush", "SetBrush");
 		addButton("Set Solid", "SetSolid");
@@ -100,15 +124,15 @@ public class EditorState extends State {
 		addButton("Fill Layer", "FillLayer");
 		addButton("Zoom In", "ZoomIn");
 		addButton("Zoom Out", "ZoomOut");
-		addButton("Switch to Game", "SwitchToGame");
+		addButton("Undo", "Undo");
 		addButton("New Map", "NewMap");
 		addButton("Save Map", "SaveMap");
 		addButton("Load Map", "LoadMap");
+		addButton("Switch to Game", "SwitchToGame");
 
-		// Create the left-hand side of buttons
+		// Create layer menu
 		layerButtons = new Button[numLayersAllowed];
 		for (int i = 1; i <= layerButtons.length; i++) {
-			// create layer buttons with titles and correct positions, and set them visible if they should be
 			layerButtons[i - 1] = new Button("Layer " + i, "SetLayer" + i, this, layerButtonArea.getSubRect(0.5, 0.33 * (i - 1), 0.5, 0.33));
 			if (i - 1 == selectedLayer) {
 				layerButtons[i - 1].setColor(onButtonColor);
@@ -120,12 +144,21 @@ public class EditorState extends State {
 		new Button("+", "AddLayer", this, layerButtonArea.getSubRect(0, 0.33, 0.5, 0.33));
 		new Button("-", "RemoveLayer", this, layerButtonArea.getSubRect(0, 0.66, 0.5, 0.33));
 
-		setAction(Action.SetBrush);
+		setAction(Action.FillRect);
 	}
-	
+
+	/**
+	 * Adds a button with text=text and id=id in specified location based on the number of buttons already existing.
+	 */
 	private Button addButton(String text, String id) {
 		int i = buttons.size();
 		return new Button(text, id, this, buttonArea.getSubRect(0.05 + 0.5 * (i % 2), 0.17 + 0.05 * (int) (i / 2), 0.4, 0.04));
+	}
+
+	public static void addMapState() {
+		MapData d = map.getMapSelection(new fRect(0, 0, map.numWide(), map.numTall()));
+		previousStates.push(d);
+		if (previousStates.size() > 1 && d.equals(previousStates.get(1))) previousStates.pop();
 	}
 
 	/**
@@ -133,6 +166,13 @@ public class EditorState extends State {
 	 */
 	public void handlePress(Button b) {
 		switch (b.id) {
+			case "Undo": //////////////////// Revert to earlier state ////////////////////
+				if (previousStates.size() > 1) {
+					previousStates.pop();
+					map.revert(previousStates.getFirst());
+					// System.out.println(previousStates.peekLast());
+				}
+				break;
 			case "SetMove": //////////////////// Change Moving Flag ////////////////////
 				setAction(Action.SetMove);
 				break;
@@ -197,6 +237,8 @@ public class EditorState extends State {
 					ox = 100;
 					oy = 100;
 				}
+				previousStates.clear();
+				addMapState();
 				break;
 			case "NewMap": //////////////////// Create Blank Map ////////////////////
 				// Ask for input
@@ -228,6 +270,8 @@ public class EditorState extends State {
 						oy = 100;
 					} else JOptionPane.showMessageDialog(null, "You must enter two integers!");
 				}
+				previousStates.clear();
+				addMapState();
 				break;
 			case "ZoomIn": //////////////////// Make Tiles Bigger (Zoom In) ////////////////////
 				tSize = (tSize + 4 > 48) ? 48 : tSize + 4;
@@ -317,6 +361,10 @@ public class EditorState extends State {
 			}
 		}
 
+		if ((currentAction == Action.SetBrush || currentAction == Action.SetSolid) && !game.mousePressed()) {
+			EditorState.addMapState();
+		}
+
 		// Calculate map offsets if mouse is dragged while currentAction is SetMove
 		if (currentAction == Action.SetMove && !pressingButton) {
 			if (game.mouseDragged()) {
@@ -329,11 +377,99 @@ public class EditorState extends State {
 			}
 		}
 
-		// Deal with FillRect mode stuff, checking to see if one should be drawn and calling the map to fill if necessary
-		draggedArea = (game.mouseDragged() && !pressingButton && currentAction == Action.FillRect) ? Tools.fRect.castToFRect(game.mouseCurrentDragged()) : null;
-		if (game.mouseHasFinalDragged()) {
-			if (currentAction == Action.FillRect && !pressingButton) map.fillRect(game.mouseFinalDragged(), ox, oy);
-			else game.mouseFinalDragged();
+		// Deal with FillRect and SetSelect mode stuff
+		if (currentAction == Action.FillRect || currentAction == Action.SetSelect) {
+			if (game.mousePressed() && firstPressed && !hasDragged) {
+
+				fRect mouseBounds = game.mouseBounds();
+				firstCorner = screenToWorld(new Vec2(mouseBounds.x, mouseBounds.y));
+				if (firstCorner.x >= 0 && firstCorner.x < map.numWide() && firstCorner.y >= 0 && firstCorner.y < map.numTall()) {
+					firstCorner = new Vec2((int) Game.clamp(firstCorner.x, 0, map.numWide() - 1), (int) Game.clamp(firstCorner.y, 0, map.numTall() - 1));
+					firstPressed = false;
+				} else firstCorner = null;
+
+			} else if (game.mouseDragged() && !firstPressed && !hasDragged) {
+
+				fRect mouseBounds = game.mouseBounds();
+				Vec2 firstCornerCopy = new Vec2(firstCorner.x, firstCorner.y);
+				Vec2 tempCorner = screenToWorld(new Vec2(mouseBounds.x, mouseBounds.y));
+				Vec2 corner = new Vec2((int) Game.clamp(tempCorner.x, 0, map.numWide() - 1), (int) Game.clamp(tempCorner.y, 0, map.numTall() - 1));
+
+				if (firstCornerCopy.x > corner.x) {
+					int t = (int) firstCornerCopy.x;
+					firstCornerCopy.x = corner.x;
+					corner.x = t;
+				}
+
+				if (firstCornerCopy.y > corner.y) {
+					int t = (int) firstCornerCopy.y;
+					firstCornerCopy.y = corner.y;
+					corner.y = t;
+				}
+
+				dragged = new fRect(firstCornerCopy.x, firstCornerCopy.y, corner.x - firstCornerCopy.x + 1, corner.y - firstCornerCopy.y + 1);
+
+			} else if (game.mouseHasFinalDragged() && dragged != null && firstCorner != null) {
+				game.mouseFinalDragged();
+				fRect mouseBounds = game.mouseBounds();
+				Vec2 beginning = new Vec2(firstCorner.x, firstCorner.y);
+				Vec2 tempEnd = screenToWorld(new Vec2(mouseBounds.x, mouseBounds.y));
+				Vec2 end = new Vec2((int) Game.clamp(tempEnd.x, 0, map.numWide() - 1), (int) Game.clamp(tempEnd.y, 0, map.numWide() - 1));
+
+				if (beginning.x > end.x) {
+					int t = (int) beginning.x;
+					beginning.x = end.x;
+					end.x = t;
+				}
+
+				if (beginning.y > end.y) {
+					int t = (int) beginning.y;
+					beginning.y = end.y;
+					end.y = t;
+				}
+
+				firstCorner = null;
+				if (currentAction == Action.FillRect) {
+					map.fillRect(dragged);
+					dragged = null;
+					firstPressed = true;
+					hasDragged = false;
+				} else if (currentAction == Action.SetSelect) {
+					dragged = new fRect(beginning.x, beginning.y, end.x - beginning.x + 1, end.y - beginning.y + 1);
+					hasDragged = true;
+					tempMapData = map.getMapSelection(dragged);
+				}
+			} else if (currentAction == Action.SetSelect && hasDragged) {
+				if (!pressingButton && game.mouseClicked(1) || game.keyUp(KeyEvent.VK_ESCAPE)) {
+					hasDragged = false;
+					firstPressed = true;
+					dragged = null;
+					tempMapData = null;
+				} else if (game.keyUp(KeyEvent.VK_BACK_SPACE)) {
+					int index = EditorState.selectedTileIndex;
+					EditorState.selectedTileIndex = -1;
+					map.fillRect(dragged);
+					EditorState.selectedTileIndex = index;
+					tempMapData = map.getMapSelection(dragged);
+				} else if (game.keyUp('f')) {
+					map.fillRect(dragged);
+					tempMapData = map.getMapSelection(dragged);
+				} else if (game.keyDown(KeyEvent.VK_RIGHT) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					moveSelectionTimer = System.currentTimeMillis();
+					dragged.x += 1;
+				} else if (game.keyDown(KeyEvent.VK_LEFT) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					moveSelectionTimer = System.currentTimeMillis();
+					dragged.x -= 1;
+				} else if (game.keyDown(KeyEvent.VK_UP) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					moveSelectionTimer = System.currentTimeMillis();
+					dragged.y -= 1;
+				} else if (game.keyDown(KeyEvent.VK_DOWN) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					moveSelectionTimer = System.currentTimeMillis();
+					dragged.y += 1;
+				} else if (game.keyUp(KeyEvent.VK_ENTER)) {
+					map.fillRect(dragged, tempMapData, true);
+				}
+			}
 		}
 
 		// Tick the map only if the mouse is pressed over it (and not over a button)
@@ -344,19 +480,20 @@ public class EditorState extends State {
 
 		// Handle various helpful inputs
 		int mapMoveSpeed = (int) Game.clamp(tSize * 2.0 / 5, 12, 128);
-		if (game.keyDown('a') || game.keyDown(KeyEvent.VK_LEFT)) ox += mapMoveSpeed;
-		if (game.keyDown('d') || game.keyDown(KeyEvent.VK_RIGHT)) ox -= mapMoveSpeed;
-		if (game.keyDown('w') || game.keyDown(KeyEvent.VK_UP)) oy += mapMoveSpeed;
-		if (game.keyDown('s') || game.keyDown(KeyEvent.VK_DOWN)) oy -= mapMoveSpeed;
+		if (game.keyDown('a')) ox += mapMoveSpeed;
+		if (game.keyDown('d')) ox -= mapMoveSpeed;
+		if (game.keyDown('w')) oy += mapMoveSpeed;
+		if (game.keyDown('s')) oy -= mapMoveSpeed;
 
 		if (game.keyUp('q')) handlePress(getButtonById("ZoomOut"));
 		if (game.keyUp('e')) handlePress(getButtonById("ZoomIn"));
 		if (game.keyUp(KeyEvent.VK_OPEN_BRACKET) || game.mouseZoomedIn()) selectedTileIndex = (selectedTileIndex - 1 + tileRects.size()) % tileRects.size();
 		if (game.keyUp(KeyEvent.VK_CLOSE_BRACKET) || game.mouseZoomedOut()) selectedTileIndex = (selectedTileIndex + 1) % tileRects.size();
 		if (game.keyUp('g')) handlePress(getButtonById("SetGrid"));
-		if (game.keyUp('f')) handlePress(getButtonById("FillLayer"));
+		if (game.keyUp('f') && currentAction != Action.SetSelect) handlePress(getButtonById("FillLayer"));
 		if (game.keyUp('r')) handlePress(getButtonById("FillRect"));
-		if (game.keyUp('z')) handlePress(getButtonById("SetDelete"));
+		if (game.keyUp('x')) handlePress(getButtonById("SetDelete"));
+		if (game.keyUp('z')) handlePress(getButtonById("Undo"));
 		if (game.keyUp(KeyEvent.VK_1)) {
 			ox = 100;
 			oy = 100;
@@ -369,11 +506,11 @@ public class EditorState extends State {
 		map.render(g, ox, oy);
 
 		// Draw a cyan transparent rectangle over the hovered tile, as well as a string containing the tile's coordinates for reference
-		Tools.fRect mousePos = game.mouseBounds();
+		fRect mousePos = game.mouseBounds();
 		int tx = (int) (mousePos.x - ox) / EditorState.tSize - ((mousePos.x - ox < 0) ? 1 : 0);
 		int ty = (int) (mousePos.y - oy) / EditorState.tSize - ((mousePos.y - oy < 0) ? 1 : 0);
 		if (tx >= 0 && ty >= 0 && tx < map.numWide() && ty < map.numTall()) {
-			new Tools.fRect(tx * tSize + ox, ty * tSize + oy, tSize, tSize).fill(g, new Color(0, 255, 255, 120));
+			new fRect(tx * tSize + ox, ty * tSize + oy, tSize, tSize).fill(g, new Color(0, 255, 255, 120));
 			g.setColor(Color.white);
 			g.setFont(new Font("Times New Roman", Font.BOLD, 36));
 			g.drawString("<" + tx + "," + ty + ">", 10, 36);
@@ -384,15 +521,43 @@ public class EditorState extends State {
 		for (int i = 0; i < tileRects.size(); i++) {
 			Rectangle r = tileRects.get(i).cast();
 			Tile.getTile(i).render(g, 0, 0, r.x, r.y, tSizeSelectionArea);
-			Tools.fRect rf = new Tools.fRect(r.x, r.y, r.width, r.height);
+			fRect rf = new fRect(r.x, r.y, r.width, r.height);
 			if (i == selectedTileIndex) {
 				rf.fill(g, new Color(255, 255, 255, 90));
 				rf.draw(g, Color.black);
 			}
 		}
 
-		// Draw the currently dragged area if it exists
-		if (draggedArea != null) draggedArea.fill(g, new Color(170, 170, 170, 100));
+		// Draw the currently dragged area if it exists as well as any tiles inside of it (for motion)
+		if (dragged != null) {
+			Vec2 startPos = worldToScreen(new Vec2(dragged.x, dragged.y));
+			Vec2 endPos = worldToScreen(new Vec2(dragged.x + dragged.width, dragged.y + dragged.height));
+			if (tempMapData != null) {
+				for (int z = 0; z < tempMapData.tiles.length; z++) {
+					for (int y = 0; y < tempMapData.tiles[z].length; y++) {
+						for (int x = 0; x < tempMapData.tiles[z][y].length; x++) {
+							if (tempMapData.tiles[z][y][x] != -1 && x + (int) dragged.x >= 0 && x + (int) dragged.x < map.numWide() && y + (int) dragged.y >= 0
+									&& y + (int) dragged.y < map.numTall()) {
+								Tile.getTile(tempMapData.tiles[z][y][x]).render(g, x, y, (int) startPos.x, (int) startPos.y, tSize);
+								if (z == tempMapData.tiles.length - 1) {
+									if (EditorState.drawingGrid && !tempMapData.solids[y][x]) {
+										g.setColor(Color.white);
+										g.drawRect(ox + (int) (x + dragged.x) * EditorState.tSize, oy + (int) (dragged.y + y) * EditorState.tSize,
+												EditorState.tSize - 1, EditorState.tSize - 1);
+									}
+									if (tempMapData.solids[y][x]) {
+										g.setColor(Color.red);
+										g.drawRect(ox + (int) (x + dragged.x) * EditorState.tSize, oy + (int) (dragged.y + y) * EditorState.tSize,
+												EditorState.tSize - 1, EditorState.tSize - 1);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			new fRect(startPos.x, startPos.y, endPos.x - startPos.x, endPos.y - startPos.y).fill(g, new Color(255, 192, 203, 150));
+		}
 
 		// Draw all of the buttons to the screen
 		for (Button b : buttons)
@@ -420,12 +585,63 @@ public class EditorState extends State {
 			else b.setColor(action == currentAction ? offButtonColor : onButtonColor);
 		}
 		currentAction = action == currentAction ? null : action;
+
+		hasDragged = false;
+		firstPressed = true;
+		dragged = null;
+		tempMapData = null;
 	}
 
 	/**
 	 * Returns the current number of layers in the map. Returns 1 if the map is null.
 	 */
 	public int currentNumLayers() { return (map != null) ? map.numLayers() : 1; }
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	protected static class MapData {
+
+		final int[][][] tiles;
+		final boolean[][] solids;
+
+		protected MapData(int[][][] tiles, boolean[][] solids) {
+			this.tiles = tiles;
+			this.solids = solids;
+		}
+
+		public final boolean equals(MapData d) {
+			if (tiles.length != d.tiles.length || tiles[0].length != d.tiles[0].length || tiles[0][0].length != d.tiles[0][0].length) return false;
+			for (int z = 0; z < tiles.length; z++) {
+				for (int y = 0; y < tiles[z].length; y++) {
+					for (int x = 0; x < tiles[z][y].length; x++) {
+						if (tiles[z][y][x] != d.tiles[z][y][x]) return false;
+						if (z == 0 && solids[y][x] != d.solids[y][x]) return false;
+					}
+				}
+			}
+			return true;
+		}
+
+		public final String toString() {
+			StringBuilder b = new StringBuilder();
+			for (int z = 0; z < tiles.length; z++) {
+				for (int y = 0; y < tiles[z].length; y++) {
+					for (int x = 0; x < tiles[z][y].length; x++) {
+						b.append("" + tiles[z][y][x] + ((x == tiles[z][y].length - 1) ? "\n" : " "));
+					}
+				}
+				b.append("BREAK\n");
+			}
+
+			for (int y = 0; y < solids.length; y++) {
+				for (int x = 0; x < solids[y].length; x++) {
+					b.append("" + (solids[y][x] ? 1 : 0) + ((x == solids[y].length - 1) ? "\n" : " "));
+				}
+			}
+			b.append("BREAK\n");
+			return b.toString();
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -463,10 +679,10 @@ public class EditorState extends State {
 		public void render(Graphics g) {
 			// draw the button to the screen
 			if (!visible) return;
-			
+
 			r.fill(g, color);
-			if(hasBorder) r.draw(g, borderColor);
-			
+			if (hasBorder) r.draw(g, borderColor);
+
 			g.setFont(new Font("Times New Roman", Font.BOLD, (int) r.height * 7 / 16));
 			Game.drawCenteredString(g, Color.black, text, r, true);
 		}
@@ -494,7 +710,7 @@ public class EditorState extends State {
 			this.visible = b;
 			return this;
 		}
-		
+
 		/**
 		 * Sets this button to have or not have a border drawn, based on the Boolean b passed in.
 		 */
@@ -517,6 +733,5 @@ public class EditorState extends State {
 
 	@Override
 	public Vec2 screenToWorld(Vec2 v) { return new Tools.Vec2((v.x - ox) / tSize, (v.y - oy) / tSize); }
-
 
 }
