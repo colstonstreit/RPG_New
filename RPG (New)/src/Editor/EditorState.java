@@ -37,9 +37,10 @@ public class EditorState extends State {
 	private final Tools.fRect tileArea = game.getFRect().getSubRect(0.9, 0, 0.1, 1); // Rectangle containing where the tile selection is drawn
 	private final Rectangle tileSpace = tileArea.getSubRect(0.02, 0.005, 0.96, 0.99).cast(); // space within the tileArea where tiles actually drawn
 	private final Tools.fRect buttonArea = game.getFRect().getSubRect(0.70, 0, 0.2, 1); // area within which buttons are placed
+	private final Tools.fRect layerButtonArea = buttonArea.getSubRect(0.1, 0.02, 0.8, 0.13); // area where layer buttons are placed
 
 	public static boolean pressingButton = false; // whether or not the user has pressed a button on this cycle of mouse hovering (and pressing)
-	public static boolean drawingGrid = true; // whether or not the map should draw the white tile grid
+	public static boolean drawingGrid = false; // whether or not the map should draw the white tile grid
 	public static boolean deleting = false; // whether or not the editor is in delete mode
 
 	private static ArrayList<Tools.fRect> tileRects = new ArrayList<Tools.fRect>(); // list of rectangles in tile area where tiles should be drawn
@@ -85,41 +86,46 @@ public class EditorState extends State {
 		}
 
 		// Create the right-hand side of buttons
-		new Button("Set Moving", "SetMove", this, buttonArea.getSubRect(0.55, 0.02, 0.4, 0.04)).setColor(onButtonColor);
-		new Button("Set Brush", "SetBrush", this, buttonArea.getSubRect(0.55, 0.07, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Set Delete", "SetDelete", this, buttonArea.getSubRect(0.55, 0.12, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Set Gridlines", "SetGrid", this, buttonArea.getSubRect(0.55, 0.17, 0.4, 0.04)).setColor(onButtonColor);
-		new Button("Fill Rectangle", "FillRect", this, buttonArea.getSubRect(0.55, 0.22, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Fill Layer", "FillLayer", this, buttonArea.getSubRect(0.55, 0.27, 0.4, 0.04));
-		new Button("Save Map", "SaveMap", this, buttonArea.getSubRect(0.55, 0.32, 0.4, 0.04));
-		new Button("Load Map", "LoadMap", this, buttonArea.getSubRect(0.55, 0.37, 0.4, 0.04));
-		new Button("New Map", "NewMap", this, buttonArea.getSubRect(0.55, 0.42, 0.4, 0.04));
-		new Button("Zoom In", "ZoomIn", this, buttonArea.getSubRect(0.55, 0.47, 0.4, 0.04));
-		new Button("Zoom Out", "ZoomOut", this, buttonArea.getSubRect(0.55, 0.52, 0.4, 0.04));
-		new Button("Set Solid", "SetSolid", this, buttonArea.getSubRect(0.55, 0.57, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Select", "SetSelect", this, buttonArea.getSubRect(0.55, 0.62, 0.4, 0.04)).setColor(offButtonColor);
+		addButton("Set Delete", "SetDelete").setColor(offButtonColor);
+		addButton("Set Gridlines", "SetGrid").setColor(offButtonColor);
+		addButton("Set Moving", "SetMove");
+		addButton("Set Brush", "SetBrush");
+		addButton("Set Solid", "SetSolid");
+		addButton("Set Select", "SetSelect");
+		addButton("Add Column", "AddColumn");
+		addButton("Remove Column", "RemoveColumn");
+		addButton("Add Row", "AddRow");
+		addButton("Remove Row", "RemoveRow");
+		addButton("Fill Rectangle", "FillRect");
+		addButton("Fill Layer", "FillLayer");
+		addButton("Zoom In", "ZoomIn");
+		addButton("Zoom Out", "ZoomOut");
+		addButton("Switch to Game", "SwitchToGame");
+		addButton("New Map", "NewMap");
+		addButton("Save Map", "SaveMap");
+		addButton("Load Map", "LoadMap");
 
 		// Create the left-hand side of buttons
-		new Button("Selected Layer: 1", "SelectedLayer", this, buttonArea.getSubRect(0.05, 0.02, 0.4, 0.04)).setColor(highlightButtonColor);
 		layerButtons = new Button[numLayersAllowed];
 		for (int i = 1; i <= layerButtons.length; i++) {
 			// create layer buttons with titles and correct positions, and set them visible if they should be
-			layerButtons[i - 1] = new Button("Set Layer " + i + " Visible", "SetLayer" + i, this, buttonArea.getSubRect(0.05, 0.02 + 0.05 * i, 0.4, 0.04));
+			layerButtons[i - 1] = new Button("Layer " + i, "SetLayer" + i, this, layerButtonArea.getSubRect(0.5, 0.33 * (i - 1), 0.5, 0.33));
 			if (i - 1 == selectedLayer) {
 				layerButtons[i - 1].setColor(onButtonColor);
 				layerBools[i - 1] = true;
 			} else layerButtons[i - 1].setColor(offButtonColor);
 			layerButtons[i - 1].setVisible(i - 1 < currentNumLayers());
 		}
-		new Button("Add New Layer", "AddLayer", this, buttonArea.getSubRect(0.05, 0.22, 0.4, 0.04));
-		new Button("Remove Top Layer", "RemoveLayer", this, buttonArea.getSubRect(0.05, 0.27, 0.4, 0.04));
-		new Button("Add Column", "AddColumn", this, buttonArea.getSubRect(0.05, 0.32, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Remove Column", "RemoveColumn", this, buttonArea.getSubRect(0.05, 0.37, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Add Row", "AddRow", this, buttonArea.getSubRect(0.05, 0.42, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Remove Row", "RemoveRow", this, buttonArea.getSubRect(0.05, 0.47, 0.4, 0.04)).setColor(offButtonColor);
-		new Button("Switch to Game", "SwitchToGame", this, buttonArea.getSubRect(0.05, 0.52, 0.4, 0.04));
+		new Button("Selected: 1", "SelectedLayer", this, layerButtonArea.getSubRect(0, 0, 0.5, 0.33)).setColor(highlightButtonColor);
+		new Button("+", "AddLayer", this, layerButtonArea.getSubRect(0, 0.33, 0.5, 0.33));
+		new Button("-", "RemoveLayer", this, layerButtonArea.getSubRect(0, 0.66, 0.5, 0.33));
 
 		setAction(Action.SetBrush);
+	}
+	
+	private Button addButton(String text, String id) {
+		int i = buttons.size();
+		return new Button(text, id, this, buttonArea.getSubRect(0.05 + 0.5 * (i % 2), 0.17 + 0.05 * (int) (i / 2), 0.4, 0.04));
 	}
 
 	/**
@@ -155,7 +161,7 @@ public class EditorState extends State {
 			case "SaveMap": //////////////////// Save Map to File ////////////////////
 				JFileChooser jfc = new JFileChooser();
 				jfc.setCurrentDirectory(new File(
-						"C:/Users/colst/Desktop/Progamming/Programming Stuff/Eclipse (Java) Workspace/RPG (New)/res/maps"));
+						"C:/Users/colst/git/RPG_New/RPG (New)/res/maps/"));
 				jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				jfc.setFileFilter(new FileNameExtensionFilter("map files (*.map)", "map"));
 				int option = jfc.showSaveDialog(null);
@@ -171,7 +177,7 @@ public class EditorState extends State {
 			case "LoadMap": //////////////////// Load Map to File ////////////////////
 				jfc = new JFileChooser();
 				jfc.setCurrentDirectory(new File(
-						"C:/Users/colst/Desktop/Progamming/Programming Stuff/Eclipse (Java) Workspace/RPG (New)/res/maps"));
+						"C:/Users/colst/git/RPG_New/RPG (New)/res/maps/"));
 				jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				jfc.setFileFilter(new FileNameExtensionFilter("map files (*.map)", "map"));
 				option = jfc.showOpenDialog(null);
@@ -231,7 +237,7 @@ public class EditorState extends State {
 				break;
 			case "SelectedLayer": //////////////////// Cycle Selected Layer, Visibility ////////////////////
 				selectedLayer = (selectedLayer + 1) % currentNumLayers();
-				b.setText("Selected Layer: " + (selectedLayer + 1));
+				b.setText("Selected: " + (selectedLayer + 1));
 				for (int i = 0; i < layerButtons.length; i++) {
 					layerButtons[i].setColor((i <= selectedLayer) ? onButtonColor : offButtonColor);
 					layerBools[i] = i <= selectedLayer;
@@ -252,7 +258,7 @@ public class EditorState extends State {
 			case "AddLayer": //////////////////// Add a New Layer ////////////////////
 				map.changeLayers(1);
 				selectedLayer = currentNumLayers() - 1;
-				getButtonById("SelectedLayer").setText("Selected Layer: " + (selectedLayer + 1));
+				getButtonById("SelectedLayer").setText("Selected: " + (selectedLayer + 1));
 				for (int i = 0; i < layerButtons.length; i++) {
 					layerButtons[i].setColor((i <= selectedLayer) ? onButtonColor : offButtonColor).setVisible(i <= selectedLayer);
 					layerBools[i] = i <= selectedLayer;
@@ -261,7 +267,7 @@ public class EditorState extends State {
 			case "RemoveLayer": //////////////////// Remove a New Layer ////////////////////
 				map.changeLayers(-1);
 				selectedLayer = currentNumLayers() - 1;
-				getButtonById("SelectedLayer").setText("Selected Layer: " + (selectedLayer + 1));
+				getButtonById("SelectedLayer").setText("Selected: " + (selectedLayer + 1));
 				for (int i = 0; i < layerButtons.length; i++) {
 					layerButtons[i].setColor((i <= selectedLayer) ? onButtonColor : offButtonColor).setVisible(i <= selectedLayer);
 					layerBools[i] = i <= selectedLayer;
@@ -432,6 +438,7 @@ public class EditorState extends State {
 		private Tools.fRect r; // the rectangle that this button is located within
 		private EditorState handler; // the handler that will handle this button's corresponding action
 		private boolean visible; // whether or not this button should be drawn and handled: true by default
+		private boolean hasBorder; // whether or not the border should be drawn
 
 		public Button(String text, String id, EditorState handler, Tools.fRect r) {
 			this.r = r;
@@ -440,6 +447,7 @@ public class EditorState extends State {
 			setText(text);
 			setColor(genericButtonColor);
 			setBorderColor(Color.white);
+			setDrawBorder(true);
 			setVisible(true);
 			buttons.add(this);
 		}
@@ -455,8 +463,10 @@ public class EditorState extends State {
 		public void render(Graphics g) {
 			// draw the button to the screen
 			if (!visible) return;
+			
 			r.fill(g, color);
-			r.draw(g, borderColor);
+			if(hasBorder) r.draw(g, borderColor);
+			
 			g.setFont(new Font("Times New Roman", Font.BOLD, (int) r.height * 7 / 16));
 			Game.drawCenteredString(g, Color.black, text, r, true);
 		}
@@ -482,6 +492,14 @@ public class EditorState extends State {
 		 */
 		public Button setVisible(boolean b) {
 			this.visible = b;
+			return this;
+		}
+		
+		/**
+		 * Sets this button to have or not have a border drawn, based on the Boolean b passed in.
+		 */
+		public Button setDrawBorder(boolean b) {
+			this.hasBorder = b;
 			return this;
 		}
 
