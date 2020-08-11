@@ -45,7 +45,7 @@ public class EditorState extends State {
 	private static ArrayList<Tools.fRect> tileRects = new ArrayList<Tools.fRect>(); // list of rectangles in tile area where tiles should be drawn
 	public static int selectedTileIndex = 0; // the index of the currently selected tile (same as in Assets and in Tile)
 
-	public enum Action { SetMove, SetBrush, FillRect, AddColumn, RemoveColumn, AddRow, RemoveRow, SetSolid; } // enum of different potential actions
+	public enum Action { SetMove, SetSelect, SetBrush, FillRect, AddColumn, RemoveColumn, AddRow, RemoveRow, SetSolid; } // enum of different potential actions
 	public static Action currentAction = Action.SetMove; // current action (is moving the map by mouse by default)
 
 	public static final int sizeChangingDelay = 150; // delay between row/column additions/removals
@@ -97,6 +97,7 @@ public class EditorState extends State {
 		new Button("Zoom In", "ZoomIn", this, buttonArea.getSubRect(0.55, 0.47, 0.4, 0.04));
 		new Button("Zoom Out", "ZoomOut", this, buttonArea.getSubRect(0.55, 0.52, 0.4, 0.04));
 		new Button("Set Solid", "SetSolid", this, buttonArea.getSubRect(0.55, 0.57, 0.4, 0.04)).setColor(offButtonColor);
+		new Button("Select", "SetSelect", this, buttonArea.getSubRect(0.55, 0.62, 0.4, 0.04)).setColor(offButtonColor);
 
 		// Create the left-hand side of buttons
 		new Button("Selected Layer: 1", "SelectedLayer", this, buttonArea.getSubRect(0.05, 0.02, 0.4, 0.04)).setColor(highlightButtonColor);
@@ -131,6 +132,9 @@ public class EditorState extends State {
 				break;
 			case "SetBrush": //////////////////// Change Brush Flag ////////////////////
 				if (!Action.SetBrush.equals(currentAction)) setAction(Action.SetBrush);
+				break;
+			case "SetSelect": //////////////////// Change Brush Flag ////////////////////
+				if (!Action.SetSelect.equals(currentAction)) setAction(Action.SetSelect);
 				break;
 			case "SetDelete": //////////////////// Change Delete Flag ////////////////////
 				deleting = !deleting;
