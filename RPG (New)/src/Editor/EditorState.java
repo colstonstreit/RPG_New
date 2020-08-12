@@ -77,16 +77,17 @@ public class EditorState extends State {
 	private Button[] layerButtons; // a list of the layer buttons for easy access
 
 	// FILL_RECT, SET_SELECT STUFF
-	private static fRect dragged = null;
-	private static boolean firstPressed = true;
-	private static boolean hasDragged = false;
-	private static Vec2 firstCorner = null;
-	private static final int moveSelectionDelay = 75;
-	public static long moveSelectionTimer = System.currentTimeMillis();
-	private static MapData tempMapData;
+	private static fRect dragged = null; // the currently dragged rectangle (bound to tile grid)
+	private static boolean firstPressed = true; // whether or not this is the first time the mouse has been pressed (for beginning position)
+	private static boolean hasDragged = false; // whether or not there has been a selection made
+	private static Vec2 firstCorner = null; // the first corner of what is dragged
+	private static final int moveSelectionDelay = 75; // delay in every move of the selection area by mouse
+	public static long moveSelectionTimer = System.currentTimeMillis(); // timer for move selection delay
+	private static MapData tempMapData; // stores the map data within the selection area (for copying and such)
 
-	// UNDO STUFF
-	public static LinkedList<MapData> previousStates = new LinkedList<MapData>();
+	// UNDO/REDO STUFF
+	public static LinkedList<MapData> previousStates = new LinkedList<MapData>(); // a list of previous states that undo can get you to
+	public static LinkedList<MapData> nextStates = new LinkedList<MapData>(); // a list of undone states to go back to
 
 	// MAP AND BUTTON LIST
 	private static EditorTileMap map = null; // the map that is being made
@@ -100,7 +101,7 @@ public class EditorState extends State {
 		addMapState();
 
 		// Create the tileRects where each individual tile of Tile.tiles() will be rendered for selection area
-		int numTilesWide = tileSpace.width / (tSizeSelectionArea + 1);
+		int numTilesWide = Math.max(1, tileSpace.width / (tSizeSelectionArea + 1)); // max to avoid division by zero
 		Sprite[] tiles = Assets.getTileSprites();
 		for (int i = 0; i < tiles.length; i++) {
 			if (tiles[i] == null) break;
@@ -125,6 +126,7 @@ public class EditorState extends State {
 		addButton("Zoom In", "ZoomIn");
 		addButton("Zoom Out", "ZoomOut");
 		addButton("Undo", "Undo");
+		addButton("Redo", "Redo");
 		addButton("New Map", "NewMap");
 		addButton("Save Map", "SaveMap");
 		addButton("Load Map", "LoadMap");
@@ -144,7 +146,7 @@ public class EditorState extends State {
 		new Button("+", "AddLayer", this, layerButtonArea.getSubRect(0, 0.33, 0.5, 0.33));
 		new Button("-", "RemoveLayer", this, layerButtonArea.getSubRect(0, 0.66, 0.5, 0.33));
 
-		setAction(Action.FillRect);
+		setAction(Action.SetBrush);
 	}
 
 	/**
@@ -155,10 +157,17 @@ public class EditorState extends State {
 		return new Button(text, id, this, buttonArea.getSubRect(0.05 + 0.5 * (i % 2), 0.17 + 0.05 * (int) (i / 2), 0.4, 0.04));
 	}
 
+	/**
+	 * Adds a new MapData containing the information of the current map state to the undo list and clears the redo list if necessary.
+	 */
 	public static void addMapState() {
+		// Get info from map
 		MapData d = map.getMapSelection(new fRect(0, 0, map.numWide(), map.numTall()));
+		// Push new state, but then if it's identical to the previous state, remove it again
 		previousStates.push(d);
 		if (previousStates.size() > 1 && d.equals(previousStates.get(1))) previousStates.pop();
+		// Clear the redo list so there's not an infinite back and forth of undo/redo
+		else nextStates.clear();
 	}
 
 	/**
@@ -168,9 +177,16 @@ public class EditorState extends State {
 		switch (b.id) {
 			case "Undo": //////////////////// Revert to earlier state ////////////////////
 				if (previousStates.size() > 1) {
-					previousStates.pop();
+					nextStates.push(previousStates.pop());
 					map.revert(previousStates.getFirst());
-					// System.out.println(previousStates.peekLast());
+				}
+				break;
+			case "Redo": //////////////////// Redo stuff ////////////////////
+				if (nextStates.size() >= 1) {
+					// Get mapData from redo list, push it onto undo list, and then revert the map
+					MapData m = nextStates.pop();
+					previousStates.push(m);
+					map.revert(m);
 				}
 				break;
 			case "SetMove": //////////////////// Change Moving Flag ////////////////////
@@ -361,6 +377,7 @@ public class EditorState extends State {
 			}
 		}
 
+		// If the mouse isn't pressed and either brush or setSolid is set as action, add a state (will be removed if identical in addMapState())
 		if ((currentAction == Action.SetBrush || currentAction == Action.SetSolid) && !game.mousePressed()) {
 			EditorState.addMapState();
 		}
@@ -379,8 +396,9 @@ public class EditorState extends State {
 
 		// Deal with FillRect and SetSelect mode stuff
 		if (currentAction == Action.FillRect || currentAction == Action.SetSelect) {
-			if (game.mousePressed() && firstPressed && !hasDragged) {
 
+			if (game.mousePressed() && firstPressed && !hasDragged) {
+				// if nothing has been selected or dragged out yet, set firstCorner to tile where the dragging started, but only if it's within the map area
 				fRect mouseBounds = game.mouseBounds();
 				firstCorner = screenToWorld(new Vec2(mouseBounds.x, mouseBounds.y));
 				if (firstCorner.x >= 0 && firstCorner.x < map.numWide() && firstCorner.y >= 0 && firstCorner.y < map.numTall()) {
@@ -390,45 +408,52 @@ public class EditorState extends State {
 
 			} else if (game.mouseDragged() && !firstPressed && !hasDragged) {
 
+				// Step 2: if we have a corner but the mouse hasn't finished dragging yet, get temp rect for viewing based off other corner (so far)
 				fRect mouseBounds = game.mouseBounds();
 				Vec2 firstCornerCopy = new Vec2(firstCorner.x, firstCorner.y);
 				Vec2 tempCorner = screenToWorld(new Vec2(mouseBounds.x, mouseBounds.y));
 				Vec2 corner = new Vec2((int) Game.clamp(tempCorner.x, 0, map.numWide() - 1), (int) Game.clamp(tempCorner.y, 0, map.numTall() - 1));
 
+				// Swap the corner variables to get them in the right order
 				if (firstCornerCopy.x > corner.x) {
 					int t = (int) firstCornerCopy.x;
 					firstCornerCopy.x = corner.x;
 					corner.x = t;
 				}
-
 				if (firstCornerCopy.y > corner.y) {
 					int t = (int) firstCornerCopy.y;
 					firstCornerCopy.y = corner.y;
 					corner.y = t;
 				}
 
+				// Set dragged to new Rect based on corners for render() to draw
 				dragged = new fRect(firstCornerCopy.x, firstCornerCopy.y, corner.x - firstCornerCopy.x + 1, corner.y - firstCornerCopy.y + 1);
 
 			} else if (game.mouseHasFinalDragged() && dragged != null && firstCorner != null) {
+
+				// if mouse has finished dragging, set dragged rectangle based on the original corner where dragging started
 				game.mouseFinalDragged();
 				fRect mouseBounds = game.mouseBounds();
 				Vec2 beginning = new Vec2(firstCorner.x, firstCorner.y);
 				Vec2 tempEnd = screenToWorld(new Vec2(mouseBounds.x, mouseBounds.y));
 				Vec2 end = new Vec2((int) Game.clamp(tempEnd.x, 0, map.numWide() - 1), (int) Game.clamp(tempEnd.y, 0, map.numWide() - 1));
 
+				// Swap coordinates again if necessary for right order
 				if (beginning.x > end.x) {
 					int t = (int) beginning.x;
 					beginning.x = end.x;
 					end.x = t;
 				}
-
 				if (beginning.y > end.y) {
 					int t = (int) beginning.y;
 					beginning.y = end.y;
 					end.y = t;
 				}
 
+				// set firstCorner to null for next drag
 				firstCorner = null;
+
+				// Go ahead and fill the rect and reset if action is FillRect; if Select, keep the rectangle and set flag and mapData
 				if (currentAction == Action.FillRect) {
 					map.fillRect(dragged);
 					dragged = null;
@@ -439,36 +464,48 @@ public class EditorState extends State {
 					hasDragged = true;
 					tempMapData = map.getMapSelection(dragged);
 				}
+
 			} else if (currentAction == Action.SetSelect && hasDragged) {
+
+				// If a rectangle is selected in select mode
 				if (!pressingButton && game.mouseClicked(1) || game.keyUp(KeyEvent.VK_ESCAPE)) {
+					// get rid of selection if mouse is clicked or escape is pressed and reset
 					hasDragged = false;
 					firstPressed = true;
 					dragged = null;
 					tempMapData = null;
 				} else if (game.keyUp(KeyEvent.VK_BACK_SPACE)) {
+					// clear map data from selection if backspace is pressed and update map selection data
 					int index = EditorState.selectedTileIndex;
 					EditorState.selectedTileIndex = -1;
 					map.fillRect(dragged);
 					EditorState.selectedTileIndex = index;
 					tempMapData = map.getMapSelection(dragged);
 				} else if (game.keyUp('f')) {
+					// fill selection with the currently selected tile and update map selection data
 					map.fillRect(dragged);
 					tempMapData = map.getMapSelection(dragged);
 				} else if (game.keyDown(KeyEvent.VK_RIGHT) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					// Move selection right
 					moveSelectionTimer = System.currentTimeMillis();
 					dragged.x += 1;
 				} else if (game.keyDown(KeyEvent.VK_LEFT) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					// Move selection left
 					moveSelectionTimer = System.currentTimeMillis();
 					dragged.x -= 1;
 				} else if (game.keyDown(KeyEvent.VK_UP) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					// Move selection up
 					moveSelectionTimer = System.currentTimeMillis();
 					dragged.y -= 1;
 				} else if (game.keyDown(KeyEvent.VK_DOWN) && System.currentTimeMillis() - moveSelectionTimer >= moveSelectionDelay) {
+					// Move selection down
 					moveSelectionTimer = System.currentTimeMillis();
 					dragged.y += 1;
 				} else if (game.keyUp(KeyEvent.VK_ENTER)) {
+					// Paste selection when enter is pressed
 					map.fillRect(dragged, tempMapData, true);
 				}
+
 			}
 		}
 
@@ -494,6 +531,7 @@ public class EditorState extends State {
 		if (game.keyUp('r')) handlePress(getButtonById("FillRect"));
 		if (game.keyUp('x')) handlePress(getButtonById("SetDelete"));
 		if (game.keyUp('z')) handlePress(getButtonById("Undo"));
+		if (game.keyUp('y')) handlePress(getButtonById("Redo"));
 		if (game.keyUp(KeyEvent.VK_1)) {
 			ox = 100;
 			oy = 100;
@@ -530,15 +568,19 @@ public class EditorState extends State {
 
 		// Draw the currently dragged area if it exists as well as any tiles inside of it (for motion)
 		if (dragged != null) {
+			// Get screen coordinates of rectangle corners
 			Vec2 startPos = worldToScreen(new Vec2(dragged.x, dragged.y));
 			Vec2 endPos = worldToScreen(new Vec2(dragged.x + dragged.width, dragged.y + dragged.height));
 			if (tempMapData != null) {
 				for (int z = 0; z < tempMapData.tiles.length; z++) {
 					for (int y = 0; y < tempMapData.tiles[z].length; y++) {
 						for (int x = 0; x < tempMapData.tiles[z][y].length; x++) {
+							// draw tiles in selection over everything else if the tile is within the map area
 							if (tempMapData.tiles[z][y][x] != -1 && x + (int) dragged.x >= 0 && x + (int) dragged.x < map.numWide() && y + (int) dragged.y >= 0
 									&& y + (int) dragged.y < map.numTall()) {
 								Tile.getTile(tempMapData.tiles[z][y][x]).render(g, x, y, (int) startPos.x, (int) startPos.y, tSize);
+
+								// Draw grid and solids
 								if (z == tempMapData.tiles.length - 1) {
 									if (EditorState.drawingGrid && !tempMapData.solids[y][x]) {
 										g.setColor(Color.white);
@@ -556,6 +598,7 @@ public class EditorState extends State {
 					}
 				}
 			}
+			// Fill transparent rectangle over the selection area for easy viewing
 			new fRect(startPos.x, startPos.y, endPos.x - startPos.x, endPos.y - startPos.y).fill(g, new Color(255, 192, 203, 150));
 		}
 
@@ -599,16 +642,29 @@ public class EditorState extends State {
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Immutable type that stores the data contained within a map for easy copying and access later.
+	 */
 	protected static class MapData {
 
-		final int[][][] tiles;
-		final boolean[][] solids;
+		final int[][][] tiles; // stores tile id data
+		final boolean[][] solids; // stores solid collision data
 
+		/**
+		 * @param tiles  The tile id data
+		 * @param solids The solid collision data
+		 */
 		protected MapData(int[][][] tiles, boolean[][] solids) {
 			this.tiles = tiles;
 			this.solids = solids;
 		}
 
+		/**
+		 * Returns true if another MapData d has the exact same tile data and solid data, and false if not.
+		 * 
+		 * @param d The MapData to be compared
+		 * @return true if d is identical to this
+		 */
 		public final boolean equals(MapData d) {
 			if (tiles.length != d.tiles.length || tiles[0].length != d.tiles[0].length || tiles[0][0].length != d.tiles[0][0].length) return false;
 			for (int z = 0; z < tiles.length; z++) {
@@ -622,6 +678,11 @@ public class EditorState extends State {
 			return true;
 		}
 
+		/**
+		 * Returns a string representation of this MapData object (what the map saver would print out for this data)
+		 * 
+		 * @return string representation identical to map save()
+		 */
 		public final String toString() {
 			StringBuilder b = new StringBuilder();
 			for (int z = 0; z < tiles.length; z++) {

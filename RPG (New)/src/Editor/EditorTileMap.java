@@ -48,6 +48,12 @@ public class EditorTileMap extends TileMap {
 		this.game = game;
 	}
 
+	/**
+	 * Does all of the editor tile changing capabilities.
+	 * 
+	 * @param px The x position where the map has begun being rendered (may be off screen)
+	 * @param py The y position where the map has begun being rendered (may be off screen)
+	 */
 	public void tick(int px, int py) {
 
 		// Calculate the x and y coordinates of the tile that the mouse is pressed over (tick() only called when mouse is pressed)
@@ -184,6 +190,46 @@ public class EditorTileMap extends TileMap {
 	}
 
 	/**
+	 * Fills all of the tiles contained within the given Rectangle r with the currently selected tile.
+	 * 
+	 * @param r The rectangle in which the tiles should be filled
+	 */
+	public void fillRect(fRect r) {
+		for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+			for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+				setTile(x, y, EditorState.selectedLayer);
+			}
+		}
+		// Add new state after having filled the rectangle
+		EditorState.addMapState();
+	}
+
+	/**
+	 * Fills a rectangle r with the data from the provided mapData, and adds the state to the undo list if addState=true.
+	 * 
+	 * @param r        The rectangle to be altered
+	 * @param mapData  The MapData that the new data should come from
+	 * @param addState whether or not you want to add this new state to the undo list
+	 */
+	public void fillRect(fRect r, MapData mapData, boolean addState) {
+		int index = EditorState.selectedTileIndex;
+		for (int z = 0; z < mapData.tiles.length; z++) {
+			for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+				for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+					if (x < 0 || x >= numWide || y < 0 || y >= numTall) continue;
+
+					EditorState.selectedTileIndex = mapData.tiles[z][y - (int) r.y][x - (int) r.x];
+					setTile(x, y, z);
+					if (z == 0) this.solidData[y][x] = mapData.solids[y - (int) r.y][x - (int) r.x];
+				}
+			}
+		}
+		EditorState.selectedTileIndex = index;
+		// Add new state after having filled the rectangle if desired
+		if (addState) EditorState.addMapState();
+	}
+
+	/**
 	 * Changes the number of layers based on the parameter dir.
 	 * 
 	 * @param dir -1 if remove top layer, 1 if add new layer
@@ -213,39 +259,58 @@ public class EditorTileMap extends TileMap {
 	}
 
 	/**
-	 * Fills all of the tiles contained within the given Rectangle r with the currently selected tile.
+	 * Returns a mapData representing the selection encased by the provided rectangle r.
+	 * 
+	 * @param r The rectangle that a mapData should be made of
+	 * @return MapData storing the data encased within r
 	 */
-	public void fillRect(fRect r) {
-		for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
-			for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
-				setTile(x, y, EditorState.selectedLayer);
-			}
-		}
-		EditorState.addMapState();
-	}
+	public MapData getMapSelection(fRect r) {
+		// Check to make sure r bounds are valid
+		if (r.x < 0) {
+			r.width += r.x;
+			r.x = 0;
+		} else if (r.x >= numWide) r.width = 0;
+		else if (r.x + r.width >= numWide) r.width -= r.x + r.width - numWide;
 
-	public void fillRect(fRect r, MapData mapData, boolean addState) {
-		int index = EditorState.selectedTileIndex;
-		for (int z = 0; z < mapData.tiles.length; z++) {
+		if (r.y < 0) {
+			r.height += r.y;
+			r.y = 0;
+		} else if (r.y >= numTall) r.height = 0;
+		else if (r.y + r.height >= numTall) r.height -= r.y + r.height - numTall;
+
+		// Create tile data within r
+		int[][][] tempData = new int[numLayers][(int) r.height][(int) r.width];
+		for (int z = 0; z < numLayers; z++) {
 			for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
 				for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
-					if (x < 0 || x >= numWide || y < 0 || y >= numTall) continue;
-
-					EditorState.selectedTileIndex = mapData.tiles[z][y - (int) r.y][x - (int) r.x];
-					setTile(x, y, z);
-					if (z == 0) this.solidData[y][x] = mapData.solids[y - (int) r.y][x - (int) r.x];
+					tempData[z][y - (int) r.y][x - (int) r.x] = tileData[z][y][x];
 				}
 			}
 		}
-		EditorState.selectedTileIndex = index;
-		if (addState) EditorState.addMapState();
+
+		// Create solid data within r
+		boolean[][] tempSolidData = new boolean[(int) r.height][(int) r.width];
+		for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+			for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+				tempSolidData[y - (int) r.y][x - (int) r.x] = solidData[y][x];
+			}
+		}
+
+		// Return new MapData
+		return new MapData(tempData, tempSolidData);
 	}
 
+	/**
+	 * Reverts the map back to the state comprised by the provided mapData; called from undo/redo buttons.
+	 * 
+	 * @param mapData the state of the map to go back to
+	 */
 	public void revert(MapData mapData) {
 		numLayers = mapData.tiles.length;
 		numTall = mapData.tiles[0].length;
 		numWide = mapData.tiles[0][0].length;
 
+		// Copy data from mapData (REAL COPY: you spent 3 hours debugging just to find you actually hadn't been making copies!!)
 		tileData = new int[numLayers][numTall][numWide];
 		solidData = new boolean[numTall][numWide];
 		for (int z = 0; z < numLayers; z++) {
@@ -292,6 +357,13 @@ public class EditorTileMap extends TileMap {
 		}
 	}
 
+	/**
+	 * Renders the map beginning at the position px, py.
+	 * 
+	 * @param g  The graphics object
+	 * @param px The x position at which the map is starting to be rendered
+	 * @param py The y position at which the map is starting to be rendered
+	 */
 	public void render(Graphics g, int px, int py) {
 		for (int z = 0; z < numLayers; z++) {
 			for (int y = 0; y < numTall; y++) {
@@ -340,40 +412,5 @@ public class EditorTileMap extends TileMap {
 	 * Returns the number of layers in this map.
 	 */
 	public int numLayers() { return numLayers; }
-
-	public MapData getMapSelection(fRect r) {
-		// Check to make sure r bounds are valid
-		if (r.x < 0) {
-			r.width += r.x;
-			r.x = 0;
-		} else if (r.x >= numWide) r.width = 0;
-		else if (r.x + r.width >= numWide) r.width -= r.x + r.width - numWide;
-
-		if (r.y < 0) {
-			r.height += r.y;
-			r.y = 0;
-		} else if (r.y >= numTall) r.height = 0;
-		else if (r.y + r.height >= numTall) r.height -= r.y + r.height - numTall;
-
-		// Create and return data within r
-		int[][][] tempData = new int[numLayers][(int) r.height][(int) r.width];
-		for (int z = 0; z < numLayers; z++) {
-			for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
-				for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
-					tempData[z][y - (int) r.y][x - (int) r.x] = tileData[z][y][x];
-				}
-			}
-		}
-
-		// Create and return solid data within r
-		boolean[][] tempSolidData = new boolean[(int) r.height][(int) r.width];
-		for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
-			for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
-				tempSolidData[y - (int) r.y][x - (int) r.x] = solidData[y][x];
-			}
-		}
-
-		return new MapData(tempData, tempSolidData);
-	}
 
 }

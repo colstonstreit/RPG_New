@@ -14,7 +14,7 @@ public class PlayState extends State{
 
 	public PlayState(Game game) { 
 		super(game); 
-		map = new TileMap(game, "/maps/Island.map");
+		map = new TileMap(game, "/maps/lol.map");
 		camera = new Camera(game, 0, 0);
 		player = new Player(game, 1, 1);
 	}
