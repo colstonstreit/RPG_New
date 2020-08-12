@@ -2,7 +2,6 @@ package Editor;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,8 +9,10 @@ import java.io.PrintWriter;
 
 import javax.swing.JOptionPane;
 
+import Editor.EditorState.MapData;
 import Engine.Game;
 import Engine.Tools;
+import Engine.Tools.fRect;
 import Play.Tile;
 import Play.TileMap;
 
@@ -47,6 +48,12 @@ public class EditorTileMap extends TileMap {
 		this.game = game;
 	}
 
+	/**
+	 * Does all of the editor tile changing capabilities.
+	 * 
+	 * @param px The x position where the map has begun being rendered (may be off screen)
+	 * @param py The y position where the map has begun being rendered (may be off screen)
+	 */
 	public void tick(int px, int py) {
 
 		// Calculate the x and y coordinates of the tile that the mouse is pressed over (tick() only called when mouse is pressed)
@@ -84,6 +91,7 @@ public class EditorTileMap extends TileMap {
 					solidData = tempSolidData;
 					numWide++;
 				}
+				EditorState.addMapState();
 				break;
 			case RemoveColumn: //////////////////// Remove a Column ////////////////////
 				if (numWide > 1 && tx >= 0 && tx < numWide && ty >= 0 && ty < numTall
@@ -105,6 +113,7 @@ public class EditorTileMap extends TileMap {
 					solidData = tempSolidData;
 					numWide--;
 				}
+				EditorState.addMapState();
 				break;
 			case AddRow: //////////////////// Add a new Row ////////////////////
 				if (tx >= 0 && tx < numWide && System.currentTimeMillis() - EditorState.sizeChangingTimer >= EditorState.sizeChangingDelay) {
@@ -130,6 +139,7 @@ public class EditorTileMap extends TileMap {
 					solidData = tempSolidData;
 					numTall++;
 				}
+				EditorState.addMapState();
 				break;
 			case RemoveRow: //////////////////// Remove a Row ////////////////////
 				if (numTall > 1 && tx >= 0 && tx < numWide && ty >= 0 && ty < numTall
@@ -151,6 +161,7 @@ public class EditorTileMap extends TileMap {
 					solidData = tempSolidData;
 					numTall--;
 				}
+				EditorState.addMapState();
 				break;
 			case SetSolid: //////////////////// Add Colliders and Stuff ////////////////////
 				if (tx >= 0 && ty >= 0 && tx < numWide && ty < numTall && (tx != EditorState.lastTXChanged || ty != EditorState.lastTYChanged
@@ -175,6 +186,47 @@ public class EditorTileMap extends TileMap {
 				setTile(x, y, EditorState.selectedLayer);
 			}
 		}
+		EditorState.addMapState();
+	}
+
+	/**
+	 * Fills all of the tiles contained within the given Rectangle r with the currently selected tile.
+	 * 
+	 * @param r The rectangle in which the tiles should be filled
+	 */
+	public void fillRect(fRect r) {
+		for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+			for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+				setTile(x, y, EditorState.selectedLayer);
+			}
+		}
+		// Add new state after having filled the rectangle
+		EditorState.addMapState();
+	}
+
+	/**
+	 * Fills a rectangle r with the data from the provided mapData, and adds the state to the undo list if addState=true.
+	 * 
+	 * @param r        The rectangle to be altered
+	 * @param mapData  The MapData that the new data should come from
+	 * @param addState whether or not you want to add this new state to the undo list
+	 */
+	public void fillRect(fRect r, MapData mapData, boolean addState) {
+		int index = EditorState.selectedTileIndex;
+		for (int z = 0; z < mapData.tiles.length; z++) {
+			for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+				for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+					if (x < 0 || x >= numWide || y < 0 || y >= numTall) continue;
+
+					EditorState.selectedTileIndex = mapData.tiles[z][y - (int) r.y][x - (int) r.x];
+					setTile(x, y, z);
+					if (z == 0) this.solidData[y][x] = mapData.solids[y - (int) r.y][x - (int) r.x];
+				}
+			}
+		}
+		EditorState.selectedTileIndex = index;
+		// Add new state after having filled the rectangle if desired
+		if (addState) EditorState.addMapState();
 	}
 
 	/**
@@ -207,17 +259,66 @@ public class EditorTileMap extends TileMap {
 	}
 
 	/**
-	 * Fills all of the tiles contained within the given Rectangle r with the currently selected tile.
+	 * Returns a mapData representing the selection encased by the provided rectangle r.
+	 * 
+	 * @param r The rectangle that a mapData should be made of
+	 * @return MapData storing the data encased within r
 	 */
-	public void fillRect(Rectangle r, int ox, int oy) {
-		Tools.Vec2 startPos = new Tools.Vec2(r.x, r.y);
-		Tools.Vec2 endPos = new Tools.Vec2(r.x + r.width, r.y + r.height);
-		Tools.Vec2 startTPos = new Tools.Vec2((startPos.x - ox) / EditorState.tSize, (startPos.y - oy) / EditorState.tSize);
-		Tools.Vec2 endTPos = new Tools.Vec2((endPos.x - ox) / EditorState.tSize, (endPos.y - oy) / EditorState.tSize);
+	public MapData getMapSelection(fRect r) {
+		// Check to make sure r bounds are valid
+		if (r.x < 0) {
+			r.width += r.x;
+			r.x = 0;
+		} else if (r.x >= numWide) r.width = 0;
+		else if (r.x + r.width >= numWide) r.width -= r.x + r.width - numWide;
 
-		for (int y = (int) startTPos.y; y <= (int) endTPos.y; y++) {
-			for (int x = (int) startTPos.x; x <= (int) endTPos.x; x++) {
-				setTile(x, y, EditorState.selectedLayer);
+		if (r.y < 0) {
+			r.height += r.y;
+			r.y = 0;
+		} else if (r.y >= numTall) r.height = 0;
+		else if (r.y + r.height >= numTall) r.height -= r.y + r.height - numTall;
+
+		// Create tile data within r
+		int[][][] tempData = new int[numLayers][(int) r.height][(int) r.width];
+		for (int z = 0; z < numLayers; z++) {
+			for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+				for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+					tempData[z][y - (int) r.y][x - (int) r.x] = tileData[z][y][x];
+				}
+			}
+		}
+
+		// Create solid data within r
+		boolean[][] tempSolidData = new boolean[(int) r.height][(int) r.width];
+		for (int y = (int) r.y; y < (int) (r.y + r.height); y++) {
+			for (int x = (int) r.x; x < (int) (r.x + r.width); x++) {
+				tempSolidData[y - (int) r.y][x - (int) r.x] = solidData[y][x];
+			}
+		}
+
+		// Return new MapData
+		return new MapData(tempData, tempSolidData);
+	}
+
+	/**
+	 * Reverts the map back to the state comprised by the provided mapData; called from undo/redo buttons.
+	 * 
+	 * @param mapData the state of the map to go back to
+	 */
+	public void revert(MapData mapData) {
+		numLayers = mapData.tiles.length;
+		numTall = mapData.tiles[0].length;
+		numWide = mapData.tiles[0][0].length;
+
+		// Copy data from mapData (REAL COPY: you spent 3 hours debugging just to find you actually hadn't been making copies!!)
+		tileData = new int[numLayers][numTall][numWide];
+		solidData = new boolean[numTall][numWide];
+		for (int z = 0; z < numLayers; z++) {
+			for (int y = 0; y < numTall; y++) {
+				for (int x = 0; x < numWide; x++) {
+					tileData[z][y][x] = mapData.tiles[z][y][x];
+					if (z == 0) solidData[y][x] = mapData.solids[y][x];
+				}
 			}
 		}
 	}
@@ -256,6 +357,13 @@ public class EditorTileMap extends TileMap {
 		}
 	}
 
+	/**
+	 * Renders the map beginning at the position px, py.
+	 * 
+	 * @param g  The graphics object
+	 * @param px The x position at which the map is starting to be rendered
+	 * @param py The y position at which the map is starting to be rendered
+	 */
 	public void render(Graphics g, int px, int py) {
 		for (int z = 0; z < numLayers; z++) {
 			for (int y = 0; y < numTall; y++) {

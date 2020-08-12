@@ -8,18 +8,20 @@ import Engine.Sprite;
 @SuppressWarnings("unused")
 public class Tile {
 
-	public static final int GAME_SIZE = 32;
+	public static final int GAME_SIZE = 32; // the size that tiles should be rendered in game mode
 
-	private static Tile[] tiles = new Tile[256];
+	private static Tile[] tiles = new Tile[256]; // list of all tiles
 	private static final Tile grassTile = new Tile(0);
 	private static final Tile sandTile = new Tile(1);
 	private static final Tile brickTile = new Tile(2);
 	private static final Tile waterTile = new Tile.Animated(3, new int[][] { { 0 , 0 } , { 1 , 0 } , { 2 , 0 } , { 1 , 0 } }, 750);
 	private static final Tile lavaTile = new Tile.Animated(4, new int[][] { { 0 , 0 } , { 1 , 0 } , { 2 , 0 } , { 1 , 0 } }, 750);
 	private static final Tile treeTile = new Tile(5);
+	private static final Tile sunTile = new Tile(6);
+	private static final Tile flowerTile = new Tile(7);
 
-	protected int id;
-	protected Sprite sprite;
+	protected int id; // id of the tile
+	protected Sprite sprite; // the sprite of the tile (from Assets)
 
 	public Tile(int id) {
 		this.id = id;
@@ -47,10 +49,10 @@ public class Tile {
 
 	static class Animated extends Tile {
 
-		private long lastTime = System.currentTimeMillis();
-		private int msDelay;
-		private Sprite[] frames;
-		private int currentFrame = 0;
+		private long lastTime = System.currentTimeMillis(); // the last time the animation was updated
+		private int msDelay; // the delay between each frame
+		private Sprite[] frames; // an array of images for the animation
+		private int currentFrame = 0; // index of currentFrame
 
 		public Animated(int id, int[][] animFrames, int msDelay) {
 			super(id);
