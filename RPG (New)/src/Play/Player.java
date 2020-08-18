@@ -1,6 +1,8 @@
 package Play;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 
 import Engine.Game;
 import Engine.Tools.Vec2;
@@ -35,32 +37,51 @@ public class Player extends Entity.Dynamic.Creature {
 		else if (game.keyDown('d') && !game.keyDown('a')) v.x = 0.1 * deltaTime;
 		else v.x = 0;
 
-		// Handle animations
-		moving = Math.abs(v.x) > 0 || Math.abs(v.y) > 0;
-		if (v.y > 0) changeAnimation("Down");
-		else if (v.y < 0) changeAnimation("Up");
-		else if (v.x > 0) changeAnimation("Right");
-		else if (v.x < 0) changeAnimation("Left");
+		// Handle collisions and animations
+		super.tick(deltaTime);
 
-		// Handle collisions
-		handleCollisions();
-
-		// Update animation
-		currentAnimation.tick();
+		// Check interactions
+		if (game.keyUp(KeyEvent.VK_ENTER)) {
+			for (Dynamic e : PlayState.entities) {
+				if (e != this && interactArea().intersects(e.interactableRegion())) {
+					e.onInteract(this);
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
 	public void render(Graphics g, int ox, int oy) {
-		// Get screen position, and return if off screen
-				Vec2 screenPos = getState().worldToScreen(pos);
-				Vec2 screenCornerPos = getState().worldToScreen(pos.add(screenSize));
-				if (screenPos.x > game.getWidth() || screenPos.y > game.getHeight() || screenCornerPos.x < 0 || screenCornerPos.y < 0) return;
 
-				// Draw correct image if on screen
-				if (moving)
-					Game.drawImage(g, currentAnimation.currentFrame().image(), screenPos.x, screenPos.y, screenSize.x * Tile.GAME_SIZE, screenSize.y * Tile.GAME_SIZE);
-				else Game.drawImage(g, currentAnimation.firstFrame().image(), screenPos.x, screenPos.y, screenSize.x * Tile.GAME_SIZE, screenSize.y * Tile.GAME_SIZE);
+		if (isOnScreen()) super.render(g, ox, oy);
 
+		worldToScreen(interactArea()).draw(g, Color.white);
+
+	}
+
+	/**
+	 * Returns a Rectangle representing where the Player's interaction zone is, outside of the player body, in world coordinates.
+	 */
+	public fRect interactArea() {
+		fRect r;
+		switch (facing) {
+			case Up:
+				r = new fRect(0, -0.5, 1, 0.5);
+				break;
+			case Down:
+				r = new fRect(0, 1, 1, 0.5);
+				break;
+			case Left:
+				r = new fRect(-0.25, 0, 0.5, 1);
+				break;
+			case Right:
+				r = new fRect(0.75, 0, 0.5, 1);
+				break;
+			default:
+				return interactableRegion();
+		}
+		return new fRect(pos.x + screenSize.x * r.x, pos.y + screenSize.y * r.y, screenSize.x * r.width, screenSize.y * r.height);
 	}
 
 	@Override

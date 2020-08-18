@@ -49,7 +49,7 @@ public class Tile {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	static class Animated extends Tile {
-		
+
 		private Animation animation;
 
 		public Animated(int id, int[][] animFrames, int msDelay) {
@@ -57,9 +57,7 @@ public class Tile {
 			animation = new Animation(msDelay, sprite, animFrames);
 		}
 
-		protected void tick() {
-			animation.tick();
-		}
+		protected void tick() { animation.tick(); }
 
 		public void render(Graphics g, int tx, int ty, int ox, int oy, int size) {
 			g.drawImage(animation.currentFrame().image(), tx * size + ox, ty * size + oy, size, size, null);

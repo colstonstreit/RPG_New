@@ -25,4 +25,14 @@ public abstract class State {
 	 */
 	public abstract Tools.Vec2 screenToWorld(Tools.Vec2 v);
 
+	/**
+	 * Converts an fRect from world coordinates to screen coordinates, and returns the converted fRect.
+	 */
+	public abstract Tools.fRect worldToScreen(Tools.fRect r);
+
+	/**
+	 * Converts an fRect from screen coordinates to world coordinates, and returns the converted fRect.
+	 */
+	public abstract Tools.fRect screenToWorld(Tools.fRect r);
+
 }

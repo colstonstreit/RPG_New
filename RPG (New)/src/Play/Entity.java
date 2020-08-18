@@ -16,8 +16,8 @@ public abstract class Entity {
 	protected final Game game; // instance of the game
 
 	public Vec2 pos; // position on the screen (in world units)
-	public Vec2 screenSize; // size on the screen (in world units | 1 tile = 1 unit)
-	public fRect relativeHitbox; // relative hitbox based on screenSize
+	protected Vec2 screenSize; // size on the screen (in world units | 1 tile = 1 unit)
+	protected fRect relativeHitbox; // relative hitbox based on screenSize
 
 	protected final String type; // type of entity (i.e. "Player")
 
@@ -48,12 +48,41 @@ public abstract class Entity {
 	public Vec2 getCenter() { return new Vec2(pos.x + 0.5 * screenSize.x, pos.y + 0.5 * screenSize.y); }
 
 	/**
+	 * Returns true if this Entity is on the screen, and false if not.
+	 */
+	public boolean isOnScreen() {
+		Vec2 screenPos = worldToScreen(pos);
+		Vec2 screenCornerPos = worldToScreen(pos.add(screenSize));
+		return !(screenPos.x > game.getWidth() || screenPos.y > game.getHeight() || screenCornerPos.x < 0 || screenCornerPos.y < 0);
+	}
+
+	/**
 	 * Returns an fRect containing the Entity's hitbox in world coordinates.
 	 */
 	public fRect hitbox() {
 		return new fRect(pos.x + screenSize.x * relativeHitbox.x, pos.y + screenSize.y * relativeHitbox.y, screenSize.x * relativeHitbox.width,
 				screenSize.y * relativeHitbox.height);
 	}
+
+	/**
+	 * Converts a vector from world coordinates to screen coordinates, and returns the converted vector.
+	 */
+	public Vec2 worldToScreen(Vec2 v) { return getState().worldToScreen(v); }
+
+	/**
+	 * Converts a vector from screen coordinates to world coordinates, and returns the converted vector.
+	 */
+	public Vec2 screenToWorld(Vec2 v) { return getState().screenToWorld(v); }
+
+	/**
+	 * Converts an fRect from world coordinates to screen coordinates, and returns the converted fRect.
+	 */
+	public fRect worldToScreen(fRect r) { return getState().worldToScreen(r); }
+
+	/**
+	 * Converts an fRect from screen coordinates to world coordinates, and returns the converted fRect.
+	 */
+	public fRect screenToWorld(fRect r) { return getState().screenToWorld(r); }
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +91,8 @@ public abstract class Entity {
 		public Vec2 v; // velocity vector
 		public boolean solidVsDynamic; // whether this entity is solid against dynamic entities or not
 		public boolean solidVsStatic; // whether this entity is solid against static world tiles or not
+
+		protected fRect interactableRegion; // relative image coordinates of interact zone for onInteract() purposes
 
 		/**
 		 * @param game An instance of the game object
@@ -72,9 +103,18 @@ public abstract class Entity {
 			v = new Vec2(0, 0);
 			solidVsDynamic = false;
 			solidVsStatic = false;
+			interactableRegion = new fRect(0, 0, 1, 1);
 		}
 
 		public abstract void onInteract(Entity e);
+
+		/**
+		 * Returns an fRect containing the Dynamic's interact rectangle in world coordinates.
+		 */
+		public fRect interactableRegion() {
+			return new fRect(pos.x + screenSize.x * interactableRegion.x, pos.y + screenSize.y * interactableRegion.y, screenSize.x * interactableRegion.width,
+					screenSize.y * interactableRegion.height);
+		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +143,36 @@ public abstract class Entity {
 
 				// Set Down as default
 				changeAnimation("Down");
+			}
+
+			/**
+			 * Handles moving flag, default animation changes, and collisions.
+			 */
+			public void tick(double deltaTime) {
+				// Handle animations
+				moving = Math.abs(v.x) > 0 || Math.abs(v.y) > 0;
+				if (v.y > 0) changeAnimation("Down");
+				else if (v.y < 0) changeAnimation("Up");
+				else if (v.x > 0) changeAnimation("Right");
+				else if (v.x < 0) changeAnimation("Left");
+
+				// Handle collisions
+				handleCollisions();
+
+				// Update animation
+				currentAnimation.tick();
+			}
+
+			/**
+			 * Draws the correct animation image to the screen.
+			 */
+			public void render(Graphics g, int ox, int oy) {
+				Vec2 screenPos = worldToScreen(pos);
+				// Draw correct image based on moving flag
+				if (moving) Game.drawImage(g, currentAnimation.currentFrame().image(), screenPos.x, screenPos.y, screenSize.x * Tile.GAME_SIZE,
+						screenSize.y * Tile.GAME_SIZE);
+				else Game.drawImage(g, currentAnimation.firstFrame().image(), screenPos.x, screenPos.y, screenSize.x * Tile.GAME_SIZE,
+						screenSize.y * Tile.GAME_SIZE);
 			}
 
 			/**
@@ -195,7 +265,7 @@ public abstract class Entity {
 							}
 						}
 					}
-					
+
 					if (solidVsDynamic) {
 						for (Dynamic e : PlayState.entities) {
 							if (e == this || !e.solidVsDynamic) continue;
