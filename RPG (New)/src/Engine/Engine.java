@@ -115,8 +115,8 @@ public abstract class Engine extends Canvas implements Runnable {
 				delta--;
 				tick((double) (now - tickTimer) / 10000000);
 				tickTimer = now;
+				render();
 			}
-			render();
 
 			now = System.currentTimeMillis();
 			if (now - secondTimer >= 1000) {
@@ -127,7 +127,7 @@ public abstract class Engine extends Canvas implements Runnable {
 			}
 
 			try {
-				Thread.sleep((long) (1000 / (2 * targetTPS)));
+				Thread.sleep((long) (1000 / (5 * targetTPS)));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

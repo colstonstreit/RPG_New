@@ -2,13 +2,14 @@ package Play;
 
 import java.awt.Graphics;
 
+import Engine.Animation;
 import Engine.Assets;
 import Engine.Sprite;
 
 @SuppressWarnings("unused")
 public class Tile {
 
-	public static final int GAME_SIZE = 32; // the size that tiles should be rendered in game mode
+	public static final int GAME_SIZE = 48; // the size that tiles should be rendered in game mode
 
 	private static Tile[] tiles = new Tile[256]; // list of all tiles
 	private static final Tile grassTile = new Tile(0);
@@ -48,30 +49,20 @@ public class Tile {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	static class Animated extends Tile {
-
-		private long lastTime = System.currentTimeMillis(); // the last time the animation was updated
-		private int msDelay; // the delay between each frame
-		private Sprite[] frames; // an array of images for the animation
-		private int currentFrame = 0; // index of currentFrame
+		
+		private Animation animation;
 
 		public Animated(int id, int[][] animFrames, int msDelay) {
 			super(id);
-			frames = new Sprite[animFrames.length];
-			for (int i = 0; i < animFrames.length; i++) {
-				frames[i] = sprite.crop(animFrames[i][0], animFrames[i][1], 1, 1);
-			}
-			this.msDelay = msDelay;
+			animation = new Animation(msDelay, sprite, animFrames);
 		}
 
 		protected void tick() {
-			if (System.currentTimeMillis() - lastTime >= msDelay) {
-				lastTime = System.currentTimeMillis();
-				currentFrame = (currentFrame + 1) % frames.length;
-			}
+			animation.tick();
 		}
 
 		public void render(Graphics g, int tx, int ty, int ox, int oy, int size) {
-			g.drawImage(frames[currentFrame].image(), tx * size + ox, ty * size + oy, size, size, null);
+			g.drawImage(animation.currentFrame().image(), tx * size + ox, ty * size + oy, size, size, null);
 		}
 
 	}

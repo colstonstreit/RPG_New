@@ -30,7 +30,7 @@ public class Game extends Engine {
 
 	public void init() {
 		Assets.loadAssets();
-		changeState(States.EDITOR);
+		changeState(States.PLAY);
 	}
 
 	public void cTick(double deltaTime) {

@@ -14,15 +14,17 @@ public class PlayState extends State{
 
 	public PlayState(Game game) { 
 		super(game); 
-		map = new TileMap(game, "/maps/lol.map");
+		map = new TileMap(game, "Cool Island");
 		camera = new Camera(game, 0, 0);
-		player = new Player(game, 1, 1);
+		player = new Player(game, 15, 20);
+		
+		camera.centerOnEntity(player, false);
 	}
 
 	public void tick(double deltaTime) { 
 		if (game.keyUp('p')) game.changeState(Game.States.EDITOR);
 		
-		if(game.keyUp('f')) camera.centerOnEntity(player);
+		if(game.keyUp('f')) camera.centerOnEntity(player, !camera.smoothMovement);
 		
 		player.tick(deltaTime);
 		camera.tick(deltaTime);
