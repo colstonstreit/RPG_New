@@ -4,15 +4,13 @@ import java.util.HashMap;
 
 public class Assets {
 
-	private static Sprite tileSheet; // Spritesheet containing all the tiles
 	private static Sprite[] tileImages; // List of tile images obtained from tileSheet
-	
-	private static Sprite characterSheet; // Spritesheet containing the character images
+
 	private static HashMap<String, Sprite> characterSprites; // Hashmap of character images
 
 	public static void loadAssets() {
-		tileSheet = new Sprite("/spritesheets/tileSheet.png", 16);
-
+		// Load tile images
+		Sprite tileSheet = new Sprite("/spritesheets/tileSheet.png", 16);
 		tileImages = new Sprite[256];
 		tileImages[0] = tileSheet.crop(0, 0, 1, 1); // grass
 		tileImages[1] = tileSheet.crop(1, 0, 1, 1); // sand
@@ -22,10 +20,13 @@ public class Assets {
 		tileImages[5] = tileSheet.crop(9, 0, 1, 1); // tree
 		tileImages[6] = tileSheet.crop(10, 0, 1, 1); // sun
 		tileImages[7] = tileSheet.crop(11, 0, 1, 1); // flower
-		
-		characterSheet = new Sprite("/spritesheets/characterSheet.png", 16);
+
+		// Load character images
+		Sprite characterSheet = new Sprite("/spritesheets/characterSheet.png", 16);
 		characterSprites = new HashMap<String, Sprite>();
 		characterSprites.put("Player", characterSheet.crop(0, 0, 4, 3));
+		characterSprites.put("Bulbasaur", characterSheet.crop(4, 0, 4, 3));
+		characterSprites.put("Pikachu", characterSheet.crop(8, 0, 4, 3));
 
 	}
 
@@ -45,9 +46,9 @@ public class Assets {
 	 * @return Sprite[] of all tileImages
 	 */
 	public static Sprite[] getTileSprites() { return tileImages; }
-	
-	public static Sprite getCharacterSpriteSheet(String key) { 
-		if(!characterSprites.containsKey(key)) {
+
+	public static Sprite getCharacterSpriteSheet(String key) {
+		if (!characterSprites.containsKey(key)) {
 			System.out.println("Hashmap CharacterSprites does not have sheet with key: " + key + ".");
 			return null;
 		}

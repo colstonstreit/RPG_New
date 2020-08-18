@@ -374,13 +374,15 @@ public class EditorTileMap extends TileMap {
 					if ((y + 1) * EditorState.tSize + py < 0 || y * EditorState.tSize + py > game.getHeight()) continue;
 					if (tileData[z][y][x] != -1 && EditorState.layerBools[z]) Tile.getTile(tileData[z][y][x]).render(g, x, y, px, py, EditorState.tSize);
 
-					// If top layer, draw either the grid or a red outline if the tile is solid
+					// If top layer, draw either the grid or a red outline and black fadeover if the tile is solid
 					if (z == numLayers - 1) {
 						if (EditorState.drawingGrid && !solidData[y][x]) {
 							g.setColor(Color.white);
 							g.drawRect(px + x * EditorState.tSize, py + y * EditorState.tSize, EditorState.tSize - 1, EditorState.tSize - 1);
 						}
 						if (solidData[y][x]) {
+							g.setColor(new Color(0, 0, 0, 80));
+							g.fillRect(px + x * EditorState.tSize, py + y * EditorState.tSize, EditorState.tSize - 1, EditorState.tSize - 1);
 							g.setColor(Color.red);
 							g.drawRect(px + x * EditorState.tSize, py + y * EditorState.tSize, EditorState.tSize - 1, EditorState.tSize - 1);
 						}

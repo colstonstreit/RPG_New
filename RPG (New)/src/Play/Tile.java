@@ -9,7 +9,7 @@ import Engine.Sprite;
 @SuppressWarnings("unused")
 public class Tile {
 
-	public static final int GAME_SIZE = 48; // the size that tiles should be rendered in game mode
+	public static final int GAME_SIZE = 36; // the size that tiles should be rendered in game mode
 
 	private static Tile[] tiles = new Tile[256]; // list of all tiles
 	private static final Tile grassTile = new Tile(0);

@@ -588,6 +588,9 @@ public class EditorState extends State {
 												EditorState.tSize - 1, EditorState.tSize - 1);
 									}
 									if (tempMapData.solids[y][x]) {
+										g.setColor(new Color(0, 0, 0, 80));
+										g.fillRect(ox + (int) (x + dragged.x) * EditorState.tSize, oy + (int) (dragged.y + y) * EditorState.tSize,
+												EditorState.tSize - 1, EditorState.tSize - 1);
 										g.setColor(Color.red);
 										g.drawRect(ox + (int) (x + dragged.x) * EditorState.tSize, oy + (int) (dragged.y + y) * EditorState.tSize,
 												EditorState.tSize - 1, EditorState.tSize - 1);

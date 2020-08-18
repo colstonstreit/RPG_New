@@ -2,10 +2,6 @@ package Engine;
 
 import java.awt.image.BufferedImage;
 
-/**
- * @author colst
- *
- */
 public class Sprite {
 
 	private BufferedImage image; // The image this sprite represents
