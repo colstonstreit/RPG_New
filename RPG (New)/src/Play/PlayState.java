@@ -18,36 +18,62 @@ public class PlayState extends State {
 
 	public static ArrayList<Dynamic> entities = new ArrayList<Dynamic>();
 
+	private ArrayList<Dynamic> testPokemon = new ArrayList<Dynamic>();
+	private int i = 0;
+
 	public PlayState(Game game) {
 		super(game);
 		map = new TileMap(game, "Cool Island");
 		camera = new Camera(game, 0, 0);
 
-		player = new Player(game, new Vec2(19, 23));
+		player = new Player(game, new Vec2(12, 17));
 		entities.add(player);
+		testPokemon.add(player);
 
-		for (int y = 33; y <= 33; y++) {
-			for (int x = 14; x <= 35; x++) {
-				Dynamic t = new NPC(game, "Pikachu", new Vec2(x, y));
-				t.v = new Vec2(0, 0);
-				entities.add(t);
-			}
-		}
+		Dynamic t = new NPC(game, "Bulbasaur", new Vec2(20, 20));
+		t.v = new Vec2(0.01, 0);
+		entities.add(t);
+		testPokemon.add(t);
 
-		entities.add(new NPC(game, "Bulbasaur", new Vec2(20, 20)));
+		Dynamic t2 = new NPC(game, "Pikachu", new Vec2(22, 20));
+		t2.v = new Vec2(-0.01, 0);
+		entities.add(t2);
+		testPokemon.add(t2);
+
+		Dynamic t3 = new NPC(game, "Player", new Vec2(21, 19));
+		t3.v = new Vec2(0, 0.01);
+		entities.add(t3);
+		testPokemon.add(t3);
 
 		camera.centerOnEntity(player, false);
 	}
 
 	public void tick(double deltaTime) {
+
+		TheaterEngine.tick(deltaTime);
+
 		if (game.keyUp('p')) game.changeState(Game.States.EDITOR);
 
 		if (game.keyUp('f')) camera.centerOnEntity(player, !camera.smoothMovement);
+
+		if (game.keyUp('g') && !TheaterEngine.hasCommand()) {
+			ArrayList<Command> commands = new ArrayList<Command>();
+			commands.add(new Command.Move(game, testPokemon.get(i % testPokemon.size()), new Vec2(13, 18), 1000, false));
+			commands.add(new Command.Move(game, testPokemon.get((i + 1) % testPokemon.size()), new Vec2(36, 18), 1000, false));
+			commands.add(new Command.Move(game, testPokemon.get((i + 2) % testPokemon.size()), new Vec2(36, 34), 1000, false));
+			commands.add(new Command.Move(game, testPokemon.get((i + 3) % testPokemon.size()), new Vec2(13, 34), 1000, false));
+			TheaterEngine.addGroup(commands, false);
+			i = (i + 1) % testPokemon.size();
+		}
+
+		if (game.keyUp('q')) Tile.GAME_SIZE -= 2;
+		if (game.keyUp('e')) Tile.GAME_SIZE += 2;
 
 		for (Dynamic e : entities)
 			e.tick(deltaTime);
 
 		camera.tick(deltaTime);
+
 	}
 
 	public void render(Graphics g) {
@@ -68,22 +94,20 @@ public class PlayState extends State {
 		for (Dynamic e : entities)
 			e.render(g, camera.ox, camera.oy);
 
+		TheaterEngine.render(g, camera.ox, camera.oy);
+
 	}
 
-	@Override
 	public Vec2 worldToScreen(Vec2 v) { return new Vec2(v.x * Tile.GAME_SIZE + camera.ox, v.y * Tile.GAME_SIZE + camera.oy); }
 
-	@Override
 	public Vec2 screenToWorld(Vec2 v) { return new Vec2((v.x - camera.ox) / Tile.GAME_SIZE, (v.y - camera.oy) / Tile.GAME_SIZE); }
 
-	@Override
 	public fRect worldToScreen(fRect r) {
 		Vec2 topCorner = worldToScreen(new Vec2(r.x, r.y));
 		Vec2 bottomCorner = worldToScreen(new Vec2(r.x + r.width, r.y + r.height));
 		return new fRect(topCorner.x, topCorner.y, bottomCorner.x - topCorner.x, bottomCorner.y - topCorner.y);
 	}
 
-	@Override
 	public fRect screenToWorld(fRect r) {
 		Vec2 topCorner = screenToWorld(new Vec2(r.x, r.y));
 		Vec2 bottomCorner = screenToWorld(new Vec2(r.x + r.width, r.y + r.height));

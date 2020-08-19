@@ -52,7 +52,7 @@ public class Tools {
 
 		public String toString() { return String.format("(%.3f, %.3f)", x, y); }
 
-		public boolean equals(Vec2 v) { return x == v.x && y == v.y; }
+		public boolean equals(Vec2 v) { return Math.abs(x - v.x) <= 0.01 && Math.abs(y - v.y) <= 0.01; }
 
 	} // class Vec2
 
@@ -88,7 +88,7 @@ public class Tools {
 
 		public String toString() { return String.format("(%.3f, %.3f, %.3f)", x, y, z); }
 
-		public boolean equals(Vec3 v) { return x == v.x && y == v.y && z == v.z; }
+		public boolean equals(Vec3 v) { return Math.abs(x - v.x) <= 0.01 && Math.abs(y - v.y) <= 0.01 && Math.abs(z - v.z) <= 0.01; }
 
 	} // class Vec3
 

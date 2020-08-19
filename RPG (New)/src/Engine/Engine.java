@@ -113,7 +113,7 @@ public abstract class Engine extends Canvas implements Runnable {
 			lastTime = now;
 			if (delta >= 1) {
 				delta--;
-				tick((double) (now - tickTimer) / 10000000);
+				tick((double) (now - tickTimer) / 1000000);
 				tickTimer = now;
 				render();
 			}
@@ -138,7 +138,7 @@ public abstract class Engine extends Canvas implements Runnable {
 	/**
 	 * Updates at the frequency of the targetTPS, called with the time elapsed since the last update. Also calls the child Game object's tick method.
 	 * 
-	 * @param elapsedTime
+	 * @param elapsedTime the amount of milliseconds passed since the last tick() call
 	 */
 	private void tick(double elapsedTime) {
 		tps++;
@@ -199,7 +199,7 @@ public abstract class Engine extends Canvas implements Runnable {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
-	
+
 	/**
 	 * Sets the window's title.
 	 */

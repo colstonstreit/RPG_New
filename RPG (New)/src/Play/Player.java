@@ -1,6 +1,5 @@
 package Play;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
@@ -16,7 +15,7 @@ public class Player extends Entity.Dynamic.Creature {
 	 * @param y    The initial y coordinate in the world
 	 */
 	public Player(Game game, Vec2 pos) {
-		super(game, "Player", "Pikachu", pos);
+		super(game, "Player", "Squirtle", pos);
 		this.pos = pos;
 
 		// Set player defaults
@@ -25,23 +24,26 @@ public class Player extends Entity.Dynamic.Creature {
 
 	}
 
-	@Override
 	public void tick(double deltaTime) {
 
-		// Handle input
-		if (game.keyDown('s') && !game.keyDown('w')) v.y = 0.1 * deltaTime;
-		else if (game.keyDown('w') && !game.keyDown('s')) v.y = -0.1 * deltaTime;
-		else v.y = 0;
+		// Handle input if theater not happening, otherwise zero velocity
+		if (!TheaterEngine.hasCommand()) {
 
-		if (game.keyDown('a') && !game.keyDown('d')) v.x = -0.1 * deltaTime;
-		else if (game.keyDown('d') && !game.keyDown('a')) v.x = 0.1 * deltaTime;
-		else v.x = 0;
+			if (game.keyDown('s') && !game.keyDown('w')) v.y = 0.01 * deltaTime;
+			else if (game.keyDown('w') && !game.keyDown('s')) v.y = -0.01 * deltaTime;
+			else v.y = 0;
+
+			if (game.keyDown('a') && !game.keyDown('d')) v.x = -0.01 * deltaTime;
+			else if (game.keyDown('d') && !game.keyDown('a')) v.x = 0.01 * deltaTime;
+			else v.x = 0;
+
+		} else if (!TheaterEngine.hasControl(this)) v = new Vec2(0, 0);
 
 		// Handle collisions and animations
 		super.tick(deltaTime);
 
 		// Check interactions
-		if (game.keyUp(KeyEvent.VK_ENTER)) {
+		if (game.keyUp(KeyEvent.VK_ENTER) && !TheaterEngine.hasCommand()) {
 			for (Dynamic e : PlayState.entities) {
 				if (e != this && interactArea().intersects(e.interactableRegion())) {
 					e.onInteract(this);
@@ -51,12 +53,12 @@ public class Player extends Entity.Dynamic.Creature {
 		}
 	}
 
-	@Override
 	public void render(Graphics g, int ox, int oy) {
 
-		if (isOnScreen()) super.render(g, ox, oy);
-
-		worldToScreen(interactArea()).draw(g, Color.white);
+		if (isOnScreen()) {
+			super.render(g, ox, oy);
+			// worldToScreen(interactArea()).draw(g, Color.white);
+		}
 
 	}
 
@@ -84,7 +86,6 @@ public class Player extends Entity.Dynamic.Creature {
 		return new fRect(pos.x + screenSize.x * r.x, pos.y + screenSize.y * r.y, screenSize.x * r.width, screenSize.y * r.height);
 	}
 
-	@Override
 	public void onInteract(Entity e) {}
 
 }

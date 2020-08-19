@@ -792,20 +792,16 @@ public class EditorState extends State {
 		}
 	}
 
-	@Override
 	public Vec2 worldToScreen(Vec2 v) { return new Vec2(v.x * tSize + ox, v.y * tSize + oy); }
 
-	@Override
 	public Vec2 screenToWorld(Vec2 v) { return new Vec2((v.x - ox) / tSize, (v.y - oy) / tSize); }
 
-	@Override
 	public fRect worldToScreen(fRect r) {
 		Vec2 topCorner = worldToScreen(new Vec2(r.x, r.y));
 		Vec2 bottomCorner = worldToScreen(new Vec2(r.x + r.width, r.y + r.height));
 		return new fRect(topCorner.x, topCorner.y, bottomCorner.x - topCorner.x, bottomCorner.y - topCorner.y);
 	}
 
-	@Override
 	public fRect screenToWorld(fRect r) {
 		Vec2 topCorner = screenToWorld(new Vec2(r.x, r.y));
 		Vec2 bottomCorner = screenToWorld(new Vec2(r.x + r.width, r.y + r.height));

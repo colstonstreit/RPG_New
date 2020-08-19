@@ -27,6 +27,7 @@ public class Assets {
 		characterSprites.put("Player", characterSheet.crop(0, 0, 4, 3));
 		characterSprites.put("Bulbasaur", characterSheet.crop(4, 0, 4, 3));
 		characterSprites.put("Pikachu", characterSheet.crop(8, 0, 4, 3));
+		characterSprites.put("Squirtle", characterSheet.crop(12, 0, 4, 3));
 
 	}
 
