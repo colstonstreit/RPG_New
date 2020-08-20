@@ -1,5 +1,6 @@
 package Play;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,65 +14,64 @@ import Play.Entity.Dynamic;
 public class PlayState extends State {
 
 	public static TileMap map;
+	public static String newMapName;
+
 	public static Camera camera;
 	public static Player player;
 
 	public static ArrayList<Dynamic> entities = new ArrayList<Dynamic>();
 
-	private ArrayList<Dynamic> testPokemon = new ArrayList<Dynamic>();
-	private int i = 0;
-
 	public PlayState(Game game) {
 		super(game);
-		map = new TileMap(game, "Cool Island");
 		camera = new Camera(game, 0, 0);
 
 		player = new Player(game, new Vec2(12, 17));
 		entities.add(player);
-		testPokemon.add(player);
 
-		Dynamic t = new NPC(game, "Bulbasaur", new Vec2(20, 20));
-		t.v = new Vec2(0.01, 0);
-		entities.add(t);
-		testPokemon.add(t);
-
-		Dynamic t2 = new NPC(game, "Pikachu", new Vec2(22, 20));
-		t2.v = new Vec2(-0.01, 0);
-		entities.add(t2);
-		testPokemon.add(t2);
-
-		Dynamic t3 = new NPC(game, "Player", new Vec2(21, 19));
-		t3.v = new Vec2(0, 0.01);
-		entities.add(t3);
-		testPokemon.add(t3);
+		changeMap("Cool Island");
 
 		camera.centerOnEntity(player, false);
 	}
 
 	public void tick(double deltaTime) {
 
+		// Update commands
 		TheaterEngine.tick(deltaTime);
 
+		// Switch to editor if p is pressed
 		if (game.keyUp('p')) game.changeState(Game.States.EDITOR);
 
+		// Switch camera mode if f is pressed
 		if (game.keyUp('f')) camera.centerOnEntity(player, !camera.smoothMovement);
 
-		if (game.keyUp('g') && !TheaterEngine.hasCommand()) {
+		// Test all the commands if t is pressed
+		if (game.keyUp('t') && !TheaterEngine.hasCommand()) {
 			ArrayList<Command> commands = new ArrayList<Command>();
-			commands.add(new Command.Move(game, testPokemon.get(i % testPokemon.size()), new Vec2(13, 18), 1000, false));
-			commands.add(new Command.Move(game, testPokemon.get((i + 1) % testPokemon.size()), new Vec2(36, 18), 1000, false));
-			commands.add(new Command.Move(game, testPokemon.get((i + 2) % testPokemon.size()), new Vec2(36, 34), 1000, false));
-			commands.add(new Command.Move(game, testPokemon.get((i + 3) % testPokemon.size()), new Vec2(13, 34), 1000, false));
-			TheaterEngine.addGroup(commands, false);
-			i = (i + 1) % testPokemon.size();
+			commands.add(new Command.FadeOut(game, 1000, 1000, 2000, Color.black));
+			commands.add(new Command.ShowDialog(game, "Hi!"));
+			commands.add(new Command.Wait(game, 2000));
+			commands.add(new Command.Move(game, player, new Vec2(1, 1), 1000, true));
+			TheaterEngine.addGroup(commands, true);
 		}
 
+		// Zoom out/in if q/e are pressed
 		if (game.keyUp('q')) Tile.GAME_SIZE -= 2;
 		if (game.keyUp('e')) Tile.GAME_SIZE += 2;
 
+		// Update entities
 		for (Dynamic e : entities)
 			e.tick(deltaTime);
 
+		// Update map
+		map.tick(deltaTime);
+
+		// Change map if necessary!
+		if (newMapName != null) {
+			changeMap(newMapName);
+			newMapName = null;
+		}
+
+		// Update camera
 		camera.tick(deltaTime);
 
 	}
@@ -85,7 +85,7 @@ public class PlayState extends State {
 		entities.sort(new Comparator<Dynamic>() {
 
 			public int compare(Dynamic o1, Dynamic o2) {
-				return (o1.pos.y + o1.screenSize.y == o2.pos.y + o2.screenSize.y) ? 0 : (o1.pos.y + o1.screenSize.y > o2.pos.y + o2.screenSize.y) ? 1 : -1;
+				return (o1.pos.y + o1.size.y == o2.pos.y + o2.size.y) ? 0 : (o1.pos.y + o1.size.y > o2.pos.y + o2.size.y) ? 1 : -1;
 			}
 
 		});
@@ -95,6 +95,24 @@ public class PlayState extends State {
 			e.render(g, camera.ox, camera.oy);
 
 		TheaterEngine.render(g, camera.ox, camera.oy);
+
+	}
+
+	/**
+	 * Switches the map to the one with the name passed in, or does nothing if the requested map does not exist.
+	 * 
+	 * @param name The name of the requested map
+	 */
+	public static void changeMap(String name) {
+		if (!Maps.mapList.containsKey(name)) {
+			System.out.println("There is no map with the name: " + name + "!");
+			return;
+		} else if (map != null && name.equals(map.name)) return;
+
+		entities.clear();
+		entities.add(player);
+		map = Maps.mapList.get(name);
+		map.populateDynamics(entities);
 
 	}
 

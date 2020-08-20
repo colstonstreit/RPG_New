@@ -60,13 +60,12 @@ public class TheaterEngine {
 			// Update each command in the first command group, and remove them as they are finished
 			for (int i = 0, n = list.size(); i < n; i++) {
 				Command c = list.get(i);
-				c.tick(deltaTime);
 				if (c.hasCompleted) {
 					list.remove(i);
 					i--;
 					n--;
 					justCompleted = true;
-				}
+				} else c.tick(deltaTime);
 			}
 
 			// If all commands in this group have been completed, remove this empty group from the command list
@@ -113,29 +112,34 @@ abstract class Command {
 	/**
 	 * Performs tasks that can only be done once at the start of the command.
 	 */
-	protected abstract void start();
+	public void start() {}
 
 	/**
-	 * Updates the command.
+	 * Calls the start method if hasn't already, then updates the command.
 	 */
-	public abstract void tick(double deltaTime);
+	public void tick(double deltaTime) {
+		if (!hasStarted) {
+			start();
+			hasStarted = true;
+		}
+	}
 
 	/**
 	 * Renders the command if applicable.
 	 */
-	public abstract void render(Graphics g, int ox, int oy);
+	public void render(Graphics g, int ox, int oy) {}
 
 	/**
 	 * Completes the command.
 	 */
-	public abstract void complete();
+	public void complete() { hasCompleted = true; }
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 
 	public static class ShowDialog extends Command {
 
-		protected fRect dialogBox; // The box where dialog should be displayed
-		protected String dialog; // The dialog to be shown
+		private fRect dialogBox; // The box where dialog should be displayed
+		private String dialog; // The dialog to be shown
 
 		/**
 		 * @param game   An instance of the game object
@@ -146,14 +150,8 @@ abstract class Command {
 			this.dialog = dialog;
 		}
 
-		protected void start() {
-			if (!hasStarted) {
-				hasStarted = true;
-			}
-		}
-
 		public void tick(double deltaTime) {
-			start();
+			super.tick(deltaTime);
 			// Close dialog upon pressing correct key
 			if (game.keyUp(KeyEvent.VK_ENTER)) complete();
 		}
@@ -169,16 +167,14 @@ abstract class Command {
 			Game.drawCenteredString(g, Color.white, dialog, dialogBox, true);
 		}
 
-		public void complete() { hasCompleted = true; }
-
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 
 	public static class Wait extends Command {
 
-		protected long timer; // A timer to measure how much time has passed
-		protected int delay; // The delay in milliseconds to wait
+		private long timer; // A timer to measure how much time has passed
+		private int delay; // The delay in milliseconds to wait
 
 		/**
 		 * @param game  The instance of the Game object
@@ -189,23 +185,13 @@ abstract class Command {
 			this.delay = delay;
 		}
 
-		protected void start() {
-			if (!hasStarted) {
-				timer = System.currentTimeMillis();
-				hasStarted = true;
-			}
-		}
+		public void start() { timer = System.currentTimeMillis(); }
 
 		public void tick(double deltaTime) {
-			start();
+			super.tick(deltaTime);
 			// Complete command if the wait period has passed
 			if (System.currentTimeMillis() - timer >= delay) complete();
 		}
-
-		public void render(Graphics g, int ox, int oy) {}
-
-		public void complete() { hasCompleted = true; }
-
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -213,12 +199,12 @@ abstract class Command {
 	public static class Move extends Command {
 
 		protected Dynamic e; // The entity to be moved
-		protected Vec2 p; // The position the entity should be moved to
-		protected Vec2 v; // The velocity vector the entity must follow
-		protected double time; // The time it should take to move there.
-		protected double timeElapsed; // The amount of time in milliseconds that have passed by so far.
+		private Vec2 p; // The position the entity should be moved to
+		private Vec2 v; // The velocity vector the entity must follow
+		private double time; // The time it should take to move there.
+		private double timeElapsed; // The amount of time in milliseconds that have passed by so far.
 
-		protected boolean moveThroughThings; // whether or not the entity should ignore collisions.
+		private boolean moveThroughThings; // whether or not the entity should ignore collisions.
 		private boolean wasSolidVsStatic; // whether or not the entity was originally solid vs static entities
 		private boolean wasSolidVsDynamic; // whether or not the entity was originally solid vs dynamic entities.
 
@@ -239,20 +225,14 @@ abstract class Command {
 			wasSolidVsDynamic = e.solidVsDynamic;
 		}
 
-		protected void start() {
-			if (!hasStarted) {
-				// Get initial velocity (change in position) and set collision flags to false if so desired
-				v = p.subtract(e.pos);
-				if (moveThroughThings) {
-					e.solidVsDynamic = false;
-					e.solidVsStatic = false;
-				}
-				hasStarted = true;
-			}
+		public void start() {
+			// Get initial velocity (change in position) and set collision flags to false if so desired
+			v = p.subtract(e.pos);
+			if (moveThroughThings) e.setCollisionType(false, false);
 		}
 
 		public void tick(double deltaTime) {
-			start();
+			super.tick(deltaTime);
 
 			// Add the time that has passed
 			timeElapsed += deltaTime;
@@ -277,19 +257,96 @@ abstract class Command {
 			e.v = v.scale(deltaTime / time);
 		}
 
-		public void render(Graphics g, int ox, int oy) {}
-
 		public void complete() {
+			super.complete();
 			// Restore initial flags to their old states
 			e.pos = p;
 			e.v = new Vec2(0, 0);
-			e.solidVsStatic = wasSolidVsStatic;
-			e.solidVsDynamic = wasSolidVsDynamic;
-			hasCompleted = true;
+			e.setCollisionType(wasSolidVsStatic, wasSolidVsDynamic);
 		}
 
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
+
+	public static class FadeOut extends Command {
+
+		private int fadeOutLength, holdLength, fadeInLength; // The length of time spent in the fade in/out and hold phase
+		private final Color color; // The color to faded in and out
+		private int stage; // The number of the phase it's in (fade out (1), hold (2), fade in (3))
+
+		private double timeElapsed; // The amount of time that has elapsed so far
+		private int alpha; // The current transparency of the color to be drawn
+
+		/**
+		 * @param game          The instance of the Game object
+		 * @param fadeOutLength The number of milliseconds spent in the fading out phase
+		 * @param holdLength    The number of millseconds spent in the holding phase (holds the same opaque color)
+		 * @param fadeInLength  The number of milliseconds spent in the fading back in phase
+		 * @param color         The color that should be faded in
+		 */
+		public FadeOut(Game game, int fadeOutLength, int holdLength, int fadeInLength, Color color) {
+			super(game);
+			this.fadeOutLength = fadeOutLength;
+			this.holdLength = holdLength;
+			this.fadeInLength = fadeInLength;
+			this.color = color;
+		}
+
+		public void tick(double deltaTime) {
+			super.tick(deltaTime);
+			// Update how much time has gone by
+			timeElapsed += deltaTime;
+			if (stage == 0) { // If fading out, calculate alpha based on linear interpolation
+				alpha = (int) Math.min(255, (timeElapsed / fadeOutLength * 255.0));
+				if (timeElapsed >= fadeOutLength) {
+					// Move on to the next stage if enough time has passed, and reset how much time has passed for new timer
+					stage++;
+					timeElapsed = 0;
+				}
+			} else if (stage == 1) { // If holding, keep alpha at 255 (full opacity)
+				alpha = 255;
+				if (timeElapsed >= holdLength) {
+					stage++;
+					timeElapsed = 0;
+				}
+			} else if (stage == 2) { // If fading back in, calculate alpha based on linear interpolation
+				alpha = (int) Math.max(0, (255.0 - timeElapsed / fadeInLength * 255.0));
+				if (timeElapsed >= fadeInLength) {
+					complete();
+				}
+			}
+		}
+
+		public void render(Graphics g, int ox, int oy) {
+			g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
+			g.fillRect(0, 0, game.getWidth(), game.getHeight());
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+
+	@SuppressWarnings("unused")
+	private static class Template extends Command {
+
+		public Template(Game game) { super(game); }
+
+		public void start() {}
+
+		public void tick(double deltaTime) {
+			super.tick(deltaTime);
+			// Do stuff below
+
+		}
+
+		public void render(Graphics g, int ox, int oy) {}
+
+		public void complete() {
+
+			// Do stuff above
+			super.complete();
+		}
+
+	}
 
 }

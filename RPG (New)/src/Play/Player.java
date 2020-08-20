@@ -19,7 +19,7 @@ public class Player extends Entity.Dynamic.Creature {
 		this.pos = pos;
 
 		// Set player defaults
-		screenSize = new Vec2(1, 1);
+		size = new Vec2(1, 1);
 		relativeHitbox = new fRect(4.0 / 16, 11.0 / 16, 8.0 / 16, 5.0 / 16);
 
 	}
@@ -83,7 +83,7 @@ public class Player extends Entity.Dynamic.Creature {
 			default:
 				return interactableRegion();
 		}
-		return new fRect(pos.x + screenSize.x * r.x, pos.y + screenSize.y * r.y, screenSize.x * r.width, screenSize.y * r.height);
+		return new fRect(pos.x + size.x * r.x, pos.y + size.y * r.y, size.x * r.width, size.y * r.height);
 	}
 
 	public void onInteract(Entity e) {}

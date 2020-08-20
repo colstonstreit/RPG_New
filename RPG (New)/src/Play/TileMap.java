@@ -7,10 +7,16 @@ import Engine.Assets;
 import Engine.Game;
 import Engine.Tools;
 import Engine.Tools.fRect;
+import Play.Entity.Dynamic;
 
+/**
+ * @author colst
+ *
+ */
 public class TileMap {
 
 	protected Game game; // The instance of the game
+	protected String name; // The name of the map
 
 	protected int[][][] tileData; // The tile id data for the map
 	protected boolean[][] solidData; // The solid data for the map
@@ -24,8 +30,9 @@ public class TileMap {
 	 * @param name The name of the map to be loaded
 	 */
 	public TileMap(Game game, String name) {
-		load("/maps/" + name + ".map", Tools.ResourceLoader.LOAD_RESOURCE);
 		this.game = game;
+		this.name = name;
+		load("/maps/" + name + ".map", Tools.ResourceLoader.LOAD_RESOURCE);
 	}
 
 	/**
@@ -146,6 +153,13 @@ public class TileMap {
 			}
 		}
 	}
+
+	public void tick(double deltaTime) {}
+
+	/**
+	 * Adds entities to the provided entityList.
+	 */
+	public void populateDynamics(ArrayList<Dynamic> entityList) {}
 
 	/**
 	 * Returns the list of colliders.
