@@ -1,15 +1,18 @@
 package Play;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import Editor.EditorState;
 import Engine.Game;
 import Engine.State;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 import Play.Entity.Dynamic;
+import Play.Quests.Quest;
 
 public class PlayState extends State {
 
@@ -21,11 +24,13 @@ public class PlayState extends State {
 
 	public static ArrayList<Dynamic> entities = new ArrayList<Dynamic>();
 
+	public static boolean drawHoveredTileCoords = false;
+
 	public PlayState(Game game) {
 		super(game);
 		camera = new Camera(game, 0, 0);
 
-		player = new Player(game, new Vec2(12, 17));
+		player = new Player(game, new Vec2(24.5, 32));
 		entities.add(player);
 
 		changeMap("Cool Island");
@@ -54,9 +59,10 @@ public class PlayState extends State {
 			TheaterEngine.addGroup(commands, true);
 		}
 
-		// Zoom out/in if q/e are pressed
+		// Zoom out/in if q/e are pressed, toggle hovered tile drawing
 		if (game.keyUp('q')) Tile.GAME_SIZE -= 2;
 		if (game.keyUp('e')) Tile.GAME_SIZE += 2;
+		if (game.keyUp('o')) drawHoveredTileCoords = !drawHoveredTileCoords;
 
 		// Update entities
 		for (Dynamic e : entities)
@@ -73,6 +79,9 @@ public class PlayState extends State {
 
 		// Update camera
 		camera.tick(deltaTime);
+
+		// Remove completed quests
+		Quests.removeCompleted();
 
 	}
 
@@ -94,6 +103,20 @@ public class PlayState extends State {
 		for (Dynamic e : entities)
 			e.render(g, camera.ox, camera.oy);
 
+		// Draw a cyan transparent rectangle over the hovered tile, as well as a string containing the tile's coordinates for reference
+		if (drawHoveredTileCoords) {
+			fRect mousePos = game.mouseBounds();
+			int tx = (int) (mousePos.x - camera.ox) / EditorState.tSize - ((mousePos.x - camera.ox < 0) ? 1 : 0);
+			int ty = (int) (mousePos.y - camera.oy) / EditorState.tSize - ((mousePos.y - camera.oy < 0) ? 1 : 0);
+			if (tx >= 0 && ty >= 0 && tx < map.numWide() && ty < map.numTall()) {
+				new fRect(tx * Tile.GAME_SIZE + camera.ox, ty * Tile.GAME_SIZE + camera.oy, Tile.GAME_SIZE, Tile.GAME_SIZE).fill(g,
+						new Color(0, 255, 255, 120));
+				g.setColor(Color.white);
+				g.setFont(new Font("Times New Roman", Font.BOLD, 36));
+				g.drawString("<" + tx + "," + ty + ">", 10, 36);
+			}
+		}
+
 		TheaterEngine.render(g, camera.ox, camera.oy);
 
 	}
@@ -111,8 +134,12 @@ public class PlayState extends State {
 
 		entities.clear();
 		entities.add(player);
-		map = Maps.mapList.get(name);
+		map = Maps.get(name);
 		map.populateDynamics(entities);
+
+		for (Quest q : Quests.currentQuestList) {
+			q.populateDynamics(name, entities);
+		}
 
 	}
 

@@ -400,19 +400,4 @@ public class EditorTileMap extends TileMap {
 		tileData[z][y][x] = EditorState.selectedTileIndex;
 	}
 
-	/**
-	 * Returns the width of the map in tiles.
-	 */
-	public int numWide() { return numWide; }
-
-	/**
-	 * Returns the height of the map in tiles.
-	 */
-	public int numTall() { return numTall; }
-
-	/**
-	 * Returns the number of layers in this map.
-	 */
-	public int numLayers() { return numLayers; }
-
 }

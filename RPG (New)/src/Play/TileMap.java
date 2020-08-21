@@ -9,14 +9,10 @@ import Engine.Tools;
 import Engine.Tools.fRect;
 import Play.Entity.Dynamic;
 
-/**
- * @author colst
- *
- */
 public class TileMap {
 
 	protected Game game; // The instance of the game
-	protected String name; // The name of the map
+	public final String name; // The name of the map
 
 	protected int[][][] tileData; // The tile id data for the map
 	protected boolean[][] solidData; // The solid data for the map
@@ -46,6 +42,7 @@ public class TileMap {
 		this.numWide = width;
 		this.numTall = height;
 		this.numLayers = 1;
+		this.name = null;
 
 		tileData = new int[numLayers][height][width];
 		solidData = new boolean[height][width];
@@ -162,8 +159,35 @@ public class TileMap {
 	public void populateDynamics(ArrayList<Dynamic> entityList) {}
 
 	/**
+	 * Called when a player interacts with a target to see if the target has something to do with this quest.
+	 * 
+	 * @param target The entity that the player has interacted with
+	 */
+	public boolean onInteract(Entity target) { return false; }
+
+	/**
+	 * Resets the tilemap.
+	 */
+	public TileMap reset() { return this; }
+
+	/**
 	 * Returns the list of colliders.
 	 */
 	public ArrayList<fRect> getColliders() { return colliders; }
+
+	/**
+	 * Returns the width of the map in tiles.
+	 */
+	public int numWide() { return numWide; }
+
+	/**
+	 * Returns the height of the map in tiles.
+	 */
+	public int numTall() { return numTall; }
+
+	/**
+	 * Returns the number of layers in this map.
+	 */
+	public int numLayers() { return numLayers; }
 
 }

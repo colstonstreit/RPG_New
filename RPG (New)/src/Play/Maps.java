@@ -10,8 +10,22 @@ import Play.Entity.Dynamic.Trigger.Teleport;
 
 public class Maps {
 
-	public static HashMap<String, TileMap> mapList = new HashMap<String, TileMap>();
+	public static HashMap<String, TileMap> mapList = new HashMap<String, TileMap>(); // hashMap of maps
 
+	/**
+	 * Returns a map requested by the given name.
+	 * 
+	 * @param name The name of the requested map
+	 */
+	public static TileMap get(String name) {
+		if (mapList.containsKey(name)) return mapList.get(name).reset();
+		System.out.println("No map with name: " + name + " exists!");
+		return null;
+	}
+
+	/**
+	 * Loads each of the maps in the game.
+	 */
 	public static void loadMaps(Game game) {
 		mapList.put("Cool Island", new CoolIsland(game));
 		mapList.put("Lol", new Lol(game));
@@ -21,44 +35,32 @@ public class Maps {
 
 	static class CoolIsland extends TileMap {
 
-		private ArrayList<Dynamic> testPokemon = new ArrayList<Dynamic>();
-		private int i = 0;
-
 		public CoolIsland(Game game) { super(game, "Cool Island"); }
 
 		public void populateDynamics(ArrayList<Dynamic> entities) {
-			Dynamic t = new NPC(game, "Bulbasaur", new Vec2(20, 20));
-			t.v = new Vec2(0.01, 0);
-			entities.add(t);
-			testPokemon.add(t);
-
-			Dynamic t2 = new NPC(game, "Pikachu", new Vec2(22, 20));
-			t2.v = new Vec2(-0.01, 0);
-			entities.add(t2);
-			testPokemon.add(t2);
-
-			Dynamic t3 = new NPC(game, "Player", new Vec2(21, 19));
-			t3.v = new Vec2(0, 0.01);
-			entities.add(t3);
-			testPokemon.add(t3);
-
-			testPokemon.add(PlayState.player);
-
+			entities.add(new NPC(game, "Sparky", "Pikachu", new Vec2(19, 29))
+					.setText(!Quests.completedQuest("PikachuRunToCorner", false) ? "Hey, would you run to the top-left corner for me?"
+							: "You helped me! Thank you so much."));
+			entities.add(
+					new NPC(game, "Squirty", "Squirtle", new Vec2(30, 29)).setText(
+							!Quests.doingQuest("Test") && !Quests.completedQuest("Test", false)
+									? "I've got a quest for you! Go talk to the man past the lava. He'll explain what you need to do."
+									: "Have fun!"));
 			entities.add((Teleport) new Teleport(game, true, "RunAround", new Vec2(11, 12), "Lol").setShouldBeDrawn(true).setCollisionType(true, true)
-					.setTransform(15, 15, 2, 2));
+					.setTransform(20, 24, 10, 5));
 		}
 
-		public void tick(double deltaTime) {
-			// Do fun pokemon spin thing
-			if (game.keyUp('g') && !TheaterEngine.hasCommand()) {
-				ArrayList<Command> commands = new ArrayList<Command>();
-				commands.add(new Command.Move(game, testPokemon.get(i % testPokemon.size()), new Vec2(13, 18), 1000, false));
-				commands.add(new Command.Move(game, testPokemon.get((i + 1) % testPokemon.size()), new Vec2(36, 18), 1000, false));
-				commands.add(new Command.Move(game, testPokemon.get((i + 2) % testPokemon.size()), new Vec2(36, 34), 1000, false));
-				commands.add(new Command.Move(game, testPokemon.get((i + 3) % testPokemon.size()), new Vec2(13, 34), 1000, false));
-				TheaterEngine.addGroup(commands, false);
-				i = (i + 1) % testPokemon.size();
+		public boolean onInteract(Entity target) {
+			if (target.name.equals("Squirty")) {
+				((NPC) target).setText("Have fun!");
+				Quests.addQuest("Test");
+				return true;
 			}
+			if (target.name.equals("Sparky")) {
+				Quests.addQuest("PikachuRunToCorner");
+				return true;
+			}
+			return false;
 		}
 
 	}

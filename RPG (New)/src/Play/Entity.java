@@ -20,15 +20,15 @@ public abstract class Entity {
 	protected Vec2 size; // size on the screen (in world units | 1 tile = 1 unit)
 	protected fRect relativeHitbox; // relative hitbox based on screenSize
 
-	protected final String type; // type of entity (i.e. "Player")
+	protected final String name; // name of entity (i.e. "Player")
 
 	/**
 	 * @param game An instance of the game object
 	 * @param type The type of entity (i.e. "Player" or "NPC")
 	 */
-	public Entity(Game game, String type) {
+	public Entity(Game game, String name) {
 		this.game = game;
-		this.type = type;
+		this.name = name;
 		setPos(0, 0);
 		setSize(1, 1);
 		relativeHitbox = new fRect(0, 0, 1, 1);
@@ -119,8 +119,8 @@ public abstract class Entity {
 		 * @param game An instance of the game object
 		 * @param type The type of entity (i.e. "Player" or "NPC")
 		 */
-		public Dynamic(Game game, String type) {
-			super(game, type);
+		public Dynamic(Game game, String name) {
+			super(game, name);
 			v = new Vec2(0, 0);
 			setCollisionType(false, false);
 			interactableRegion = new fRect(0, 0, 1, 1);
@@ -164,8 +164,8 @@ public abstract class Entity {
 			 * @param type      The type of entity (i.e. "Player" or "NPC")
 			 * @param imageName The name of the image that can be fetched from characterImages in Assets
 			 */
-			public Creature(Game game, String type, String imageName, Vec2 pos) {
-				super(game, type);
+			public Creature(Game game, String name, String imageName, Vec2 pos) {
+				super(game, name);
 				this.pos = pos;
 				setCollisionType(true, true);
 				moving = false;
@@ -327,7 +327,6 @@ public abstract class Entity {
 			protected Triggerable functionToBeRun; // An anonymous function that will be called when the Player passes through it.
 			protected boolean active = true; // whether or not the function has been triggered yet
 			protected boolean runOnInteract; // whether this will be called upon running into the trigger or if interacting with trigger
-			public final String name; // The name of this trigger (for identification purposes)
 
 			public enum WillTrigger { ONCE, FOREVER }; // Enum containing the various types of triggers that can happen
 			protected WillTrigger triggerType; // How often the trigger is active
@@ -343,8 +342,7 @@ public abstract class Entity {
 			 * @param functionToBeRun A custom function that will be called at the appropriate time based on other parameters.
 			 */
 			public Trigger(Game game, String name, boolean runOnInteract, WillTrigger triggerType, Triggerable functionToBeRun) {
-				super(game, "Trigger");
-				this.name = name;
+				super(game, name);
 				this.runOnInteract = runOnInteract;
 				this.triggerType = triggerType;
 				this.functionToBeRun = functionToBeRun;
@@ -418,7 +416,7 @@ public abstract class Entity {
 
 				private long timer; // measure the time passed before teleporting should happen
 				private boolean hasInitiatedFadeOut = false; // Whether or not the fadeout has begun
-				private static final int timeBeforeTeleport = 1000; // The amount of time that should pass before teleporting in milliseconds
+				private static final int timeBeforeTeleport = 500; // The amount of time that should pass before teleporting in milliseconds
 				private String newMapName; // The name of the map to switch to
 
 				/**
@@ -436,7 +434,7 @@ public abstract class Entity {
 
 							// Start fadeout and timer if haven't already
 							if (!hasInitiatedFadeOut) {
-								TheaterEngine.add(new Command.FadeOut(game, timeBeforeTeleport, 1000, 2000, Color.black));
+								TheaterEngine.add(new Command.FadeOut(game, timeBeforeTeleport, 500, 1000, Color.black));
 								timer = System.currentTimeMillis();
 								hasInitiatedFadeOut = true;
 							}

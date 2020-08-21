@@ -6,6 +6,7 @@ import java.awt.Toolkit;
 import Editor.EditorState;
 import Play.Maps;
 import Play.PlayState;
+import Play.Quests;
 import Play.Tile;
 
 public class Game extends Engine {
@@ -32,6 +33,7 @@ public class Game extends Engine {
 	public void init() {
 		Assets.loadAssets();
 		Maps.loadMaps(this);
+		Quests.loadQuests(this);
 		changeState(States.PLAY);
 	}
 

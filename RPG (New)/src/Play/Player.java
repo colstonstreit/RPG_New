@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import Engine.Game;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
+import Play.Quests.Quest;
 
 public class Player extends Entity.Dynamic.Creature {
 
@@ -46,8 +47,14 @@ public class Player extends Entity.Dynamic.Creature {
 		if (game.keyUp(KeyEvent.VK_ENTER) && !TheaterEngine.hasCommand()) {
 			for (Dynamic e : PlayState.entities) {
 				if (e != this && interactArea().intersects(e.interactableRegion())) {
+					// Do whatever to the entity
 					e.onInteract(this);
-					break;
+					// Check quests, and if none of them are impacted by this interaction then check the map
+					for (Quest q : Quests.currentQuestList) {
+						if (q.onInteract(e)) break;
+						break;
+					}
+					if (PlayState.map.onInteract(e)) break;
 				}
 			}
 		}

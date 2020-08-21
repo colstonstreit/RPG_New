@@ -10,8 +10,8 @@ public class NPC extends Entity.Dynamic.Creature {
 
 	private String text;
 
-	public NPC(Game game, String imageName, Vec2 pos) {
-		super(game, "NPC", imageName, pos);
+	public NPC(Game game, String name, String imageName, Vec2 pos) {
+		super(game, name, imageName, pos);
 		this.text = "I AM ERROR";
 		relativeHitbox = new fRect(0, 0.5, 1, 0.5);
 	}
