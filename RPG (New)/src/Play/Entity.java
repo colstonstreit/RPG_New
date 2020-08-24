@@ -9,6 +9,7 @@ import Engine.Assets;
 import Engine.Game;
 import Engine.Sprite;
 import Engine.State;
+import Engine.Tools.Function;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 
@@ -317,14 +318,9 @@ public abstract class Entity {
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 
-		public static interface Triggerable {
-
-			void run();
-		}
-
 		public static class Trigger extends Dynamic {
 
-			protected Triggerable functionToBeRun; // An anonymous function that will be called when the Player passes through it.
+			protected Function functionToBeRun; // An anonymous function that will be called when the Player passes through it.
 			protected boolean active = true; // whether or not the function has been triggered yet
 			protected boolean runOnInteract; // whether this will be called upon running into the trigger or if interacting with trigger
 
@@ -341,7 +337,7 @@ public abstract class Entity {
 			 * @param triggerType     Either WillTrigger.ONCE if it should only be active once; or WillTrigger.FOREVER if it should always be active
 			 * @param functionToBeRun A custom function that will be called at the appropriate time based on other parameters.
 			 */
-			public Trigger(Game game, String name, boolean runOnInteract, WillTrigger triggerType, Triggerable functionToBeRun) {
+			public Trigger(Game game, String name, boolean runOnInteract, WillTrigger triggerType, Function functionToBeRun) {
 				super(game, name);
 				this.runOnInteract = runOnInteract;
 				this.triggerType = triggerType;
@@ -405,7 +401,7 @@ public abstract class Entity {
 			 * 
 			 * @param t The new Triggerable function that should be called upon interaction.
 			 */
-			public Trigger setFunction(Triggerable t) {
+			public Trigger setFunction(Function t) {
 				this.functionToBeRun = t;
 				return this;
 			}
@@ -414,7 +410,6 @@ public abstract class Entity {
 
 			public static class Teleport extends Trigger {
 
-				private long timer; // measure the time passed before teleporting should happen
 				private boolean hasInitiatedFadeOut = false; // Whether or not the fadeout has begun
 				private static final int timeBeforeTeleport = 500; // The amount of time that should pass before teleporting in milliseconds
 				private String newMapName; // The name of the map to switch to
@@ -428,29 +423,31 @@ public abstract class Entity {
 				public Teleport(Game game, boolean runOnInteract, String name, Vec2 newPos) {
 					super(game, name, runOnInteract, WillTrigger.FOREVER, null);
 					newMapName = null;
-					setFunction(new Triggerable() {
+					setFunction(new Function() {
 
 						public void run() {
 
-							// Start fadeout and timer if haven't already
+							// Start fadeout if haven't already
 							if (!hasInitiatedFadeOut) {
-								TheaterEngine.add(new Command.FadeOut(game, timeBeforeTeleport, 500, 1000, Color.black));
-								timer = System.currentTimeMillis();
+								TheaterEngine.add(new Command.FadeOut(game, timeBeforeTeleport, 500, 1000, Color.black, new Function() {
+
+									public void run() {
+										// If fadeout is complete, teleport player (to new map if necessary) and reset initiatedFadeout in case it is a
+										// repetitive trigger
+										PlayState.player.setPos(newPos.x, newPos.y);
+										PlayState.player.v = new Vec2(0, 0);
+										hasInitiatedFadeOut = false;
+
+										// Trigger PlayState to change the map at the end of this tick() cycle
+										if (newMapName != null) PlayState.newMapName = newMapName;
+
+										if (triggerType == WillTrigger.ONCE) active = false;
+										wasInteractedWith = false;
+									}
+
+								}));
 								hasInitiatedFadeOut = true;
 							}
-
-							// If fadeout is complete, teleport player (to new map if necessary) and reset initiatedFadeout in case it is a repetitive trigger
-							if (System.currentTimeMillis() - timer >= timeBeforeTeleport) {
-								PlayState.player.setPos(newPos.x, newPos.y);
-								PlayState.player.v = new Vec2(0, 0);
-								hasInitiatedFadeOut = false;
-
-								// Trigger PlayState to change the map at the end of this tick() cycle
-								if (newMapName != null) PlayState.newMapName = newMapName;
-
-								if (triggerType == WillTrigger.ONCE) active = false;
-								wasInteractedWith = false;
-							} else active = true; // Set active back to true if fadeout isn't complete so the run method keeps getting called
 						}
 
 					});

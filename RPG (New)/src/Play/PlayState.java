@@ -12,12 +12,14 @@ import Engine.State;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 import Play.Entity.Dynamic;
+import Play.Entity.Dynamic.Creature.Facing;
 import Play.Quests.Quest;
 
 public class PlayState extends State {
 
 	public static TileMap map;
 	public static String newMapName;
+	public static boolean mustResetEntities = false;
 
 	public static Camera camera;
 	public static Player player;
@@ -33,7 +35,7 @@ public class PlayState extends State {
 		player = new Player(game, new Vec2(24.5, 32));
 		entities.add(player);
 
-		changeMap("Cool Island");
+		changeMap("Cool Island", false);
 
 		camera.centerOnEntity(player, false);
 	}
@@ -52,10 +54,11 @@ public class PlayState extends State {
 		// Test all the commands if t is pressed
 		if (game.keyUp('t') && !TheaterEngine.hasCommand()) {
 			ArrayList<Command> commands = new ArrayList<Command>();
-			commands.add(new Command.FadeOut(game, 1000, 1000, 2000, Color.black));
+			commands.add(new Command.FadeOut(game, 1000, 1000, 2000, Color.black, null));
 			commands.add(new Command.ShowDialog(game, "Hi!"));
 			commands.add(new Command.Wait(game, 2000));
 			commands.add(new Command.Move(game, player, new Vec2(1, 1), 1000, true));
+			commands.add(new Command.Turn(game, player, Facing.Up));
 			TheaterEngine.addGroup(commands, true);
 		}
 
@@ -73,8 +76,11 @@ public class PlayState extends State {
 
 		// Change map if necessary!
 		if (newMapName != null) {
-			changeMap(newMapName);
+			changeMap(newMapName, false);
 			newMapName = null;
+		} else if (mustResetEntities) {
+			changeMap(map.name, true);
+			mustResetEntities = false;
 		}
 
 		// Update camera
@@ -124,13 +130,14 @@ public class PlayState extends State {
 	/**
 	 * Switches the map to the one with the name passed in, or does nothing if the requested map does not exist.
 	 * 
-	 * @param name The name of the requested map
+	 * @param name             The name of the requested map
+	 * @param refreshIfSameMap True if the entities should be refreshed even if the map itself isn't actually changing
 	 */
-	public static void changeMap(String name) {
+	public static void changeMap(String name, boolean refreshIfSameMap) {
 		if (!Maps.mapList.containsKey(name)) {
 			System.out.println("There is no map with the name: " + name + "!");
 			return;
-		} else if (map != null && name.equals(map.name)) return;
+		} else if (map != null && name.equals(map.name) && !refreshIfSameMap) return;
 
 		entities.clear();
 		entities.add(player);

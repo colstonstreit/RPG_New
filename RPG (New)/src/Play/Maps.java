@@ -35,29 +35,44 @@ public class Maps {
 
 	static class CoolIsland extends TileMap {
 
-		public CoolIsland(Game game) { super(game, "Cool Island"); }
+		private static NPC sparky, squirty, bulby;
+		private static Teleport throughLava;
+
+		public CoolIsland(Game game) {
+			super(game, "Cool Island");
+			sparky = new NPC(game, "Sparky", "Pikachu", new Vec2(19, 29));
+			squirty = new NPC(game, "Squirty", "Squirtle", new Vec2(30, 29));
+			bulby = new NPC(game, "Bulby", "Bulbasaur", new Vec2(15, 15)).setText("Hi!", "You're awesome!", "I can say multiple things!!");
+
+			throughLava = (Teleport) new Teleport(game, true, "throughLava", new Vec2(11, 12), "Lol").setShouldBeDrawn(true).setCollisionType(true, true)
+					.setTransform(20, 24, 10, 5);
+		}
 
 		public void populateDynamics(ArrayList<Dynamic> entities) {
-			entities.add(new NPC(game, "Sparky", "Pikachu", new Vec2(19, 29))
-					.setText(!Quests.completedQuest("PikachuRunToCorner", false) ? "Hey, would you run to the top-left corner for me?"
-							: "You helped me! Thank you so much."));
-			entities.add(
-					new NPC(game, "Squirty", "Squirtle", new Vec2(30, 29)).setText(
-							!Quests.doingQuest("Test") && !Quests.completedQuest("Test", false)
-									? "I've got a quest for you! Go talk to the man past the lava. He'll explain what you need to do."
-									: "Have fun!"));
-			entities.add((Teleport) new Teleport(game, true, "RunAround", new Vec2(11, 12), "Lol").setShouldBeDrawn(true).setCollisionType(true, true)
-					.setTransform(20, 24, 10, 5));
+			entities.add(sparky.setText(getDialog(sparky)));
+			entities.add(squirty.setText(getDialog(squirty)));
+			entities.add(bulby);
+			entities.add(throughLava);
+		}
+
+		public String getDialog(Entity e) {
+			if (e == sparky) {
+				return !Quests.completedQuest("PikachuRunToCorner", false) ? "Hey, would you run to the top-left corner for me?"
+						: "You helped me! Thank you so much.";
+			} else if (e == squirty) {
+				return !Quests.doingQuest("Test") && !Quests.completedQuest("Test", false)
+						? "I've got a quest for you! Go talk to the man past the lava. He'll explain what you need to do."
+						: "Have fun!";
+			} else return super.getDialog(e);
 		}
 
 		public boolean onInteract(Entity target) {
-			if (target.name.equals("Squirty")) {
-				((NPC) target).setText("Have fun!");
-				Quests.addQuest("Test");
+			if (target == squirty) {
+				Quests.addQuest("Test", false);
+				squirty.setText(getDialog(squirty));
 				return true;
-			}
-			if (target.name.equals("Sparky")) {
-				Quests.addQuest("PikachuRunToCorner");
+			} else if (target == sparky) {
+				Quests.addQuest("PikachuRunToCorner", true);
 				return true;
 			}
 			return false;
@@ -69,12 +84,15 @@ public class Maps {
 
 	static class Lol extends TileMap {
 
-		public Lol(Game game) { super(game, "lol"); }
+		private static Teleport backToCoolIsland;
 
-		public void populateDynamics(ArrayList<Dynamic> entities) {
-			entities.add(
-					(Teleport) new Teleport(game, false, "RunAround", new Vec2(24.5, 32), "Cool Island").setShouldBeDrawn(true).setTransform(15, 15, 2, 2));
+		public Lol(Game game) {
+			super(game, "lol");
+			backToCoolIsland = (Teleport) new Teleport(game, false, "RunAround", new Vec2(24.5, 32), "Cool Island").setShouldBeDrawn(true).setTransform(15, 15,
+					2, 2);
 		}
+
+		public void populateDynamics(ArrayList<Dynamic> entities) { entities.add(backToCoolIsland); }
 
 	}
 

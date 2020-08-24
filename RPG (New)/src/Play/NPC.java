@@ -8,11 +8,11 @@ import Engine.Tools.fRect;
 
 public class NPC extends Entity.Dynamic.Creature {
 
-	private String text;
+	private String[] textOptions;
 
 	public NPC(Game game, String name, String imageName, Vec2 pos) {
 		super(game, name, imageName, pos);
-		this.text = "I AM ERROR";
+		this.textOptions = new String[] { "I AM ERROR" };
 		relativeHitbox = new fRect(0, 0.5, 1, 0.5);
 	}
 
@@ -34,7 +34,7 @@ public class NPC extends Entity.Dynamic.Creature {
 					break;
 			}
 			v = new Vec2(0, 0);
-			TheaterEngine.add(new Command.ShowDialog(game, text));
+			TheaterEngine.add(new Command.ShowDialog(game, textOptions[(int) (Math.random() * textOptions.length)]));
 		}
 	}
 
@@ -54,10 +54,10 @@ public class NPC extends Entity.Dynamic.Creature {
 	}
 
 	/**
-	 * Sets this NPC's text and then returns the NPC.
+	 * Sets this NPC's text options and then returns the NPC.
 	 */
-	public NPC setText(String s) {
-		text = s;
+	public NPC setText(String... options) {
+		textOptions = options;
 		return this;
 	}
 

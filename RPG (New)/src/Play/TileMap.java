@@ -166,6 +166,13 @@ public class TileMap {
 	public boolean onInteract(Entity target) { return false; }
 
 	/**
+	 * Returns the text that a particular NPC should have given parameters of the quest.
+	 * 
+	 * @param e The entity that dialog should be obtained for.
+	 */
+	public String getDialog(Entity e) { return "I AM ERROR"; }
+
+	/**
 	 * Resets the tilemap.
 	 */
 	public TileMap reset() { return this; }

@@ -1,20 +1,23 @@
 package Play;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 import Engine.Game;
+import Engine.Tools.Function;
 import Engine.Tools.Vec2;
 import Play.Entity.Dynamic;
 import Play.Entity.Dynamic.Trigger;
 import Play.Entity.Dynamic.Trigger.WillTrigger;
-import Play.Entity.Dynamic.Triggerable;
 
 public class Quests {
 
 	private static HashMap<String, Quest> quests = new HashMap<String, Quest>(); // List of all quests
 	public static LinkedList<Quest> currentQuestList = new LinkedList<Quest>(); // List of current quests
+
+	private static Game game; // The instance of the game
 
 	/**
 	 * Loads all quests into the quests list.
@@ -22,14 +25,17 @@ public class Quests {
 	public static void loadQuests(Game game) {
 		quests.put("Test", new Quests.LavaMan(game));
 		quests.put("PikachuRunToCorner", new Quests.PikachuRunToCorner(game));
+
+		Quests.game = game;
 	}
 
 	/**
 	 * Adds a new quest to the front of the list of quests if there is no other quest by the same name currently in the list.
 	 * 
-	 * @param questName The name of the quest
+	 * @param questName     The name of the quest
+	 * @param resetEntities True if the map should reset the entities after adding this quest
 	 */
-	public static void addQuest(String questName) {
+	public static void addQuest(String questName, boolean resetEntities) {
 		if (!quests.containsKey(questName)) {
 			System.out.println("There exists no quest with the name: " + questName + "!");
 			return;
@@ -40,6 +46,13 @@ public class Quests {
 			if (q.isRepeatable) q.reset();
 			q.isCompleted = false;
 			currentQuestList.push(q);
+			if (resetEntities) {
+				TheaterEngine.add(new Command.FadeOut(game, 500, 1000, 500, Color.black, new Function() {
+
+					public void run() { PlayState.mustResetEntities = true; }
+
+				}));
+			}
 		}
 	}
 
@@ -124,6 +137,13 @@ public class Quests {
 		public abstract boolean onInteract(Entity target);
 
 		/**
+		 * Returns the text that a particular NPC should have given parameters of the quest.
+		 * 
+		 * @param e The entity that dialog should be obtained for.
+		 */
+		public String getDialog(Entity e) { return "I AM ERROR"; }
+
+		/**
 		 * Completes this quest, marking it for removal from the current quest list.
 		 */
 		public void complete() {
@@ -141,27 +161,36 @@ public class Quests {
 
 		private int phase = 0;
 
+		private static NPC steven;
+
 		public LavaMan(Game game) {
 			super(game, "Test");
 			isRepeatable = true;
+			steven = new NPC(game, "Steven", "Player", new Vec2(10, 10))
+					.setText(phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!");
 		}
 
 		public void reset() { phase = 0; }
 
 		public void populateDynamics(String mapName, ArrayList<Dynamic> entities) {
 			if (mapName.equals("Lol")) {
-
-				entities.add(new NPC(game, "Steven", "Player", new Vec2(10, 10))
-						.setText(phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!"));
-
+				entities.add(steven.setText(getDialog(steven)));
 			}
 		}
 
+		public String getDialog(Entity e) {
+			if (e == steven) {
+
+				return phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!";
+
+			} else return super.getDialog(e);
+		}
+
 		public boolean onInteract(Entity target) {
-			if (target.name.equals("Steven")) {
+			if (target == steven) {
 				if (phase == 0) {
-					((NPC) target).setText("Nice job, you finished this quest!");
 					phase++;
+					steven.setText(getDialog(steven));
 				} else if (phase == 1) {
 					complete();
 				}
@@ -177,18 +206,29 @@ public class Quests {
 
 	public static class PikachuRunToCorner extends Quest {
 
-		public PikachuRunToCorner(Game game) { super(game, "PikachuRunToCorner"); }
+		private static Trigger pikachuCorner;
+
+		public PikachuRunToCorner(Game game) {
+			super(game, "PikachuRunToCorner");
+			pikachuCorner = (Trigger) new Trigger(game, "Pikachu's Corner", false, WillTrigger.ONCE, new Function() {
+
+				public void run() {
+					TheaterEngine.add(new Command.ShowDialog(game, "Nice work! Go tell Pikachu you helped him!"));
+					for (Entity e : PlayState.entities) {
+						if (e.name.equals("Sparky")) {
+							((NPC) e).setText("You helped me! Thank you so much.");
+							break;
+						}
+					}
+					complete();
+				}
+
+			}).setShouldBeDrawn(true).setTransform(0, 0, 1, 1);
+		}
 
 		public void populateDynamics(String mapName, ArrayList<Dynamic> entities) {
 			if (mapName.equals("Cool Island")) {
-				entities.add((Trigger) new Trigger(game, "Pikachu's Corner", false, WillTrigger.ONCE, new Triggerable() {
-
-					public void run() {
-						TheaterEngine.add(new Command.ShowDialog(game, "Nice work! Go tell Pikachu you helped him!"));
-						complete();
-					}
-
-				}).setShouldBeDrawn(true).setTransform(0, 0, 1, 1));
+				entities.add(pikachuCorner);
 			}
 		}
 

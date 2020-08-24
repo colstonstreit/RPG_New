@@ -21,9 +21,15 @@ import javax.sound.sampled.DataLine;
 /**
  * This class contains several utility classes, including Vec2s and Vec3s to store pairs and triplets of numbers, as well as a Matrix class that can handle
  * matrix operations, an "fRect" that is essentially a rectangle but that contains doubles and can draw itself, and a ResourceLoader class that can load images,
- * text files, and audio clips so far.
+ * text files, and audio clips so far. It also includes an Interface called "Function" that basically acts as a function that can be passed in to a constructor
+ * or function.
  */
 public class Tools {
+
+	public static interface Function {
+
+		void run();
+	}
 
 	public static class Vec2 extends Matrix {
 

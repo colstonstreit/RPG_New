@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import Engine.Game;
+import Engine.Tools.Function;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 import Play.Entity.Dynamic;
+import Play.Entity.Dynamic.Creature;
+import Play.Entity.Dynamic.Creature.Facing;
 
 public class TheaterEngine {
 
@@ -138,8 +141,18 @@ abstract class Command {
 
 	public static class ShowDialog extends Command {
 
+		private static final int numLines = 3;
+		private static final Font dialogFont = new Font("Times New Roman", Font.BOLD, 24);
+		private static final int delayBetweenCharacters = 20;
+
 		private fRect dialogBox; // The box where dialog should be displayed
+		private fRect[] textSubBoxes;
 		private String dialog; // The dialog to be shown
+
+		private String[] linesFromDialog;
+		private int lineIndex = 0;
+
+		private String[] currentLinesDrawn;
 
 		/**
 		 * @param game   An instance of the game object
@@ -148,6 +161,7 @@ abstract class Command {
 		public ShowDialog(Game game, String dialog) {
 			super(game);
 			this.dialog = dialog;
+			linesFromDialog = dialog.split("\n");
 		}
 
 		public void tick(double deltaTime) {
@@ -163,7 +177,8 @@ abstract class Command {
 			// Fill and draw before drawing text on top
 			dialogBox.fill(g, new Color(0, 0, 0, 50));
 			dialogBox.draw(g, Color.white);
-			g.setFont(new Font("Times New Roman", Font.BOLD, 24));
+			g.setFont(dialogFont);
+			
 			Game.drawCenteredString(g, Color.white, dialog, dialogBox, true);
 		}
 
@@ -192,6 +207,31 @@ abstract class Command {
 			// Complete command if the wait period has passed
 			if (System.currentTimeMillis() - timer >= delay) complete();
 		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+
+	public static class Turn extends Command {
+
+		private Creature creatureToTurn; // The creature to turn
+		private Facing newFacingDirection; // The new direction they should face
+
+		/**
+		 * @param game The instance of the game
+		 * @param c    The creature to be turned
+		 * @param f    The direction the creature should be turned
+		 */
+		public Turn(Game game, Creature c, Facing f) {
+			super(game);
+			creatureToTurn = c;
+			newFacingDirection = f;
+		}
+
+		public void start() {
+			creatureToTurn.changeAnimation(newFacingDirection.toString());
+			complete();
+		}
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -278,19 +318,23 @@ abstract class Command {
 		private double timeElapsed; // The amount of time that has elapsed so far
 		private int alpha; // The current transparency of the color to be drawn
 
+		private Function function; // The function to be called when everything is faded out
+
 		/**
 		 * @param game          The instance of the Game object
 		 * @param fadeOutLength The number of milliseconds spent in the fading out phase
 		 * @param holdLength    The number of millseconds spent in the holding phase (holds the same opaque color)
 		 * @param fadeInLength  The number of milliseconds spent in the fading back in phase
 		 * @param color         The color that should be faded in
+		 * @param function      The function to be called when everything is faded out
 		 */
-		public FadeOut(Game game, int fadeOutLength, int holdLength, int fadeInLength, Color color) {
+		public FadeOut(Game game, int fadeOutLength, int holdLength, int fadeInLength, Color color, Function function) {
 			super(game);
 			this.fadeOutLength = fadeOutLength;
 			this.holdLength = holdLength;
 			this.fadeInLength = fadeInLength;
 			this.color = color;
+			this.function = function;
 		}
 
 		public void tick(double deltaTime) {
@@ -300,8 +344,9 @@ abstract class Command {
 			if (stage == 0) { // If fading out, calculate alpha based on linear interpolation
 				alpha = (int) Math.min(255, (timeElapsed / fadeOutLength * 255.0));
 				if (timeElapsed >= fadeOutLength) {
-					// Move on to the next stage if enough time has passed, and reset how much time has passed for new timer
+					// Move on to the next stage if enough time has passed, run function if exists, and reset how much time has passed for new timer
 					stage++;
+					if (function != null) function.run();
 					timeElapsed = 0;
 				}
 			} else if (stage == 1) { // If holding, keep alpha at 255 (full opacity)
