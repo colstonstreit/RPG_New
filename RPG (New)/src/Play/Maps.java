@@ -40,9 +40,13 @@ public class Maps {
 
 		public CoolIsland(Game game) {
 			super(game, "Cool Island");
-			sparky = new NPC(game, "Sparky", "Pikachu", new Vec2(19, 29));
-			squirty = new NPC(game, "Squirty", "Squirtle", new Vec2(30, 29));
-			bulby = new NPC(game, "Bulby", "Bulbasaur", new Vec2(15, 15)).setText("Hi!", "You're awesome!", "I can say multiple things!!");
+			Quests.setInitiator("PikachuRunToCorner", sparky = new NPC(game, "Sparky", "Pikachu", new Vec2(19, 29)));
+			Quests.setInitiator("LavaMan", squirty = new NPC(game, "Squirty", "Squirtle", new Vec2(30, 29)));
+			bulby = new NPC(game, "Bulby", "Bulbasaur", new Vec2(15, 15)).setText("Hi!", "You're awesome!", "I feel sad.",
+					"There comes a time in a young boy's life where they realize that everything they thought they knew was wrong. "
+							+ "Girls don't have cooties; they're actually quite likable. All those toys you played with when you were little "
+							+ "suddenly seem to have no importance. \nIt's a true shame because it's sad to think that we all must lose the "
+							+ "childhood innocence that the world once praised of us... Sigh. So how are you?");
 
 			throughLava = (Teleport) new Teleport(game, true, "throughLava", new Vec2(11, 12), "Lol").setShouldBeDrawn(true).setCollisionType(true, true)
 					.setTransform(20, 24, 10, 5);
@@ -60,7 +64,7 @@ public class Maps {
 				return !Quests.completedQuest("PikachuRunToCorner", false) ? "Hey, would you run to the top-left corner for me?"
 						: "You helped me! Thank you so much.";
 			} else if (e == squirty) {
-				return !Quests.doingQuest("Test") && !Quests.completedQuest("Test", false)
+				return !Quests.doingQuest("LavaMan") && !Quests.completedQuest("LavaMan", false)
 						? "I've got a quest for you! Go talk to the man past the lava. He'll explain what you need to do."
 						: "Have fun!";
 			} else return super.getDialog(e);
@@ -68,7 +72,7 @@ public class Maps {
 
 		public boolean onInteract(Entity target) {
 			if (target == squirty) {
-				Quests.addQuest("Test", false);
+				Quests.addQuest("LavaMan", false);
 				squirty.setText(getDialog(squirty));
 				return true;
 			} else if (target == sparky) {

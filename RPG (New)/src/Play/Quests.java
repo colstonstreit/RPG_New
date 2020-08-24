@@ -23,10 +23,24 @@ public class Quests {
 	 * Loads all quests into the quests list.
 	 */
 	public static void loadQuests(Game game) {
-		quests.put("Test", new Quests.LavaMan(game));
+		quests.put("LavaMan", new Quests.LavaMan(game));
 		quests.put("PikachuRunToCorner", new Quests.PikachuRunToCorner(game));
 
 		Quests.game = game;
+	}
+
+	/**
+	 * Sets the initiator of the quest with name questName as the passed-in entity.
+	 * 
+	 * @param questName The name of the quest to be set
+	 * @param initiator The initiator of the test called questName
+	 */
+	public static void setInitiator(String questName, Entity initiator) {
+		if (!quests.containsKey(questName)) {
+			System.out.println("There exists no quest with the name: " + questName + ", so obviously nobody could have initiated it!");
+			return;
+		}
+		quests.get(questName).initiator = initiator;
 	}
 
 	/**
@@ -100,6 +114,8 @@ public class Quests {
 
 	public abstract static class Quest {
 
+		protected Entity initiator;
+
 		protected Game game; // An instance of the game
 		public String name; // The name of the quest
 		public boolean isCompleted; // Whether or not this quest has been completed
@@ -164,7 +180,7 @@ public class Quests {
 		private static NPC steven;
 
 		public LavaMan(Game game) {
-			super(game, "Test");
+			super(game, "LavaMan");
 			isRepeatable = true;
 			steven = new NPC(game, "Steven", "Player", new Vec2(10, 10))
 					.setText(phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!");
@@ -214,12 +230,10 @@ public class Quests {
 
 				public void run() {
 					TheaterEngine.add(new Command.ShowDialog(game, "Nice work! Go tell Pikachu you helped him!"));
-					for (Entity e : PlayState.entities) {
-						if (e.name.equals("Sparky")) {
-							((NPC) e).setText("You helped me! Thank you so much.");
-							break;
-						}
-					}
+					((NPC) initiator).setText("You helped me! Thank you so much.");
+					/*
+					 * for (Entity e : PlayState.entities) { if (e.name.equals("Sparky")) { ((NPC) e).setText("You helped me! Thank you so much."); break; } }
+					 */
 					complete();
 				}
 
