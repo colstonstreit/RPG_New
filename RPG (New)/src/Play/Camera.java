@@ -3,6 +3,7 @@ package Play;
 import Engine.Game;
 import Engine.State;
 import Engine.Tools.Vec2;
+import Play.Entities.Entity;
 
 public class Camera {
 

@@ -11,9 +11,21 @@ import Engine.Game;
 import Engine.State;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
-import Play.Entity.Dynamic;
-import Play.Entity.Dynamic.Creature.Facing;
-import Play.Quests.Quest;
+import Play.Entities.Creature.Facing;
+import Play.Entities.Dynamic;
+import Play.Entities.Player;
+import Play.Maps.MapManager;
+import Play.Maps.Tile;
+import Play.Maps.TileMap;
+import Play.Quests.BaseQuest;
+import Play.Quests.QuestManager;
+import Play.TheaterEngine.BaseCommand;
+import Play.TheaterEngine.FadeOutCommand;
+import Play.TheaterEngine.MoveCommand;
+import Play.TheaterEngine.ShowDialogCommand;
+import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.TurnCommand;
+import Play.TheaterEngine.WaitCommand;
 
 public class PlayState extends State {
 
@@ -53,12 +65,12 @@ public class PlayState extends State {
 
 		// Test all the commands if t is pressed
 		if (game.keyUp('t') && !TheaterEngine.hasCommand()) {
-			ArrayList<Command> commands = new ArrayList<Command>();
-			commands.add(new Command.FadeOut(game, 1000, 1000, 2000, Color.black, null));
-			commands.add(new Command.ShowDialog(game, "Hi!"));
-			commands.add(new Command.Wait(game, 2000));
-			commands.add(new Command.Move(game, player, new Vec2(1, 1), 1000, true));
-			commands.add(new Command.Turn(game, player, Facing.Up));
+			ArrayList<BaseCommand> commands = new ArrayList<BaseCommand>();
+			commands.add(new FadeOutCommand(game, 1000, 1000, 2000, Color.black, null));
+			commands.add(new ShowDialogCommand(game, "Hi!"));
+			commands.add(new WaitCommand(game, 2000));
+			commands.add(new MoveCommand(game, player, new Vec2(1, 1), 1000, true));
+			commands.add(new TurnCommand(game, player, Facing.Up));
 			TheaterEngine.addGroup(commands, true);
 		}
 
@@ -87,7 +99,7 @@ public class PlayState extends State {
 		camera.tick(deltaTime);
 
 		// Remove completed quests
-		Quests.removeCompleted();
+		QuestManager.removeCompleted();
 
 	}
 
@@ -134,17 +146,17 @@ public class PlayState extends State {
 	 * @param refreshIfSameMap True if the entities should be refreshed even if the map itself isn't actually changing
 	 */
 	public static void changeMap(String name, boolean refreshIfSameMap) {
-		if (!Maps.mapList.containsKey(name)) {
+		if (!MapManager.mapList.containsKey(name)) {
 			System.out.println("There is no map with the name: " + name + "!");
 			return;
 		} else if (map != null && name.equals(map.name) && !refreshIfSameMap) return;
 
 		entities.clear();
 		entities.add(player);
-		map = Maps.get(name);
+		map = MapManager.get(name);
 		map.populateDynamics(entities);
 
-		for (Quest q : Quests.currentQuestList) {
+		for (BaseQuest q : QuestManager.currentQuestList) {
 			q.populateDynamics(name, entities);
 		}
 

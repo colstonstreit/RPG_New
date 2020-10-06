@@ -4,10 +4,10 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 
 import Editor.EditorState;
-import Play.Maps;
 import Play.PlayState;
-import Play.Quests;
-import Play.Tile;
+import Play.Maps.MapManager;
+import Play.Maps.Tile;
+import Play.Quests.QuestManager;
 
 public class Game extends Engine {
 
@@ -32,8 +32,8 @@ public class Game extends Engine {
 
 	public void init() {
 		Assets.loadAssets();
-		Quests.loadQuests(this);
-		Maps.loadMaps(this);
+		QuestManager.loadQuests(this);
+		MapManager.loadMaps(this);
 		changeState(States.PLAY);
 	}
 

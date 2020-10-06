@@ -13,8 +13,8 @@ import Editor.EditorState.MapData;
 import Engine.Game;
 import Engine.Tools;
 import Engine.Tools.fRect;
-import Play.Tile;
-import Play.TileMap;
+import Play.Maps.Tile;
+import Play.Maps.TileMap;
 
 public class EditorTileMap extends TileMap {
 

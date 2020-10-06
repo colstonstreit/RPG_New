@@ -24,7 +24,7 @@ import Engine.State;
 import Engine.Tools;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
-import Play.Tile;
+import Play.Maps.Tile;
 
 public class EditorState extends State {
 

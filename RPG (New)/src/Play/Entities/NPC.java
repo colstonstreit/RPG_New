@@ -1,12 +1,14 @@
-package Play;
+package Play.Entities;
 
 import java.awt.Graphics;
 
 import Engine.Game;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
+import Play.TheaterEngine.ShowDialogCommand;
+import Play.TheaterEngine.TheaterEngine;
 
-public class NPC extends Entity.Dynamic.Creature {
+public class NPC extends Creature {
 
 	private String[] textOptions;
 
@@ -34,7 +36,7 @@ public class NPC extends Entity.Dynamic.Creature {
 					break;
 			}
 			v = new Vec2(0, 0);
-			TheaterEngine.add(new Command.ShowDialog(game, textOptions[(int) (Math.random() * textOptions.length)]));
+			TheaterEngine.add(new ShowDialogCommand(game, textOptions[(int) (Math.random() * textOptions.length)]));
 		}
 	}
 
