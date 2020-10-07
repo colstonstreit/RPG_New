@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import java.util.HashMap;
 
 import Engine.Animation;
-import Engine.Assets;
+import Engine.AssetManager;
 import Engine.Game;
 import Engine.Sprite;
 import Engine.Tools.Vec2;
@@ -78,7 +78,7 @@ public abstract class Creature extends Dynamic {
 	 * @param imageName The name of the spritesheet that animations should be obtained from (from characterImages in Assets)
 	 */
 	protected void setDefaultAnimations(String imageName) {
-		Sprite spritesheet = Assets.getCharacterSpriteSheet(imageName);
+		Sprite spritesheet = AssetManager.getCharacterSpriteSheet(imageName);
 		animations.put("Down", new Animation(100, spritesheet, new int[][] { { 0 , 0 } , { 0 , 1 } , { 0 , 2 } , { 0 , 1 } }));
 		animations.put("Up", new Animation(100, spritesheet, new int[][] { { 1 , 0 } , { 1 , 1 } , { 1 , 2 } , { 1 , 1 } }));
 		animations.put("Right", new Animation(100, spritesheet, new int[][] { { 2 , 0 } , { 2 , 1 } , { 2 , 2 } , { 2 , 1 } }));

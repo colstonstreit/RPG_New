@@ -3,7 +3,7 @@ package Play.Maps;
 import java.awt.Graphics;
 
 import Engine.Animation;
-import Engine.Assets;
+import Engine.AssetManager;
 import Engine.Sprite;
 
 @SuppressWarnings("unused")
@@ -26,7 +26,7 @@ public class Tile {
 
 	public Tile(int id) {
 		this.id = id;
-		sprite = Assets.getTileSprite(id);
+		sprite = AssetManager.getTileSprite(id);
 		tiles[id] = this;
 	}
 

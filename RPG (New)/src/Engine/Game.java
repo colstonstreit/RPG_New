@@ -31,7 +31,7 @@ public class Game extends Engine {
 	}
 
 	public void init() {
-		Assets.loadAssets();
+		AssetManager.loadAssets();
 		QuestManager.loadQuests(this);
 		MapManager.loadMaps(this);
 		changeState(States.PLAY);

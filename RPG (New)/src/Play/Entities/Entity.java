@@ -102,7 +102,4 @@ public abstract class Entity {
 	 */
 	public fRect screenToWorld(fRect r) { return getState().screenToWorld(r); }
 
-	//////////////////////////////////////////////////////////////////////////////////////////
-
-	
 }

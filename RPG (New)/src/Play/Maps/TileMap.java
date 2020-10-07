@@ -3,7 +3,7 @@ package Play.Maps;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-import Engine.Assets;
+import Engine.AssetManager;
 import Engine.Game;
 import Engine.Tools;
 import Engine.Tools.fRect;
@@ -136,7 +136,7 @@ public class TileMap {
 	 * @return The map after having been changed
 	 */
 	public TileMap setTile(int tx, int ty, int tz, int id) {
-		if (id < Assets.getTileSprites().length && id >= 0) tileData[tz][ty][tx] = id;
+		if (id < AssetManager.getTileSprites().length && id >= 0) tileData[tz][ty][tx] = id;
 		return this;
 	}
 

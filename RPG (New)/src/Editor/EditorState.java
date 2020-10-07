@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import Engine.Assets;
+import Engine.AssetManager;
 import Engine.Game;
 import Engine.Sprite;
 import Engine.State;
@@ -102,7 +102,7 @@ public class EditorState extends State {
 
 		// Create the tileRects where each individual tile of Tile.tiles() will be rendered for selection area
 		int numTilesWide = Math.max(1, tileSpace.width / (tSizeSelectionArea + 1)); // max to avoid division by zero
-		Sprite[] tiles = Assets.getTileSprites();
+		Sprite[] tiles = AssetManager.getTileSprites();
 		for (int i = 0; i < tiles.length; i++) {
 			if (tiles[i] == null) break;
 			int indexModNumWide = i % numTilesWide;

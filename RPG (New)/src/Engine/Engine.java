@@ -49,26 +49,26 @@ public abstract class Engine extends Canvas implements Runnable {
 	 * @param title
 	 */
 	public Engine(int width, int height, String title) {
+
 		this.title = title;
 		frame = new JFrame(title);
-
-		keys = new Keys();
-		mouse = new Mouse();
-
 		frame.add(this);
-		setSize(width, height);
-
-		addKeyListener(keys);
-		addMouseListener(mouse);
-		addMouseMotionListener(mouse);
-		addMouseWheelListener(mouse);
-
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.pack();
 
 		frame.setLocationRelativeTo(null);
+
+		keys = new Keys();
+		mouse = new Mouse();
+
+		setSize(width, height);
+
+		addKeyListener(keys);
+		addMouseListener(mouse);
+		addMouseMotionListener(mouse);
+		addMouseWheelListener(mouse);
 
 		thread = new Thread(this, "Game Thread");
 	}
@@ -88,7 +88,7 @@ public abstract class Engine extends Canvas implements Runnable {
 	/**
 	 * Called to join the game thread and exit the program.
 	 */
-	private synchronized void stop() {
+	protected synchronized void stop() {
 		frame.dispose();
 		frame.setVisible(false);
 		System.exit(0);
