@@ -13,8 +13,10 @@ import Play.TheaterEngine.TheaterEngine;
 
 public class QuestManager {
 
-	private static HashMap<String, BaseQuest> quests = new HashMap<String, BaseQuest>(); // List of all quests
-	public static LinkedList<BaseQuest> currentQuestList = new LinkedList<BaseQuest>(); // List of current quests
+	public static enum Quests { LAVA_MAN, PIKACHU_CORNER }
+
+	private static HashMap<Quests, Quest> quests = new HashMap<Quests, Quest>(); // List of all quests
+	public static LinkedList<Quest> currentQuestList = new LinkedList<Quest>(); // List of current quests
 
 	private static Game game; // The instance of the game
 
@@ -22,8 +24,8 @@ public class QuestManager {
 	 * Loads all quests into the quests list.
 	 */
 	public static void loadQuests(Game game) {
-		quests.put("LavaMan", new LavaManQuest(game));
-		quests.put("PikachuRunToCorner", new PikachuRunToCornerQuest(game));
+		quests.put(Quests.LAVA_MAN, new LavaManQuest(game));
+		quests.put(Quests.PIKACHU_CORNER, new PikachuCornerQuest(game));
 
 		QuestManager.game = game;
 	}
@@ -34,7 +36,7 @@ public class QuestManager {
 	 * @param questName The name of the quest to be set
 	 * @param initiator The initiator of the test called questName
 	 */
-	public static void setInitiator(String questName, Entity initiator) {
+	public static void setInitiator(Quests questName, Entity initiator) {
 		if (!quests.containsKey(questName)) {
 			System.out.println("There exists no quest with the name: " + questName + ", so obviously nobody could have initiated it!");
 			return;
@@ -48,13 +50,13 @@ public class QuestManager {
 	 * @param questName     The name of the quest
 	 * @param resetEntities True if the map should reset the entities after adding this quest
 	 */
-	public static void addQuest(String questName, boolean resetEntities) {
+	public static void addQuest(Quests questName, boolean resetEntities) {
 		if (!quests.containsKey(questName)) {
 			System.out.println("There exists no quest with the name: " + questName + "!");
 			return;
 		}
 
-		BaseQuest q = quests.get(questName);
+		Quest q = quests.get(questName);
 		if (!currentQuestList.contains(q) && (q.numTimesCompleted == 0 || q.isRepeatable)) {
 			if (q.isRepeatable) q.reset();
 			q.isCompleted = false;
@@ -74,7 +76,7 @@ public class QuestManager {
 	 * 
 	 * @param questName The name of the quest
 	 */
-	public static boolean doingQuest(String questName) {
+	public static boolean doingQuest(Quests questName) {
 		if (!quests.containsKey(questName)) {
 			System.out.println("There exists no quest with the name: " + questName + ", so you can't be doing it right now!");
 			return false;
@@ -88,12 +90,12 @@ public class QuestManager {
 	 * @param questName          The name of the quest
 	 * @param countingRepeatable True if repeatable quests can be counted as completed, false if not
 	 */
-	public static boolean completedQuest(String questName, boolean countingRepeatable) {
+	public static boolean completedQuest(Quests questName, boolean countingRepeatable) {
 		if (!quests.containsKey(questName)) {
 			System.out.println("There exists no quest with the name: " + questName + ", so there's no way it's already completed!");
 			return false;
 		}
-		BaseQuest q = quests.get(questName);
+		Quest q = quests.get(questName);
 		if (countingRepeatable) return q.numTimesCompleted > 0;
 		else return q.numTimesCompleted > 0 && !q.isRepeatable;
 	}

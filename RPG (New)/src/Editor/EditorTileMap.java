@@ -13,6 +13,7 @@ import Editor.EditorState.MapData;
 import Engine.Game;
 import Engine.Tools;
 import Engine.Tools.fRect;
+import Play.Maps.MapManager.Maps;
 import Play.Maps.Tile;
 import Play.Maps.TileMap;
 
@@ -21,9 +22,9 @@ public class EditorTileMap extends TileMap {
 	/**
 	 * Loads a map from the given path as a file.
 	 */
-	public EditorTileMap(Game game, String path) {
+	public EditorTileMap(Game game, Maps path) {
 		super(game, path);
-		load(path, Tools.ResourceLoader.LOAD_FILE);
+		load(path.toString(), Tools.ResourceLoader.LOAD_FILE);
 		this.game = game;
 	}
 

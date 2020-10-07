@@ -3,27 +3,31 @@ package Play.Quests;
 import java.util.ArrayList;
 
 import Engine.Game;
+import Engine.AssetManager.CharacterSprites;
 import Engine.Tools.Vec2;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Entities.NPC;
+import Play.Maps.MapManager.Maps;
+import Play.Quests.QuestManager.Quests;
 
-public class LavaManQuest extends BaseQuest {
+public class LavaManQuest extends Quest {
 
 	private int phase = 0;
 
 	private static NPC steven;
 
 	public LavaManQuest(Game game) {
-		super(game, "LavaMan");
+		super(game, Quests.LAVA_MAN);
 		isRepeatable = true;
-		steven = new NPC(game, "Steven", "Player", new Vec2(10, 10)).setText(phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!");
+		steven = new NPC(game, "Steven", CharacterSprites.PLAYER, new Vec2(10, 10))
+				.setText(phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!");
 	}
 
 	public void reset() { phase = 0; }
 
-	public void populateDynamics(String mapName, ArrayList<Dynamic> entities) {
-		if (mapName.equals("Lol")) {
+	public void populateDynamics(Maps mapID, ArrayList<Dynamic> entities) {
+		if (mapID == Maps.LOL) {
 			entities.add(steven.setText(getDialog(steven)));
 		}
 	}

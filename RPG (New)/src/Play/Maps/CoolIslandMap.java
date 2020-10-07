@@ -3,30 +3,33 @@ package Play.Maps;
 import java.util.ArrayList;
 
 import Engine.Game;
+import Engine.AssetManager.CharacterSprites;
 import Engine.Tools.Vec2;
+import Play.LootTable;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Entities.NPC;
 import Play.Entities.Teleport;
+import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager;
+import Play.Quests.QuestManager.Quests;
 
 public class CoolIslandMap extends TileMap {
 
 	private static NPC sparky, squirty, bulby;
-	private static Teleport throughLava;
+	private static Teleport throughLava, toOtherCorner;
 
 	public CoolIslandMap(Game game) {
-		super(game, "Cool Island");
-		QuestManager.setInitiator("PikachuRunToCorner", sparky = new NPC(game, "Sparky", "Pikachu", new Vec2(19, 29)));
-		QuestManager.setInitiator("LavaMan", squirty = new NPC(game, "Squirty", "Squirtle", new Vec2(30, 29)));
-		bulby = new NPC(game, "Bulby", "Bulbasaur", new Vec2(15, 15)).setText("Hi!", "You're awesome!", "I feel sad.",
-				"There comes a time in a young boy's life where they realize that everything they thought they knew was wrong. "
-						+ "Girls don't have cooties; they're actually quite likable. All those toys you played with when you were little "
-						+ "suddenly seem to have no importance. \nIt's a true shame because it's sad to think that we all must lose the "
-						+ "childhood innocence that the world once praised of us... Sigh. So how are you?");
+		super(game, Maps.COOL_ISLAND);
+		QuestManager.setInitiator(Quests.PIKACHU_CORNER, sparky = new NPC(game, "Sparky", CharacterSprites.PIKACHU, new Vec2(19, 29)));
+		QuestManager.setInitiator(Quests.LAVA_MAN, squirty = new NPC(game, "Squirty", CharacterSprites.SQUIRTLE, new Vec2(30, 29)));
+		bulby = new NPC(game, "Bulby", CharacterSprites.BULBASAUR, new Vec2(15, 15)).setText(new LootTable<String>().addSet(
+				new String[] { "Hi!" , "You're awesome!" , "I feel sad." ,
+						"WOW! You had a 1/25 chance to see this message! That's like totally the coolest thing ever dude!" },
+				new double[] { 8 , 8 , 8 , 1 }));
 
-		throughLava = (Teleport) new Teleport(game, true, "throughLava", new Vec2(11, 12), "Lol").setShouldBeDrawn(true).setCollisionType(true, true)
-				.setTransform(20, 24, 10, 5);
+		throughLava = (Teleport) new Teleport(game, true, "throughLava", new Vec2(11, 12), Maps.LOL).setShouldBeDrawn(true).setTransform(20, 24, 10, 5);
+		toOtherCorner = (Teleport) new Teleport(game, false, "Other Corner", new Vec2(49, 49)).setShouldBeDrawn(true).setTransform(2, 2, 1, 1);
 	}
 
 	public void populateDynamics(ArrayList<Dynamic> entities) {
@@ -34,14 +37,15 @@ public class CoolIslandMap extends TileMap {
 		entities.add(squirty.setText(getDialog(squirty)));
 		entities.add(bulby);
 		entities.add(throughLava);
+		entities.add(toOtherCorner);
 	}
 
 	public String getDialog(Entity e) {
 		if (e == sparky) {
-			return !QuestManager.completedQuest("PikachuRunToCorner", false) ? "Hey, would you run to the top-left corner for me?"
+			return !QuestManager.completedQuest(Quests.PIKACHU_CORNER, false) ? "Hey, would you run to the top-left corner for me?"
 					: "You helped me! Thank you so much.";
 		} else if (e == squirty) {
-			return !QuestManager.doingQuest("LavaMan") && !QuestManager.completedQuest("LavaMan", false)
+			return !QuestManager.doingQuest(Quests.LAVA_MAN) && !QuestManager.completedQuest(Quests.LAVA_MAN, false)
 					? "I've got a quest for you! Go talk to the man past the lava. He'll explain what you need to do."
 					: "Have fun!";
 		} else return super.getDialog(e);
@@ -49,11 +53,11 @@ public class CoolIslandMap extends TileMap {
 
 	public boolean onInteract(Entity target) {
 		if (target == squirty) {
-			QuestManager.addQuest("LavaMan", false);
+			QuestManager.addQuest(Quests.LAVA_MAN, false);
 			squirty.setText(getDialog(squirty));
 			return true;
 		} else if (target == sparky) {
-			QuestManager.addQuest("PikachuRunToCorner", true);
+			QuestManager.addQuest(Quests.PIKACHU_CORNER, true);
 			return true;
 		}
 		return false;

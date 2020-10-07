@@ -15,9 +15,10 @@ import Play.Entities.Creature.Facing;
 import Play.Entities.Dynamic;
 import Play.Entities.Player;
 import Play.Maps.MapManager;
+import Play.Maps.MapManager.Maps;
 import Play.Maps.Tile;
 import Play.Maps.TileMap;
-import Play.Quests.BaseQuest;
+import Play.Quests.Quest;
 import Play.Quests.QuestManager;
 import Play.TheaterEngine.BaseCommand;
 import Play.TheaterEngine.FadeOutCommand;
@@ -30,7 +31,7 @@ import Play.TheaterEngine.WaitCommand;
 public class PlayState extends State {
 
 	public static TileMap map;
-	public static String newMapName;
+	public static Maps newMapID;
 	public static boolean mustResetEntities = false;
 
 	public static Camera camera;
@@ -47,7 +48,7 @@ public class PlayState extends State {
 		player = new Player(game, new Vec2(24.5, 32));
 		entities.add(player);
 
-		changeMap("Cool Island", false);
+		changeMap(Maps.COOL_ISLAND, false);
 
 		camera.centerOnEntity(player, false);
 	}
@@ -87,11 +88,11 @@ public class PlayState extends State {
 		map.tick(deltaTime);
 
 		// Change map if necessary!
-		if (newMapName != null) {
-			changeMap(newMapName, false);
-			newMapName = null;
+		if (newMapID != null) {
+			changeMap(newMapID, false);
+			newMapID = null;
 		} else if (mustResetEntities) {
-			changeMap(map.name, true);
+			changeMap(map.id, true);
 			mustResetEntities = false;
 		}
 
@@ -140,24 +141,24 @@ public class PlayState extends State {
 	}
 
 	/**
-	 * Switches the map to the one with the name passed in, or does nothing if the requested map does not exist.
+	 * Switches the map to the one with the id passed in, or does nothing if the requested map does not exist.
 	 * 
-	 * @param name             The name of the requested map
+	 * @param mapID            The id of the requested map
 	 * @param refreshIfSameMap True if the entities should be refreshed even if the map itself isn't actually changing
 	 */
-	public static void changeMap(String name, boolean refreshIfSameMap) {
-		if (!MapManager.mapList.containsKey(name)) {
-			System.out.println("There is no map with the name: " + name + "!");
+	public static void changeMap(Maps mapID, boolean refreshIfSameMap) {
+		if (!MapManager.mapList.containsKey(mapID)) {
+			System.out.println("There is no map with the name: " + mapID + "!");
 			return;
-		} else if (map != null && name.equals(map.name) && !refreshIfSameMap) return;
+		} else if (map != null && mapID.equals(map.id) && !refreshIfSameMap) return;
 
 		entities.clear();
 		entities.add(player);
-		map = MapManager.get(name);
+		map = MapManager.get(mapID);
 		map.populateDynamics(entities);
 
-		for (BaseQuest q : QuestManager.currentQuestList) {
-			q.populateDynamics(name, entities);
+		for (Quest q : QuestManager.currentQuestList) {
+			q.populateDynamics(mapID, entities);
 		}
 
 	}

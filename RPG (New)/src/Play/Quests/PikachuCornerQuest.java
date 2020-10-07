@@ -9,15 +9,17 @@ import Play.Entities.Entity;
 import Play.Entities.NPC;
 import Play.Entities.Trigger;
 import Play.Entities.Trigger.WillTrigger;
+import Play.Maps.MapManager.Maps;
+import Play.Quests.QuestManager.Quests;
 import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
 
-public class PikachuRunToCornerQuest extends BaseQuest {
+public class PikachuCornerQuest extends Quest {
 
 	private static Trigger pikachuCorner;
 
-	public PikachuRunToCornerQuest(Game game) {
-		super(game, "PikachuRunToCorner");
+	public PikachuCornerQuest(Game game) {
+		super(game, Quests.PIKACHU_CORNER);
 		pikachuCorner = (Trigger) new Trigger(game, "Pikachu's Corner", false, WillTrigger.ONCE, new Function() {
 
 			public void run() {
@@ -30,8 +32,8 @@ public class PikachuRunToCornerQuest extends BaseQuest {
 		}).setShouldBeDrawn(true).setTransform(0, 0, 1, 1);
 	}
 
-	public void populateDynamics(String mapName, ArrayList<Dynamic> entities) {
-		if (mapName.equals("Cool Island")) {
+	public void populateDynamics(Maps mapID, ArrayList<Dynamic> entities) {
+		if (mapID == Maps.COOL_ISLAND) {
 			entities.add(pikachuCorner);
 		}
 	}

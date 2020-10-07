@@ -6,6 +6,7 @@ import Engine.Game;
 import Engine.Tools.Function;
 import Engine.Tools.Vec2;
 import Play.PlayState;
+import Play.Maps.MapManager.Maps;
 import Play.TheaterEngine.FadeOutCommand;
 import Play.TheaterEngine.TheaterEngine;
 
@@ -13,7 +14,7 @@ public class Teleport extends Trigger {
 
 	private boolean hasInitiatedFadeOut = false; // Whether or not the fadeout has begun
 	private static final int timeBeforeTeleport = 500; // The amount of time that should pass before teleporting in milliseconds
-	private String newMapName; // The name of the map to switch to
+	private Maps newMapName; // The name of the map to switch to
 
 	/**
 	 * @param game          The instance of the game
@@ -40,7 +41,7 @@ public class Teleport extends Trigger {
 							hasInitiatedFadeOut = false;
 
 							// Trigger PlayState to change the map at the end of this tick() cycle
-							if (newMapName != null) PlayState.newMapName = newMapName;
+							if (newMapName != null) PlayState.newMapID = newMapName;
 
 							if (triggerType == WillTrigger.ONCE) active = false;
 							wasInteractedWith = false;
@@ -61,7 +62,7 @@ public class Teleport extends Trigger {
 	 * @param newPos        The new position to which the player should be teleported
 	 * @param mapName       The name of the map to be switched to
 	 */
-	public Teleport(Game game, boolean runOnInteract, String name, Vec2 newPos, String mapName) {
+	public Teleport(Game game, boolean runOnInteract, String name, Vec2 newPos, Maps mapName) {
 		this(game, runOnInteract, name, newPos);
 		newMapName = mapName;
 	}

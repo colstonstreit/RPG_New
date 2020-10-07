@@ -31,6 +31,7 @@ public class Trigger extends Dynamic {
 		this.runOnInteract = runOnInteract;
 		this.triggerType = triggerType;
 		this.functionToBeRun = functionToBeRun;
+		this.setCollisionType(true, runOnInteract);
 	}
 
 	public void onInteract(Entity e) {

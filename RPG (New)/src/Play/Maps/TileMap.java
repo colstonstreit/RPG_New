@@ -9,11 +9,12 @@ import Engine.Tools;
 import Engine.Tools.fRect;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
+import Play.Maps.MapManager.Maps;
 
 public class TileMap {
 
 	protected Game game; // The instance of the game
-	public final String name; // The name of the map
+	public final Maps id; // The id of the map
 
 	protected int[][][] tileData; // The tile id data for the map
 	protected boolean[][] solidData; // The solid data for the map
@@ -24,12 +25,12 @@ public class TileMap {
 
 	/**
 	 * @param game The instance of the game object
-	 * @param name The name of the map to be loaded
+	 * @param id   The id of the map to be loaded
 	 */
-	public TileMap(Game game, String name) {
+	public TileMap(Game game, Maps id) {
 		this.game = game;
-		this.name = name;
-		load("/maps/" + name + ".map", Tools.ResourceLoader.LOAD_RESOURCE);
+		this.id = id;
+		load("/maps/" + id + ".map", Tools.ResourceLoader.LOAD_RESOURCE);
 	}
 
 	/**
@@ -43,7 +44,7 @@ public class TileMap {
 		this.numWide = width;
 		this.numTall = height;
 		this.numLayers = 1;
-		this.name = null;
+		this.id = null;
 
 		tileData = new int[numLayers][height][width];
 		solidData = new boolean[height][width];

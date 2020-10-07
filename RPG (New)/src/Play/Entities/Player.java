@@ -4,10 +4,11 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
 import Engine.Game;
+import Engine.AssetManager.CharacterSprites;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 import Play.PlayState;
-import Play.Quests.BaseQuest;
+import Play.Quests.Quest;
 import Play.Quests.QuestManager;
 import Play.TheaterEngine.TheaterEngine;
 
@@ -19,7 +20,7 @@ public class Player extends Creature {
 	 * @param y    The initial y coordinate in the world
 	 */
 	public Player(Game game, Vec2 pos) {
-		super(game, "Player", "Squirtle", pos);
+		super(game, "Player", CharacterSprites.SQUIRTLE, pos);
 		this.pos = pos;
 
 		// Set player defaults
@@ -53,7 +54,7 @@ public class Player extends Creature {
 					// Do whatever to the entity
 					e.onInteract(this);
 					// Check quests, and if none of them are impacted by this interaction then check the map
-					for (BaseQuest q : QuestManager.currentQuestList) {
+					for (Quest q : QuestManager.currentQuestList) {
 						if (q.onInteract(e)) break;
 					}
 					if (PlayState.map.onInteract(e)) break;

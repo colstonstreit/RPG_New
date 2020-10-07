@@ -119,6 +119,10 @@ public abstract class Engine extends Canvas implements Runnable {
 			}
 
 			now = System.currentTimeMillis();
+
+			// If it's been sixty seconds since the program last run, reset timer so fps and tps are constantly trying to catch up
+			if (now - secondTimer >= 60000) secondTimer = now;
+
 			if (now - secondTimer >= 1000) {
 				secondTimer += 1000;
 				frame.setTitle(title + " | TPS: " + tps + ", FPS: " + fps);

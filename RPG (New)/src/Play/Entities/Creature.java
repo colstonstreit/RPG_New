@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import Engine.Animation;
 import Engine.AssetManager;
+import Engine.AssetManager.CharacterSprites;
 import Engine.Game;
 import Engine.Sprite;
 import Engine.Tools.Vec2;
@@ -25,15 +26,15 @@ public abstract class Creature extends Dynamic {
 	/**
 	 * @param game      The instance of the game
 	 * @param type      The type of entity (i.e. "Player" or "NPC")
-	 * @param imageName The name of the image that can be fetched from characterImages in Assets
+	 * @param spriteName The name of the image that can be fetched from characterImages in Assets
 	 */
-	public Creature(Game game, String name, String imageName, Vec2 pos) {
+	public Creature(Game game, String name, CharacterSprites spriteName, Vec2 pos) {
 		super(game, name);
 		this.pos = pos;
 		setCollisionType(true, true);
 		moving = false;
 		facing = Facing.Down;
-		setDefaultAnimations(imageName);
+		setDefaultAnimations(spriteName);
 
 		// Set Down as default
 		changeAnimation("Down");
@@ -75,10 +76,10 @@ public abstract class Creature extends Dynamic {
 	/**
 	 * Sets the default up, down, left, and right animations based on set format, gathered from image imageName (from Assets).
 	 * 
-	 * @param imageName The name of the spritesheet that animations should be obtained from (from characterImages in Assets)
+	 * @param spriteName The name of the spritesheet that animations should be obtained from (from characterImages in Assets)
 	 */
-	protected void setDefaultAnimations(String imageName) {
-		Sprite spritesheet = AssetManager.getCharacterSpriteSheet(imageName);
+	protected void setDefaultAnimations(CharacterSprites spriteName) {
+		Sprite spritesheet = AssetManager.getCharacterSpriteSheet(spriteName);
 		animations.put("Down", new Animation(100, spritesheet, new int[][] { { 0 , 0 } , { 0 , 1 } , { 0 , 2 } , { 0 , 1 } }));
 		animations.put("Up", new Animation(100, spritesheet, new int[][] { { 1 , 0 } , { 1 , 1 } , { 1 , 2 } , { 1 , 1 } }));
 		animations.put("Right", new Animation(100, spritesheet, new int[][] { { 2 , 0 } , { 2 , 1 } , { 2 , 2 } , { 2 , 1 } }));

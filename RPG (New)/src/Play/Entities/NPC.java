@@ -2,19 +2,21 @@ package Play.Entities;
 
 import java.awt.Graphics;
 
+import Engine.AssetManager.CharacterSprites;
 import Engine.Game;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
+import Play.LootTable;
 import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
 
 public class NPC extends Creature {
 
-	private String[] textOptions;
+	private LootTable<String> textOptions;
 
-	public NPC(Game game, String name, String imageName, Vec2 pos) {
-		super(game, name, imageName, pos);
-		this.textOptions = new String[] { "I AM ERROR" };
+	public NPC(Game game, String name, CharacterSprites spriteName, Vec2 pos) {
+		super(game, name, spriteName, pos);
+		this.textOptions = new LootTable<String>().add("I AM ERROR", 1);
 		relativeHitbox = new fRect(0, 0.5, 1, 0.5);
 	}
 
@@ -36,7 +38,7 @@ public class NPC extends Creature {
 					break;
 			}
 			v = new Vec2(0, 0);
-			TheaterEngine.add(new ShowDialogCommand(game, textOptions[(int) (Math.random() * textOptions.length)]));
+			TheaterEngine.add(new ShowDialogCommand(game, textOptions.get()));
 		}
 	}
 
@@ -56,9 +58,21 @@ public class NPC extends Creature {
 	}
 
 	/**
-	 * Sets this NPC's text options and then returns the NPC.
+	 * Sets this NPC's text options (all equally likely) and then returns the NPC.
+	 * 
+	 * @param options An array of text options that will all be equally likely to be chosen.
 	 */
 	public NPC setText(String... options) {
+		textOptions = new LootTable<String>().addSet(options, new double[] { 1 });
+		return this;
+	}
+
+	/**
+	 * Sets this NPC's text options to the given loot table so that some options will be more or less likely than others. It then returns this NPC.
+	 * 
+	 * @param options The LootTable with text options and corresponding weights set.
+	 */
+	public NPC setText(LootTable<String> options) {
 		textOptions = options;
 		return this;
 	}
