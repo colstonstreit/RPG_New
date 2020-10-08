@@ -9,7 +9,7 @@ public class ItemManager {
 	public static enum Items { MONEY, HEALTH, APPLE, ORANGE }
 
 	private static ArrayList<ItemSlot> inventory = new ArrayList<ItemSlot>(); // ArrayList representing the inventory
-	private static final int MAX_AMOUNT_PER_SLOT = 64; // The maximum number of items that can be inside a given slot
+	private static final int MAX_AMOUNT_PER_SLOT = 100; // The maximum number of items that can be inside a given slot
 	private static final int MAX_NUM_SLOTS = 100; // The maximum number of slots the inventory can have
 	public static boolean AUTOMATICALLY_SORT = false;
 
@@ -18,9 +18,7 @@ public class ItemManager {
 		public int compare(ItemSlot o1, ItemSlot o2) {
 			if (o1.item.ordinal() > o2.item.ordinal()) return 1;
 			else if (o1.item.ordinal() < o2.item.ordinal()) return -1;
-			else {
-				return (o1.amount > o2.amount) ? -1 : (o1.amount < o2.amount) ? 1 : 0;
-			}
+			else return (o1.amount > o2.amount) ? -1 : (o1.amount < o2.amount) ? 1 : 0;
 		}
 	};
 
@@ -38,7 +36,7 @@ public class ItemManager {
 			System.out.println("Either the given item is null, or the amount is less than or equal to zero!");
 			return 0;
 		}
-		
+
 		// Loop through all of the existing slots to see if items can be inserted
 		int size = inventory.size();
 		for (int i = 0; i < size; i++) {
@@ -109,7 +107,7 @@ public class ItemManager {
 	 * @param amount The amount of the given item to be removed.
 	 * @return The amount of items successfully removed.
 	 */
-	public static int removeItem(Items item, int amount) {
+	public static int takeItem(Items item, int amount) {
 
 		// Validate arguments
 		if (item == null || amount <= 0) {

@@ -21,7 +21,7 @@ public abstract class Creature extends Dynamic {
 	protected boolean moving; // Whether or not the player is currently moving.
 
 	public enum Facing { Up, Down, Left, Right };
-	protected Facing facing;
+	public Facing facing;
 
 	/**
 	 * @param game      The instance of the game

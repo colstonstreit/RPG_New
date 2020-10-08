@@ -2,9 +2,10 @@ package Play.Quests;
 
 import java.util.ArrayList;
 
-import Engine.Game;
 import Engine.AssetManager.CharacterSprites;
+import Engine.Game;
 import Engine.Tools.Vec2;
+import Play.PlayState;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Entities.NPC;
@@ -12,6 +13,10 @@ import Play.Entities.Items.ItemManager;
 import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager.Quests;
+import Play.TheaterEngine.BaseCommand;
+import Play.TheaterEngine.ReceiveItemCommand;
+import Play.TheaterEngine.ShowDialogCommand;
+import Play.TheaterEngine.TheaterEngine;
 
 public class LavaManQuest extends Quest {
 
@@ -49,7 +54,12 @@ public class LavaManQuest extends Quest {
 				steven.setText(getDialog(steven));
 			} else if (phase == 1) {
 				complete();
-				ItemManager.giveItem(Items.APPLE, 50);
+				ArrayList<BaseCommand> commands = new ArrayList<BaseCommand>();
+				commands.add(new ReceiveItemCommand(game, Items.APPLE, 50, PlayState.player, commands));
+				TheaterEngine.addGroup(commands, false);
+				if (50 != ItemManager.giveItem(Items.APPLE, 50)) {
+					TheaterEngine.add(new ShowDialogCommand(game, "Uh oh! Looks like you couldn't fit everything in your inventory!"));
+				}
 				ItemManager.printContents();
 			}
 
@@ -57,7 +67,7 @@ public class LavaManQuest extends Quest {
 		} else if (target == initiator) {
 			if (phase == 0) {
 				if (ItemManager.hasItem(Items.APPLE, 5)) {
-					ItemManager.removeItem(Items.APPLE, 5);
+					ItemManager.takeItem(Items.APPLE, 5);
 					ItemManager.printContents();
 				} else {
 					((NPC) initiator).setText("Aw, you don't have five apples for me. :(");

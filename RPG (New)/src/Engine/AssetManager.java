@@ -2,12 +2,15 @@ package Engine;
 
 import java.util.HashMap;
 
+import Play.Entities.Items.ItemManager.Items;
+
 public class AssetManager {
 
 	private static Sprite[] tileImages; // List of tile images obtained from tileSheet
 
 	public static enum CharacterSprites { PLAYER, BULBASAUR, PIKACHU, SQUIRTLE }
 	private static HashMap<CharacterSprites, Sprite> characterSprites; // Hashmap of character images
+	private static HashMap<Items, Sprite> itemSprites; // Hashmap of character images
 
 	public static void loadAssets() {
 		// Load tile images
@@ -30,6 +33,12 @@ public class AssetManager {
 		characterSprites.put(CharacterSprites.PIKACHU, characterSheet.crop(8, 0, 4, 3));
 		characterSprites.put(CharacterSprites.SQUIRTLE, characterSheet.crop(12, 0, 4, 3));
 
+		// Load item icons
+		Sprite itemSheet = new Sprite("/spritesheets/itemSheet.png", 16);
+		itemSprites = new HashMap<Items, Sprite>();
+		itemSprites.put(Items.APPLE, itemSheet.crop(0, 0, 1, 1));
+		itemSprites.put(Items.ORANGE, itemSheet.crop(1, 0, 1, 1));
+
 	}
 
 	/**
@@ -49,12 +58,32 @@ public class AssetManager {
 	 */
 	public static Sprite[] getTileSprites() { return tileImages; }
 
+	/**
+	 * Returns the character spritesheet that is referenced by the given key, or returns null if the key is not in the list.
+	 * 
+	 * @param key The key corresponding to the desired character sprite
+	 * @return Sprite The corresponding character spritesheet
+	 */
 	public static Sprite getCharacterSpriteSheet(CharacterSprites key) {
 		if (!characterSprites.containsKey(key)) {
 			System.out.println("Hashmap CharacterSprites does not have sheet with key: " + key + ".");
 			return null;
 		}
 		return characterSprites.get(key);
+	}
+
+	/**
+	 * Returns the item icon for the given itemID, or null if the list does not contain the given itemID.
+	 * 
+	 * @param itemID The ID of the item (from Items enum)
+	 * @return Sprite The requested item icon
+	 */
+	public static Sprite getItemSprite(Items itemID) {
+		if (!itemSprites.containsKey(itemID)) {
+			System.out.println("Hashmap ItemSprites does not have an item icon for key: " + itemID + ".");
+			return null;
+		}
+		return itemSprites.get(itemID);
 	}
 
 }

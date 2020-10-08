@@ -425,6 +425,23 @@ public abstract class Engine extends Canvas implements Runnable {
 	}
 
 	/**
+	 * Returns the given string with proper capitalization i.e. first letter of every word is capitalized.
+	 * 
+	 * @param s The string to fix
+	 */
+	public static String getProperCapitalization(String s) {
+		s = s.toLowerCase().trim();
+		s = ("" + s.charAt(0)).toUpperCase() + s.substring(1, s.length());
+		for (int i = 0, n = s.length(); i < n; i++) {
+			char c = s.charAt(i);
+			if (c == ' ') {
+				s = s.substring(0, i + 1) + (("" + c).toUpperCase()) + s.substring(i + 2, n);
+			}
+		}
+		return s;
+	}
+
+	/**
 	 * Returns the specified value rounded to the nearest number that is specified as toNearest. (Round 3 to the nearest Math.PI, for example).
 	 * 
 	 * @param n

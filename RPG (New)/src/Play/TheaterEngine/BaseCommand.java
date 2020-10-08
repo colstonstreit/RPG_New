@@ -1,15 +1,25 @@
 package Play.TheaterEngine;
 
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 import Engine.Game;
 
 public abstract class BaseCommand {
 
 	protected Game game; // an instance of the Game object
+	protected ArrayList<BaseCommand> group; // The group of commands this
 	public boolean hasStarted = false, hasCompleted = false; // Whether or not the command has been started and completed
 
-	public BaseCommand(Game game) { this.game = game; }
+	public BaseCommand(Game game) {
+		this.game = game;
+		group = null;
+	}
+
+	public BaseCommand(Game game, ArrayList<BaseCommand> group) {
+		this.game = game;
+		this.group = group;
+	}
 
 	/**
 	 * Performs tasks that can only be done once at the start of the command.
