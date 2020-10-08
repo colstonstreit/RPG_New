@@ -8,6 +8,8 @@ import Engine.Tools.Vec2;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Entities.NPC;
+import Play.Entities.Items.ItemManager;
+import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager.Quests;
 
@@ -35,7 +37,7 @@ public class LavaManQuest extends Quest {
 	public String getDialog(Entity e) {
 		if (e == steven) {
 
-			return phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest!";
+			return phase == 0 ? "Talk to me one more time." : "Nice job, you finished this quest! Have some apples.";
 
 		} else return super.getDialog(e);
 	}
@@ -47,8 +49,20 @@ public class LavaManQuest extends Quest {
 				steven.setText(getDialog(steven));
 			} else if (phase == 1) {
 				complete();
+				ItemManager.giveItem(Items.APPLE, 50);
+				ItemManager.printContents();
 			}
 
+			return true;
+		} else if (target == initiator) {
+			if (phase == 0) {
+				if (ItemManager.hasItem(Items.APPLE, 5)) {
+					ItemManager.removeItem(Items.APPLE, 5);
+					ItemManager.printContents();
+				} else {
+					((NPC) initiator).setText("Aw, you don't have five apples for me. :(");
+				}
+			}
 			return true;
 		}
 		return false;

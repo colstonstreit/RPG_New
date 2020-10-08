@@ -2,8 +2,8 @@ package Play.Maps;
 
 import java.util.ArrayList;
 
-import Engine.Game;
 import Engine.AssetManager.CharacterSprites;
+import Engine.Game;
 import Engine.Tools.Vec2;
 import Play.LootTable;
 import Play.Entities.Dynamic;
@@ -47,7 +47,7 @@ public class CoolIslandMap extends TileMap {
 		} else if (e == squirty) {
 			return !QuestManager.doingQuest(Quests.LAVA_MAN) && !QuestManager.completedQuest(Quests.LAVA_MAN, false)
 					? "I've got a quest for you! Go talk to the man past the lava. He'll explain what you need to do."
-					: "Have fun!";
+					: "Have fun! Give me some apples.";
 		} else return super.getDialog(e);
 	}
 
