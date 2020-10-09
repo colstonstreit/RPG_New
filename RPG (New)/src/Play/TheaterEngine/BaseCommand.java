@@ -16,11 +16,6 @@ public abstract class BaseCommand {
 		group = null;
 	}
 
-	public BaseCommand(Game game, ArrayList<BaseCommand> group) {
-		this.game = game;
-		this.group = group;
-	}
-
 	/**
 	 * Performs tasks that can only be done once at the start of the command.
 	 */

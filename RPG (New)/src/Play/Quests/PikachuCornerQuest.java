@@ -14,7 +14,6 @@ import Play.Entities.Items.ItemManager;
 import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager.Quests;
-import Play.TheaterEngine.BaseCommand;
 import Play.TheaterEngine.ReceiveItemCommand;
 import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
@@ -46,18 +45,15 @@ public class PikachuCornerQuest extends Quest {
 	public boolean onInteract(Entity target) {
 		if (target == initiator) {
 			if (phase == 1) {
-				ArrayList<BaseCommand> command = new ArrayList<BaseCommand>();
-				command.add(new ReceiveItemCommand(game, Items.ORANGE, 1, PlayState.player, command));
-				TheaterEngine.addGroup(command, false);
+				TheaterEngine.add(new ReceiveItemCommand(game, Items.ORANGE, 1, PlayState.player, false));
 				if (1 != ItemManager.giveItem(Items.ORANGE, 1)) {
 					TheaterEngine.add(new ShowDialogCommand(game, "Uh oh! Looks like you couldn't fit everything in your inventory!"));
 				}
-				ItemManager.printContents();
 				complete();
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 

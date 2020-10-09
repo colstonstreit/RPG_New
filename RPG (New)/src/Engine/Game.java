@@ -19,6 +19,8 @@ public class Game extends Engine {
 	private State currentState;
 
 	public enum States { PLAY, EDITOR };
+	
+	private static final int gameWidth = 800, gameHeight = gameWidth * 3 / 4;
 
 	public Game(int width, int height, String title) {
 		super(width, height, title);
@@ -47,7 +49,7 @@ public class Game extends Engine {
 	public void changeState(States s) {
 		switch (s) {
 			case PLAY:
-				resizeCanvas(640, 640);
+				resizeCanvas(gameWidth, gameHeight);
 				if (playState == null) playState = new PlayState(this);
 				currentState = playState;
 				setTitle("RPG Game");

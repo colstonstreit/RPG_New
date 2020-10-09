@@ -2,6 +2,7 @@ package Engine;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -49,9 +50,11 @@ public abstract class Engine extends Canvas implements Runnable {
 	 * @param title
 	 */
 	public Engine(int width, int height, String title) {
-
 		this.title = title;
 		frame = new JFrame(title);
+		this.setSize(new Dimension(width, height));
+		this.setMinimumSize(new Dimension(width, height));
+		this.setMaximumSize(new Dimension(width, height));
 		frame.add(this);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,8 +65,6 @@ public abstract class Engine extends Canvas implements Runnable {
 
 		keys = new Keys();
 		mouse = new Mouse();
-
-		setSize(width, height);
 
 		addKeyListener(keys);
 		addMouseListener(mouse);
@@ -159,7 +160,7 @@ public abstract class Engine extends Canvas implements Runnable {
 
 		BufferStrategy bs = this.getBufferStrategy();
 		if (bs == null) {
-			this.createBufferStrategy(3);
+			this.createBufferStrategy(2);
 			fps--;
 			return;
 		}

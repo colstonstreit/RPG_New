@@ -13,7 +13,6 @@ import Play.Entities.Items.ItemManager;
 import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager.Quests;
-import Play.TheaterEngine.BaseCommand;
 import Play.TheaterEngine.ReceiveItemCommand;
 import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
@@ -54,13 +53,10 @@ public class LavaManQuest extends Quest {
 				steven.setText(getDialog(steven));
 			} else if (phase == 1) {
 				complete();
-				ArrayList<BaseCommand> commands = new ArrayList<BaseCommand>();
-				commands.add(new ReceiveItemCommand(game, Items.APPLE, 50, PlayState.player, commands));
-				TheaterEngine.addGroup(commands, false);
+				TheaterEngine.add(new ReceiveItemCommand(game, Items.APPLE, 50, PlayState.player, false));
 				if (50 != ItemManager.giveItem(Items.APPLE, 50)) {
 					TheaterEngine.add(new ShowDialogCommand(game, "Uh oh! Looks like you couldn't fit everything in your inventory!"));
 				}
-				ItemManager.printContents();
 			}
 
 			return true;

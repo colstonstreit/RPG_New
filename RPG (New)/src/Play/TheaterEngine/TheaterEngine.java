@@ -23,6 +23,7 @@ public class TheaterEngine {
 	 */
 	public static void add(BaseCommand c) {
 		ArrayList<BaseCommand> t = new ArrayList<BaseCommand>();
+		c.group = t;
 		t.add(c);
 		commandGroups.add(t);
 	}
@@ -59,7 +60,9 @@ public class TheaterEngine {
 					i--;
 					n--;
 					justCompleted = true;
-				} else c.tick(deltaTime);
+				} else {
+					c.tick(deltaTime);
+				}
 			}
 
 			// If all commands in this group have been completed, remove this empty group from the command list

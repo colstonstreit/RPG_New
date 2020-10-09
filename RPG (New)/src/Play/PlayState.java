@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import Editor.EditorState;
 import Engine.Game;
 import Engine.State;
 import Engine.Tools.Vec2;
@@ -14,6 +13,8 @@ import Engine.Tools.fRect;
 import Play.Entities.Creature.Facing;
 import Play.Entities.Dynamic;
 import Play.Entities.Player;
+import Play.Entities.Items.ItemManager;
+import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager;
 import Play.Maps.MapManager.Maps;
 import Play.Maps.Tile;
@@ -23,6 +24,8 @@ import Play.Quests.QuestManager;
 import Play.TheaterEngine.BaseCommand;
 import Play.TheaterEngine.FadeOutCommand;
 import Play.TheaterEngine.MoveCommand;
+import Play.TheaterEngine.OpenInventoryCommand;
+import Play.TheaterEngine.ReceiveItemCommand;
 import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
 import Play.TheaterEngine.TurnCommand;
@@ -58,27 +61,39 @@ public class PlayState extends State {
 		// Update commands
 		TheaterEngine.tick(deltaTime);
 
-		// Switch to editor if p is pressed
-		if (game.keyUp('p')) game.changeState(Game.States.EDITOR);
+		// Keyboard commands only run when TheaterEngine is not in control.
+		if (!TheaterEngine.hasCommand()) {
+			// Switch to editor if p is pressed
+			if (game.keyUp('p')) game.changeState(Game.States.EDITOR);
 
-		// Switch camera mode if f is pressed
-		if (game.keyUp('f')) camera.centerOnEntity(player, !camera.smoothMovement);
+			// Switch camera mode if f is pressed
+			if (game.keyUp('f')) camera.centerOnEntity(player, !camera.smoothMovement);
 
-		// Test all the commands if t is pressed
-		if (game.keyUp('t') && !TheaterEngine.hasCommand()) {
-			ArrayList<BaseCommand> commands = new ArrayList<BaseCommand>();
-			commands.add(new FadeOutCommand(game, 1000, 1000, 2000, Color.black, null));
-			commands.add(new ShowDialogCommand(game, "Hi!"));
-			commands.add(new WaitCommand(game, 2000));
-			commands.add(new MoveCommand(game, player, new Vec2(1, 1), 1000, true));
-			commands.add(new TurnCommand(game, player, Facing.Up));
-			TheaterEngine.addGroup(commands, true);
+			// Test all the commands if t is pressed
+			if (game.keyUp('t')) {
+				ArrayList<BaseCommand> commands = new ArrayList<BaseCommand>();
+				commands.add(new FadeOutCommand(game, 1000, 1000, 2000, Color.black, null));
+				commands.add(new ShowDialogCommand(game, "Hi!"));
+				commands.add(new WaitCommand(game, 2000));
+				commands.add(new MoveCommand(game, player, new Vec2(1, 1), 1000, true));
+				commands.add(new TurnCommand(game, player, Facing.Up));
+				TheaterEngine.addGroup(commands, true);
+			}
+
+			// Zoom out/in if q/e are pressed, toggle hovered tile drawing
+			if (game.keyUp('q')) Tile.GAME_SIZE -= 2;
+			if (game.keyUp('e')) Tile.GAME_SIZE += 2;
+			if (game.keyUp('o')) drawHoveredTileCoords = !drawHoveredTileCoords;
+			if (game.keyUp('n')) TheaterEngine.add(new OpenInventoryCommand(game));
+
+			if (game.keyUp('g')) TheaterEngine.add(new ReceiveItemCommand(game, Items.ORANGE, 100000, player, true));
+			if (game.keyUp('h')) {
+				ItemManager.takeItem(Items.ORANGE, 500);
+				TheaterEngine.add(new ShowDialogCommand(game,
+						"You dropped 500 oranges! I don't know why you would do that, but they're gross now so leave them be! You don't want to become dIsEAsEd, dO yOu?"));
+			}
+
 		}
-
-		// Zoom out/in if q/e are pressed, toggle hovered tile drawing
-		if (game.keyUp('q')) Tile.GAME_SIZE -= 2;
-		if (game.keyUp('e')) Tile.GAME_SIZE += 2;
-		if (game.keyUp('o')) drawHoveredTileCoords = !drawHoveredTileCoords;
 
 		// Update entities
 		for (Dynamic e : entities)
@@ -125,8 +140,8 @@ public class PlayState extends State {
 		// Draw a cyan transparent rectangle over the hovered tile, as well as a string containing the tile's coordinates for reference
 		if (drawHoveredTileCoords) {
 			fRect mousePos = game.mouseBounds();
-			int tx = (int) (mousePos.x - camera.ox) / EditorState.tSize - ((mousePos.x - camera.ox < 0) ? 1 : 0);
-			int ty = (int) (mousePos.y - camera.oy) / EditorState.tSize - ((mousePos.y - camera.oy < 0) ? 1 : 0);
+			int tx = (int) (mousePos.x - camera.ox) / Tile.GAME_SIZE - ((mousePos.x - camera.ox < 0) ? 1 : 0);
+			int ty = (int) (mousePos.y - camera.oy) / Tile.GAME_SIZE - ((mousePos.y - camera.oy < 0) ? 1 : 0);
 			if (tx >= 0 && ty >= 0 && tx < map.numWide() && ty < map.numTall()) {
 				new fRect(tx * Tile.GAME_SIZE + camera.ox, ty * Tile.GAME_SIZE + camera.oy, Tile.GAME_SIZE, Tile.GAME_SIZE).fill(g,
 						new Color(0, 255, 255, 120));

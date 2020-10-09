@@ -9,8 +9,8 @@ public class ItemManager {
 	public static enum Items { MONEY, HEALTH, APPLE, ORANGE }
 
 	private static ArrayList<ItemSlot> inventory = new ArrayList<ItemSlot>(); // ArrayList representing the inventory
-	private static final int MAX_AMOUNT_PER_SLOT = 100; // The maximum number of items that can be inside a given slot
-	private static final int MAX_NUM_SLOTS = 100; // The maximum number of slots the inventory can have
+	public static final int MAX_AMOUNT_PER_SLOT = 999; // The maximum number of items that can be inside a given slot
+	public static final int MAX_NUM_SLOTS = Integer.MAX_VALUE; // The maximum number of slots the inventory can have
 	public static boolean AUTOMATICALLY_SORT = false;
 
 	private static final Comparator<ItemSlot> sorter = new Comparator<ItemSlot>() {
@@ -21,6 +21,39 @@ public class ItemManager {
 			else return (o1.amount > o2.amount) ? -1 : (o1.amount < o2.amount) ? 1 : 0;
 		}
 	};
+
+	/**
+	 * Returns the size of the inventory as the number of slots.
+	 */
+	public static int size() { return inventory.size(); }
+
+	/**
+	 * Returns the item ID of the slot at the given index.
+	 * 
+	 * @param index The index of the slot to be checked
+	 * @return The item ID of the slot
+	 */
+	public static Items getItemID(int index) {
+		if (index >= 0 && index < inventory.size()) return inventory.get(index).item;
+		else {
+			System.out.println("Invalid index! The inventory is not that big!");
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the amount of items in the slot at the given index.
+	 * 
+	 * @param index The index of the slot to be checked
+	 * @return The number of items in the given slot
+	 */
+	public static int getAmount(int index) {
+		if (index >= 0 && index < inventory.size()) return inventory.get(index).amount;
+		else {
+			System.out.println("Invalid index! The inventory is not that big!");
+			return -1;
+		}
+	}
 
 	/**
 	 * This function attempts to insert the given item with the given amount to the inventory. It returns the number of items it could successfully add.
