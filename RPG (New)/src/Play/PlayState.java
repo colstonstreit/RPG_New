@@ -23,6 +23,8 @@ import Play.Quests.Quest;
 import Play.Quests.QuestManager;
 import Play.TheaterEngine.BaseCommand;
 import Play.TheaterEngine.FadeOutCommand;
+import Play.TheaterEngine.GetInputCommand;
+import Play.TheaterEngine.GetInputCommand.InputResponse;
 import Play.TheaterEngine.MoveCommand;
 import Play.TheaterEngine.OpenInventoryCommand;
 import Play.TheaterEngine.PanCameraCommand;
@@ -32,6 +34,7 @@ import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
 import Play.TheaterEngine.TurnCommand;
 import Play.TheaterEngine.WaitCommand;
+import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 
 public class PlayState extends State {
 
@@ -43,6 +46,8 @@ public class PlayState extends State {
 	public static ArrayList<Dynamic> entities = new ArrayList<Dynamic>();
 
 	public static boolean drawHoveredTileCoords = false;
+
+	private InputResponse inputResponse = new InputResponse();
 
 	public PlayState(Game game) {
 		super(game);
@@ -86,6 +91,14 @@ public class PlayState extends State {
 			if (game.keyUp('o')) drawHoveredTileCoords = !drawHoveredTileCoords;
 			if (game.keyUp('n')) TheaterEngine.add(new OpenInventoryCommand(game));
 			if (game.keyUp('l')) TheaterEngine.add(new PanCameraCommand(game, player.getCenter().x, player.getCenter().y, 500));
+			if (game.keyUp('u')) {
+				ArrayList<String> options = new ArrayList<String>();
+				options.add("You!");
+				options.add("Your mom!");
+				options.add("Everything in this freaking world, my dude!");
+				TheaterEngine.add(new GetInputCommand(game, "What do you like?", options, inputResponse));
+			}
+			if (game.keyUp('m')) TheaterEngine.cueCutscene(Cutscenes.EXAMPLE);
 
 			if (game.keyUp('g')) TheaterEngine.add(new ReceiveItemCommand(game, Items.ORANGE, 100000, player, true));
 			if (game.keyUp('h')) {
@@ -95,6 +108,8 @@ public class PlayState extends State {
 			}
 
 		}
+
+		if (inputResponse.hasReponse() && !inputResponse.hasBeenShared()) System.out.println(inputResponse.getResponse());
 
 		// Update entities
 		for (Dynamic e : entities)

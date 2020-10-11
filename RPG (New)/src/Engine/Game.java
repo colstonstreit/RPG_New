@@ -8,6 +8,7 @@ import Play.PlayState;
 import Play.Maps.MapManager;
 import Play.Maps.Tile;
 import Play.Quests.QuestManager;
+import Play.TheaterEngine.Cutscenes.CutsceneManager;
 
 public class Game extends Engine {
 
@@ -36,6 +37,7 @@ public class Game extends Engine {
 		AssetManager.loadAssets();
 		QuestManager.loadQuests(this);
 		MapManager.loadMaps(this);
+		CutsceneManager.loadCutscenes(this);
 		changeState(States.PLAY);
 	}
 

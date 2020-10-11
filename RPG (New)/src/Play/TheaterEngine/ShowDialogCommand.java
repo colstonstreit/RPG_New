@@ -12,7 +12,7 @@ import Engine.Tools.fRect;
 public class ShowDialogCommand extends BaseCommand {
 
 	private static final int numLines = 4;
-	private static final Font dialogFont = new Font("Times New Roman", Font.BOLD, 24);
+	protected static final Font dialogFont = new Font("Times New Roman", Font.BOLD, 24);
 	private static final int normalDelayBetweenCharacters = 20;
 	private static final int fastDelayBetweenCharacters = 1;
 
@@ -148,7 +148,7 @@ public class ShowDialogCommand extends BaseCommand {
 	public void render(Graphics g, int ox, int oy) {
 
 		// Fill and draw before drawing text on top
-		dialogBox.fill(g, new Color(0, 0, 0, 100));
+		dialogBox.fill(g, new Color(0, 0, 0, 150));
 		dialogBox.draw(g, Color.white);
 		g.setFont(dialogFont);
 		g.setColor(Color.white);

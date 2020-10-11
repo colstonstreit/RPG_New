@@ -5,11 +5,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import Play.Entities.Dynamic;
+import Play.TheaterEngine.Cutscenes.Cutscene;
+import Play.TheaterEngine.Cutscenes.CutsceneManager;
+import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 
 public class TheaterEngine {
 
 	private static LinkedList<ArrayList<BaseCommand>> commandGroups = new LinkedList<ArrayList<BaseCommand>>(); // The current queue of commands
 	private static boolean justCompleted = false; // whether or not a command has been completed in the last tick() cycle
+
+	private static Cutscene currentCutscene = null; // The current cutscene that is playing
 
 	/**
 	 * Returns true if there is a command currently in progress or if one has just completed.
@@ -42,6 +47,14 @@ public class TheaterEngine {
 	}
 
 	/**
+	 * Cues the commands that are contained with the cutscene with the given ID number.
+	 */
+	public static void cueCutscene(Cutscenes cutsceneID) {
+		currentCutscene = CutsceneManager.getCutscene(cutsceneID);
+		currentCutscene.init();
+	}
+
+	/**
 	 * Updates the command at the front of the queue, and removes it if it has been completed.
 	 */
 	public static void tick(double deltaTime) {
@@ -67,6 +80,12 @@ public class TheaterEngine {
 
 			// If all commands in this group have been completed, remove this empty group from the command list
 			if (list.isEmpty()) commandGroups.pop();
+		}
+
+		// Update the current cutscene if there is one.
+		if (currentCutscene != null) {
+			currentCutscene.tick(deltaTime);
+			if (currentCutscene.finished) currentCutscene = null;
 		}
 	}
 
