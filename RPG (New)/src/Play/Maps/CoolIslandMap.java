@@ -53,11 +53,13 @@ public class CoolIslandMap extends TileMap {
 
 	public boolean onInteract(Entity target) {
 		if (target == squirty) {
-			QuestManager.addQuest(Quests.LAVA_MAN, false);
+			QuestManager.addQuest(Quests.LAVA_MAN);
 			squirty.setText(getDialog(squirty));
 			return true;
 		} else if (target == sparky) {
-			QuestManager.addQuest(Quests.PIKACHU_CORNER, true);
+			QuestManager.addQuest(Quests.PIKACHU_CORNER);
+			return true;
+		} else if (target == throughLava) {
 			return true;
 		}
 		return false;

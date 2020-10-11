@@ -25,7 +25,9 @@ import Play.TheaterEngine.BaseCommand;
 import Play.TheaterEngine.FadeOutCommand;
 import Play.TheaterEngine.MoveCommand;
 import Play.TheaterEngine.OpenInventoryCommand;
+import Play.TheaterEngine.PanCameraCommand;
 import Play.TheaterEngine.ReceiveItemCommand;
+import Play.TheaterEngine.SetCameraFocusCommand;
 import Play.TheaterEngine.ShowDialogCommand;
 import Play.TheaterEngine.TheaterEngine;
 import Play.TheaterEngine.TurnCommand;
@@ -34,8 +36,6 @@ import Play.TheaterEngine.WaitCommand;
 public class PlayState extends State {
 
 	public static TileMap map;
-	public static Maps newMapID;
-	public static boolean mustResetEntities = false;
 
 	public static Camera camera;
 	public static Player player;
@@ -51,7 +51,7 @@ public class PlayState extends State {
 		player = new Player(game, new Vec2(24.5, 32));
 		entities.add(player);
 
-		changeMap(Maps.COOL_ISLAND, false);
+		changeMap(Maps.COOL_ISLAND);
 
 		camera.centerOnEntity(player, false);
 	}
@@ -67,7 +67,7 @@ public class PlayState extends State {
 			if (game.keyUp('p')) game.changeState(Game.States.EDITOR);
 
 			// Switch camera mode if f is pressed
-			if (game.keyUp('f')) camera.centerOnEntity(player, !camera.smoothMovement);
+			if (game.keyUp('f')) TheaterEngine.add(new SetCameraFocusCommand(game, player, !camera.smoothMovement));
 
 			// Test all the commands if t is pressed
 			if (game.keyUp('t')) {
@@ -85,6 +85,7 @@ public class PlayState extends State {
 			if (game.keyUp('e')) Tile.GAME_SIZE += 2;
 			if (game.keyUp('o')) drawHoveredTileCoords = !drawHoveredTileCoords;
 			if (game.keyUp('n')) TheaterEngine.add(new OpenInventoryCommand(game));
+			if (game.keyUp('l')) TheaterEngine.add(new PanCameraCommand(game, player.getCenter().x, player.getCenter().y, 500));
 
 			if (game.keyUp('g')) TheaterEngine.add(new ReceiveItemCommand(game, Items.ORANGE, 100000, player, true));
 			if (game.keyUp('h')) {
@@ -101,15 +102,6 @@ public class PlayState extends State {
 
 		// Update map
 		map.tick(deltaTime);
-
-		// Change map if necessary!
-		if (newMapID != null) {
-			changeMap(newMapID, false);
-			newMapID = null;
-		} else if (mustResetEntities) {
-			changeMap(map.id, true);
-			mustResetEntities = false;
-		}
 
 		// Update camera
 		camera.tick(deltaTime);
@@ -158,24 +150,34 @@ public class PlayState extends State {
 	/**
 	 * Switches the map to the one with the id passed in, or does nothing if the requested map does not exist.
 	 * 
-	 * @param mapID            The id of the requested map
-	 * @param refreshIfSameMap True if the entities should be refreshed even if the map itself isn't actually changing
+	 * @param mapID The id of the requested map
 	 */
-	public static void changeMap(Maps mapID, boolean refreshIfSameMap) {
+	public static void changeMap(Maps mapID) {
 		if (!MapManager.mapList.containsKey(mapID)) {
 			System.out.println("There is no map with the name: " + mapID + "!");
 			return;
-		} else if (map != null && mapID.equals(map.id) && !refreshIfSameMap) return;
+		} else if (map != null && map.id == MapManager.get(mapID).id) {
+			System.out.println("You are already on this map, silly!");
+			return;
+		}
 
+		map = MapManager.get(mapID);
+		refreshEntities(mapID);
+	}
+
+	/**
+	 * Refreshes the entity list and fills it with all of the entities on the given map ID.
+	 * 
+	 * @param mapID The id of the map whose entities should be loaded.
+	 */
+	public static void refreshEntities(Maps mapID) {
 		entities.clear();
 		entities.add(player);
-		map = MapManager.get(mapID);
 		map.populateDynamics(entities);
 
 		for (Quest q : QuestManager.currentQuestList) {
 			q.populateDynamics(mapID, entities);
 		}
-
 	}
 
 	public Vec2 worldToScreen(Vec2 v) { return new Vec2(v.x * Tile.GAME_SIZE + camera.ox, v.y * Tile.GAME_SIZE + camera.oy); }

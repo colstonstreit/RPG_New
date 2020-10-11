@@ -52,6 +52,7 @@ public class PikachuCornerQuest extends Quest {
 				complete();
 				return true;
 			}
+			return true;
 		}
 
 		return false;

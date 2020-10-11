@@ -53,10 +53,11 @@ public class Player extends Creature {
 				if (e != this && interactArea().intersects(e.interactableRegion())) {
 					// Do whatever to the entity
 					e.onInteract(this);
+
 					// Check map, then check quests
 					boolean breakLoop = false;
 					if (PlayState.map.onInteract(e)) breakLoop = true;
-					
+
 					for (Quest q : QuestManager.currentQuestList) {
 						if (q.onInteract(e)) {
 							breakLoop = true;

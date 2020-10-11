@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import Engine.Game;
-import Engine.Tools.Function;
-import Play.PlayState;
 import Play.Entities.Entity;
 import Play.TheaterEngine.FadeOutCommand;
 import Play.TheaterEngine.TheaterEngine;
@@ -47,10 +45,9 @@ public class QuestManager {
 	/**
 	 * Adds a new quest to the front of the list of quests if there is no other quest by the same name currently in the list.
 	 * 
-	 * @param questName     The name of the quest
-	 * @param resetEntities True if the map should reset the entities after adding this quest
+	 * @param questName The name of the quest
 	 */
-	public static void addQuest(Quests questName, boolean resetEntities) {
+	public static void addQuest(Quests questName) {
 		if (!quests.containsKey(questName)) {
 			System.out.println("There exists no quest with the name: " + questName + "!");
 			return;
@@ -61,13 +58,7 @@ public class QuestManager {
 			if (q.isRepeatable) q.reset();
 			q.isCompleted = false;
 			currentQuestList.push(q);
-			if (resetEntities) {
-				TheaterEngine.add(new FadeOutCommand(game, 500, 1000, 500, Color.black, new Function() {
-
-					public void run() { PlayState.mustResetEntities = true; }
-
-				}));
-			}
+			TheaterEngine.add(new FadeOutCommand(game, 500, 500, 500, Color.black, null));
 		}
 	}
 
