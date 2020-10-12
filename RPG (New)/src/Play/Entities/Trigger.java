@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import Engine.Game;
 import Engine.Tools.Function;
 import Play.PlayState;
+import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class Trigger extends Dynamic {
 
@@ -54,7 +55,7 @@ public class Trigger extends Dynamic {
 
 	public void tick(double deltaTime) {
 		// If this Trigger runs upon collision with the player or it was interacted with
-		if (!runOnInteract || wasInteractedWith) {
+		if ((!runOnInteract && !TheaterEngine.hasCommand()) || wasInteractedWith) {
 			for (Dynamic e : PlayState.entities) {
 				if (e == this || !(e instanceof Player)) continue;
 				Player p = (Player) e;

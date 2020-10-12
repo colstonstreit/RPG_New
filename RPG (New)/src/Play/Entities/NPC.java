@@ -7,8 +7,8 @@ import Engine.Game;
 import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 import Play.LootTable;
-import Play.TheaterEngine.ShowDialogCommand;
-import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.Commands.ShowDialogCommand;
+import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class NPC extends Creature {
 

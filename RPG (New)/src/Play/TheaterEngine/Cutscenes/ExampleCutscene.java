@@ -1,47 +1,62 @@
 package Play.TheaterEngine.Cutscenes;
 
-import java.util.ArrayList;
-
 import Engine.Game;
+import Engine.Tools.Vec2;
+import Play.PlayState;
+import Play.Entities.Creature.Facing;
+import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
-import Play.TheaterEngine.GetInputCommand;
-import Play.TheaterEngine.GetInputCommand.InputResponse;
-import Play.TheaterEngine.ShowDialogCommand;
-import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.Commands.TheaterEngine;
 import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 
 public class ExampleCutscene extends Cutscene {
 
-	public ExampleCutscene(Game game) { super(game, Cutscenes.EXAMPLE, Maps.COOL_ISLAND); }
+	private final double characterSpeed = 150; // speed in ms per tile
+
+	public ExampleCutscene(Game game) { super(game, Cutscenes.EXAMPLE); }
 
 	public void init() {
 		finished = false;
 
-		flags.put("ASKED_AGE", false);
+		setFlag("ASKED_AGE", false);
+		addQuestion("IS_HOW_OLD?", "I'm 19!", "I'm old. Who cares?");
 
-		ArrayList<String> ageOptions = new ArrayList<String>();
-		ageOptions.add("I'm 19!");
-		ageOptions.add("I'm old. Who cares?");
-		questions.put("AGE", ageOptions);
-		responses.put("AGE", new InputResponse());
-		flags.put("AGE", false);
+		fade = doNormalFade(null);
 	}
 
 	public void tick(double deltaTime) {
 
-		if (!flags.get("ASKED_AGE")) {
-			TheaterEngine.add(new ShowDialogCommand(game, "Sup guys!"));
-			TheaterEngine.add(new GetInputCommand(game, "How old are you?", questions.get("AGE"), responses.get("AGE")));
-			flags.put("ASKED_AGE", true);
+		if (!flagSet("ASKED_AGE")) {
+			say("Sup guys!");
+			wait(1000);
+			addToEngine = false;
+			TheaterEngine.addGroup(addSimultaneousCommands(panCam(new Vec2(0, 0), 1000), ask("How old are you?", "IS_HOW_OLD?")), false);
+			addToEngine = true;
+			setFlag("ASKED_AGE", true);
 		}
 
-		if (!flags.get("AGE")) {
-			if (responses.get("AGE").hasReponse()) {
-				System.out.println("User said: " + questions.get("AGE").get(responses.get("AGE").getResponse()));
-				flags.put("AGE", true);
+		if (!flagSet("IS_HOW_OLD?")) {
+			if (hasResponse("IS_HOW_OLD?")) {
+				say("You said: " + getSelectedResponse("IS_HOW_OLD?"));
+				move(PlayState.player, new Vec2(7, 7), characterSpeed);
+				focusCam(PlayState.player, false, 2000);
+				move(PlayState.player, new Vec2(0, 49), characterSpeed);
+
+				fade = doNormalFade(null);
+				addToEngine = false;
+				fade.addAction(move(PlayState.player, new Vec2(0, 0), 0, true));
+				fade.addAction(turn(PlayState.player, Facing.Right));
+				addToEngine = true;
+
+				wait(2000);
+				move(PlayState.player, new Vec2(10, 49), characterSpeed);
+				giveItem(Items.APPLE, 100, PlayState.player, true);
+				move(PlayState.player, new Vec2(10, 25), characterSpeed);
+				setFlag("IS_HOW_OLD?", true);
 			}
 		} else {
-			finished = true;
+			finish();
+			fade.addAction(teleport(PlayState.player, new Vec2(0, 0), Maps.LOL, false, null));
 		}
 	}
 

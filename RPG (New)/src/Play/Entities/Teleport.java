@@ -5,8 +5,8 @@ import Engine.Tools.Function;
 import Engine.Tools.Vec2;
 import Play.PlayState;
 import Play.Maps.MapManager.Maps;
-import Play.TheaterEngine.TeleportCommand;
-import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.Commands.TeleportCommand;
+import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class Teleport extends Trigger {
 

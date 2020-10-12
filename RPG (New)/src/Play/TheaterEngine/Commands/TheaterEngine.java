@@ -1,4 +1,4 @@
-package Play.TheaterEngine;
+package Play.TheaterEngine.Commands;
 
 import java.awt.Graphics;
 import java.util.ArrayList;

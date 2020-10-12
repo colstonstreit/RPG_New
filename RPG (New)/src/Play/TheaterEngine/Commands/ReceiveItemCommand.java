@@ -1,4 +1,4 @@
-package Play.TheaterEngine;
+package Play.TheaterEngine.Commands;
 
 import java.awt.Graphics;
 
@@ -8,6 +8,7 @@ import Engine.Sprite;
 import Engine.Tools.fRect;
 import Play.Entities.Creature;
 import Play.Entities.Creature.Facing;
+import Play.Entities.Player;
 import Play.Entities.Items.ItemManager;
 import Play.Entities.Items.ItemManager.Items;
 
@@ -44,7 +45,7 @@ public class ReceiveItemCommand extends BaseCommand {
 	}
 
 	public void start() {
-		group.add(dialogCommand);
+		if (player instanceof Player) group.add(dialogCommand);
 		group.add(turnCommand);
 	}
 
@@ -65,7 +66,7 @@ public class ReceiveItemCommand extends BaseCommand {
 
 	public void complete() {
 		group.add(new TurnCommand(game, player, pastDirection));
-		if (addItemsHere) ItemManager.giveItem(item, count);
+		if (addItemsHere && player instanceof Player) ItemManager.giveItem(item, count);
 		// Do stuff above
 		super.complete();
 	}

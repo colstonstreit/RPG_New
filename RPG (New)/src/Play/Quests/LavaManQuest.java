@@ -13,9 +13,9 @@ import Play.Entities.Items.ItemManager;
 import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager.Quests;
-import Play.TheaterEngine.ReceiveItemCommand;
-import Play.TheaterEngine.ShowDialogCommand;
-import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.Commands.ReceiveItemCommand;
+import Play.TheaterEngine.Commands.ShowDialogCommand;
+import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class LavaManQuest extends Quest {
 

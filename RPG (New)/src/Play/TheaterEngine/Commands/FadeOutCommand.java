@@ -1,7 +1,8 @@
-package Play.TheaterEngine;
+package Play.TheaterEngine.Commands;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
 
 import Engine.Game;
 import Engine.Tools.Function;
@@ -17,6 +18,7 @@ public class FadeOutCommand extends BaseCommand {
 	private double timeElapsed; // The amount of time that has elapsed so far
 	private int alpha; // The current transparency of the color to be drawn
 
+	private ArrayList<BaseCommand> fadedCommands = new ArrayList<BaseCommand>(); // list of commands to be done while faded out
 	protected Function function; // The function to be called when everything is faded out
 
 	/**
@@ -54,10 +56,16 @@ public class FadeOutCommand extends BaseCommand {
 				stage = Stage.FADE_IN;
 				timeElapsed = 0;
 			}
+			for (BaseCommand c : fadedCommands) {
+				c.tick(deltaTime);
+			}
 		} else if (stage == Stage.FADE_IN) { // If fading back in, calculate alpha based on linear interpolation
 			alpha = (int) Math.max(0, (255.0 - timeElapsed / fadeInLength * 255.0));
 			if (timeElapsed >= fadeInLength) {
 				complete();
+				for (BaseCommand c : fadedCommands) {
+					if (!c.hasCompleted) c.complete();
+				}
 			}
 		}
 	}
@@ -65,7 +73,32 @@ public class FadeOutCommand extends BaseCommand {
 	public void render(Graphics g, int ox, int oy) {
 		g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
 		g.fillRect(0, 0, game.getWidth(), game.getHeight());
+		if (isHolding()) {
+			for (BaseCommand c : fadedCommands) {
+				c.render(g, ox, oy);
+			}
+		}
 	}
 
+	/**
+	 * Adds a command to the group, which will all be called in the middle of the fade out period.
+	 *
+	 * @param b The command to be performed during the fade out.
+	 */
+	public void addAction(BaseCommand b) { fadedCommands.add(b); }
+
+	/**
+	 * Adds a group of commands to be run while in the middle of the fade out period.
+	 * 
+	 * @param list The ArrayList of commands to be performed during the fade out.
+	 */
+	public void addActions(ArrayList<BaseCommand> list) {
+		for (BaseCommand c : list)
+			addAction(c);
+	}
+
+	/**
+	 * Returns true if this command is currently in the completely faded out portion.
+	 */
 	public boolean isHolding() { return stage == Stage.HOLD; }
 }

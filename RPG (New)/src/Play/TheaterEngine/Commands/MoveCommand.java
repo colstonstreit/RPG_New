@@ -1,10 +1,13 @@
-package Play.TheaterEngine;
+package Play.TheaterEngine.Commands;
 
 import Engine.Game;
 import Engine.Tools.Vec2;
 import Play.Entities.Dynamic;
 
 public class MoveCommand extends BaseCommand {
+
+	private boolean doNormSpeed = false; // whether or not a regular speed should be used rather than time
+	private double speedToMove = 0; // the speed in ms per tile the entity should move at if doNormSpeed is true
 
 	protected Dynamic e; // The entity to be moved
 	private Vec2 p; // The position the entity should be moved to
@@ -33,7 +36,27 @@ public class MoveCommand extends BaseCommand {
 		wasSolidVsDynamic = e.solidVsDynamic;
 	}
 
+	/**
+	 * @param game The game instance.
+	 * @param e The entity to be moved.
+	 * @param p The new position for the entity.
+	 * @param speedToMove The speed in ms per tile that the entity should move.
+	 */
+	public MoveCommand(Game game, Dynamic e, Vec2 p, double speedToMove) {
+		super(game);
+		this.e = e;
+		this.p = p;
+		this.moveThroughThings = true;
+		doNormSpeed = true;
+		this.speedToMove = speedToMove;
+		wasSolidVsStatic = e.solidVsStatic;
+		wasSolidVsDynamic = e.solidVsDynamic;
+	}
+
 	public void start() {
+		// If walking at constant speed, calculate time here.
+		if (doNormSpeed) time = p.distanceTo(e.pos) * speedToMove;
+
 		// Get initial velocity (change in position) and set collision flags to false if so desired
 		v = p.subtract(e.pos);
 		if (moveThroughThings) e.setCollisionType(false, false);

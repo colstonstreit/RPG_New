@@ -1,4 +1,4 @@
-package Play.TheaterEngine;
+package Play.TheaterEngine.Commands;
 
 import Engine.Game;
 

@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import Engine.Game;
+import Engine.Tools.Function;
+import Play.PlayState;
 import Play.Entities.Entity;
-import Play.TheaterEngine.FadeOutCommand;
-import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.Commands.FadeOutCommand;
+import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class QuestManager {
 
@@ -58,7 +60,10 @@ public class QuestManager {
 			if (q.isRepeatable) q.reset();
 			q.isCompleted = false;
 			currentQuestList.push(q);
-			TheaterEngine.add(new FadeOutCommand(game, 500, 500, 500, Color.black, null));
+			TheaterEngine.add(new FadeOutCommand(game, 500, 500, 500, Color.black, new Function() {
+
+				public void run() { PlayState.refreshEntities(PlayState.map.id); }
+			}));
 		}
 	}
 

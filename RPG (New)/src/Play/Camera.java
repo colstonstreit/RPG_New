@@ -4,6 +4,7 @@ import Engine.Game;
 import Engine.State;
 import Engine.Tools.Vec2;
 import Play.Entities.Entity;
+import Play.Maps.Tile;
 
 public class Camera {
 
@@ -44,18 +45,17 @@ public class Camera {
 	public void tick(double deltaTime) {
 		if (e != null) {
 			// Only update if there's an entity to follow and then find ideal offsets
-			Vec2 screenPos = getState().worldToScreen(e.getCenter()).subtract(new Vec2(ox, oy));
+			Vec2 screenPos = e.getCenter().scale(Tile.GAME_SIZE);
 			double idealOX = game.getWidth() / 2 - screenPos.x;
 			double idealOY = game.getHeight() / 2 - screenPos.y;
 
-			double diffX = (double) idealOX - ox;
-			double diffY = (double) idealOY - oy;
+			double diffX = idealOX - ox;
+			double diffY = idealOY - oy;
 
 			if (smoothMovement) {
 				// Use mathematical algorithm to convey smooth panning motion only if desired
 				if (Math.abs(diffX) >= 0.5) ox += (int) (diffX * Math.exp(1 / diffX) / cameraInertia);
 				if (Math.abs(diffY) >= 0.5) oy += (int) (diffY * Math.exp(1 / diffY) / cameraInertia);
-
 				if (new Vec2(diffX, diffY).getMagnitude() <= 4) {
 					ox = (int) idealOX;
 					oy = (int) idealOY;

@@ -10,7 +10,7 @@ import Engine.Tools.fRect;
 import Play.PlayState;
 import Play.Quests.Quest;
 import Play.Quests.QuestManager;
-import Play.TheaterEngine.TheaterEngine;
+import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class Player extends Creature {
 

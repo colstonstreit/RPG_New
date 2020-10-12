@@ -1,4 +1,4 @@
-package Play.TheaterEngine;
+package Play.TheaterEngine.Commands;
 
 import Engine.Game;
 import Play.PlayState;
@@ -6,8 +6,8 @@ import Play.Maps.Tile;
 
 public class PanCameraCommand extends BaseCommand {
 
-	private final int targetOX, targetOY; // the target offsets to be reached
-	private int initialOX, initialOY; // initial camera offsets
+	protected int targetOX, targetOY; // the target offsets to be reached
+	protected int initialOX, initialOY; // initial camera offsets
 
 	private final int timeToTake; // how long to take to pan over in milliseconds
 	private int timeTaken = 0; // the amount of time passed so far in milliseconds
