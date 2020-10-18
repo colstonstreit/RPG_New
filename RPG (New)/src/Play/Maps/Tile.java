@@ -9,6 +9,7 @@ import Engine.Sprite;
 @SuppressWarnings("unused")
 public class Tile {
 
+	public static final int NORM_GAME_SIZE = 32; // the normal size constant for game mode
 	public static int GAME_SIZE = 32; // the size that tiles should be rendered in game mode
 
 	private static Tile[] tiles = new Tile[256]; // list of all tiles

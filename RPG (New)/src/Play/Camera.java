@@ -9,7 +9,7 @@ import Play.Maps.Tile;
 public class Camera {
 
 	private Game game; // An instance of the game object
-	private Entity e; // The entity to be followed
+	public Entity e; // The entity to be followed
 	public int ox, oy; // The x and y camera offsets
 
 	public boolean smoothMovement; // Whether or not the camera should move smoothly

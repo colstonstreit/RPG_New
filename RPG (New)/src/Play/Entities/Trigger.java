@@ -35,6 +35,9 @@ public class Trigger extends Dynamic {
 		this.setCollisionType(true, runOnInteract);
 	}
 
+	/**
+	 * Runs upon the entity interacting with this (explicitly through enter button, for example).
+	 */
 	public void onInteract(Entity e) {
 		// Run custom function only if the trigger has been interacted with
 		if (runOnInteract) {
@@ -53,13 +56,16 @@ public class Trigger extends Dynamic {
 		}
 	}
 
+	/**
+	 * Checks for collision with player and runs a certain function if it should.
+	 */
 	public void tick(double deltaTime) {
-		// If this Trigger runs upon collision with the player or it was interacted with
-		if ((!runOnInteract && !TheaterEngine.hasCommand()) || wasInteractedWith) {
+		// Trigger runs upon collision with the player if TheaterEngine not in control.
+		if (!runOnInteract && !TheaterEngine.hasCommand()) {
 			for (Dynamic e : PlayState.entities) {
 				if (e == this || !(e instanceof Player)) continue;
 				Player p = (Player) e;
-				if (!wasInteractedWith && !p.hitbox().intersects(hitbox())) continue;
+				if (!p.hitbox().intersects(hitbox())) continue;
 				switch (triggerType) {
 					case ONCE:
 						if (active) {

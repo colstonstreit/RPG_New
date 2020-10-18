@@ -64,7 +64,6 @@ public class LavaManQuest extends Quest {
 			if (phase == 0) {
 				if (ItemManager.hasItem(Items.APPLE, 5)) {
 					ItemManager.takeItem(Items.APPLE, 5);
-					ItemManager.printContents();
 				} else {
 					((NPC) initiator).setText("Aw, you don't have five apples for me. :(");
 				}

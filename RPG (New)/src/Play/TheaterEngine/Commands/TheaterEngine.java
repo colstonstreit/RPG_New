@@ -19,7 +19,7 @@ public class TheaterEngine {
 	/**
 	 * Returns true if there is a command currently in progress or if one has just completed.
 	 */
-	public static boolean hasCommand() { return justCompleted || !commandGroups.isEmpty(); }
+	public static boolean hasCommand() { return justCompleted || !commandGroups.isEmpty() || currentCutscene != null; }
 
 	/**
 	 * Adds a new command to the queue.
@@ -50,6 +50,10 @@ public class TheaterEngine {
 	 * Cues the commands that are contained with the cutscene with the given ID number.
 	 */
 	public static void cueCutscene(Cutscenes cutsceneID) {
+		if (currentCutscene != null) {
+			System.out.println("There is already a cutscene in progress!");
+			return;
+		}
 		currentCutscene = CutsceneManager.getCutscene(cutsceneID);
 		currentCutscene.init();
 	}

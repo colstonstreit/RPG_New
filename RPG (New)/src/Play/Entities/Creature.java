@@ -88,12 +88,12 @@ public abstract class Creature extends Dynamic {
 	 * 
 	 * @param key The name of the animation to be switched to.
 	 */
-	public void changeAnimation(String key) {
+	public Creature changeAnimation(String key) {
 
 		if (!animations.containsKey(key)) {
 			// Print out error if the key is not in the Map, and don't change anything.
 			System.out.println("Animations Hashmap does not contain an Animation with key: " + key + ".");
-			return;
+			return this;
 		}
 
 		// If key is in the map, switch to it only if that animation is not already the current animation!
@@ -107,6 +107,8 @@ public abstract class Creature extends Dynamic {
 		for (Facing f : Facing.values()) {
 			if (key.equals(f.toString())) facing = f;
 		}
+
+		return this;
 	}
 
 }

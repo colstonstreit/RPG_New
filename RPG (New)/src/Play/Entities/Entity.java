@@ -9,7 +9,7 @@ import Engine.Tools.fRect;
 
 public abstract class Entity {
 	
-	public static final boolean showHitboxes = true;
+	public static final boolean showHitboxes = false;
 
 	protected final Game game; // instance of the game
 
@@ -17,7 +17,7 @@ public abstract class Entity {
 	public Vec2 size; // size on the screen (in world units | 1 tile = 1 unit)
 	protected fRect relativeHitbox; // relative hitbox based on screenSize
 
-	protected final String name; // name of entity (i.e. "Player")
+	public final String name; // name of entity (i.e. "Player")
 
 	/**
 	 * @param game An instance of the game object

@@ -14,6 +14,7 @@ import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Entities.Items.ItemManager.Items;
 import Play.Maps.MapManager.Maps;
+import Play.TheaterEngine.Commands.AddEntityCommand;
 import Play.TheaterEngine.Commands.BaseCommand;
 import Play.TheaterEngine.Commands.FadeOutCommand;
 import Play.TheaterEngine.Commands.GetInputCommand;
@@ -21,12 +22,14 @@ import Play.TheaterEngine.Commands.GetInputCommand.InputResponse;
 import Play.TheaterEngine.Commands.MoveCommand;
 import Play.TheaterEngine.Commands.PanCameraCommand;
 import Play.TheaterEngine.Commands.ReceiveItemCommand;
+import Play.TheaterEngine.Commands.RemoveEntityCommand;
 import Play.TheaterEngine.Commands.SetCameraFocusCommand;
 import Play.TheaterEngine.Commands.ShowDialogCommand;
 import Play.TheaterEngine.Commands.TeleportCommand;
 import Play.TheaterEngine.Commands.TheaterEngine;
 import Play.TheaterEngine.Commands.TurnCommand;
 import Play.TheaterEngine.Commands.WaitCommand;
+import Play.TheaterEngine.Commands.ZoomCameraCommand;
 import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 
 public abstract class Cutscene {
@@ -62,12 +65,22 @@ public abstract class Cutscene {
 
 	/**
 	 * Finishes the cutscene by setting the finished flag and resetting the entities on the map.
+	 * 
+	 * @param doFadeOut True if a fadeout should occur, false if you want to do it yourself or something else in the cutscene. If false, the entities will not
+	 *                  be reset.
 	 */
-	public void finish() {
-		fade = doNormalFade(new Function() {
+	public void finish(boolean doFadeOut) {
+		if (doFadeOut) {
+			fade = doNormalFade(new Function() {
 
-			public void run() { PlayState.refreshEntities(PlayState.map.id); }
-		});
+				public void run() { PlayState.refreshEntities(PlayState.map.id); }
+			});
+		}
+
+		questionOptions.clear();
+		responses.clear();
+		flags.clear();
+
 		finished = true;
 	}
 
@@ -136,8 +149,19 @@ public abstract class Cutscene {
 		for (int i = 0; i < commands.length; i++) {
 			commandList.add(commands[i]);
 		}
-		if (!finished && addToEngine) TheaterEngine.addGroup(commandList, false);
-		return commandList;
+		return addSimultaneousCommands(commandList);
+	}
+
+	/**
+	 * Creates a list of commands that will be run simultaneously made up of the list of commands passed in with commas between them. It then returns the list
+	 * it created.
+	 * 
+	 * @param commands An ArrayList of commands to be run simultaneously.
+	 * @return The ArrayList of commands that was created.
+	 */
+	public ArrayList<BaseCommand> addSimultaneousCommands(ArrayList<BaseCommand> commands) {
+		if (!finished && addToEngine) TheaterEngine.addGroup(commands, false);
+		return commands;
 	}
 
 	/**
@@ -325,6 +349,55 @@ public abstract class Cutscene {
 	 */
 	public ReceiveItemCommand giveItem(Items item, int count, Creature c, boolean addItemsHere) {
 		ReceiveItemCommand command = new ReceiveItemCommand(game, item, count, c, addItemsHere);
+		if (!finished && addToEngine) TheaterEngine.add(command);
+		return command;
+	}
+
+	/**
+	 * Adds the given entity to the scene.
+	 * 
+	 * @param entity The Entity to be added to the scene.
+	 * @return The AddEntityCommand that was created.
+	 */
+	public AddEntityCommand addEntity(Dynamic entity) {
+		AddEntityCommand command = new AddEntityCommand(game, entity);
+		if (!finished && addToEngine) TheaterEngine.add(command);
+		return command;
+	}
+
+	/**
+	 * Removes the entity matching the given entity (by reference) from the scene.
+	 * 
+	 * @param entity The entity to be removed.
+	 * @return The RemoveEntityCommand that was created.
+	 */
+	public RemoveEntityCommand removeEntity(Dynamic entity) {
+		RemoveEntityCommand command = new RemoveEntityCommand(game, entity);
+		if (!finished && addToEngine) TheaterEngine.add(command);
+		return command;
+	}
+
+	/**
+	 * Removes the entity with the given name from the scene.
+	 * 
+	 * @param name The name of the entity to be removed.
+	 * @return The RemoveEntityCommand that was created.
+	 */
+	public RemoveEntityCommand removeEntity(String name) {
+		RemoveEntityCommand command = new RemoveEntityCommand(game, name);
+		if (!finished && addToEngine) TheaterEngine.add(command);
+		return command;
+	}
+
+	/**
+	 * Zooms the camera to the given percentage of Tile.NORM_GAME_SIZE in the given number of milliseconds.
+	 * 
+	 * @param percentage The percentage of Tile.NORM_GAME_SIZE to zoom to (aka, 100% would be the same, 200% would be zoomed in double)
+	 * @param msDelay    The number of milliseconds that this zooming action should take
+	 * @return The ZoomCameraCommand that was created.
+	 */
+	public ZoomCameraCommand zoomCam(double percentage, int msDelay) {
+		ZoomCameraCommand command = new ZoomCameraCommand(game, percentage, msDelay);
 		if (!finished && addToEngine) TheaterEngine.add(command);
 		return command;
 	}

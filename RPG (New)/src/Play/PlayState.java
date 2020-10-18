@@ -32,6 +32,7 @@ import Play.TheaterEngine.Commands.ShowDialogCommand;
 import Play.TheaterEngine.Commands.TheaterEngine;
 import Play.TheaterEngine.Commands.TurnCommand;
 import Play.TheaterEngine.Commands.WaitCommand;
+import Play.TheaterEngine.Commands.ZoomCameraCommand;
 import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 
 public class PlayState extends State {
@@ -89,6 +90,7 @@ public class PlayState extends State {
 			if (game.keyUp('n')) TheaterEngine.add(new OpenInventoryCommand(game));
 			if (game.keyUp('l')) TheaterEngine.add(new PanCameraCommand(game, player.getCenter().x, player.getCenter().y, 500));
 			if (game.keyUp('m')) TheaterEngine.cueCutscene(Cutscenes.EXAMPLE);
+			if (game.keyUp('u')) TheaterEngine.add(new ZoomCameraCommand(game, 300, 500));
 
 			if (game.keyUp('g')) TheaterEngine.add(new ReceiveItemCommand(game, Items.ORANGE, 100000, player, true));
 			if (game.keyUp('h')) {

@@ -4,20 +4,27 @@ import java.util.ArrayList;
 
 import Engine.AssetManager.CharacterSprites;
 import Engine.Game;
+import Engine.Tools.Function;
 import Engine.Tools.Vec2;
 import Play.LootTable;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Entities.NPC;
 import Play.Entities.Teleport;
+import Play.Entities.Trigger;
+import Play.Entities.Trigger.WillTrigger;
 import Play.Maps.MapManager.Maps;
 import Play.Quests.QuestManager;
 import Play.Quests.QuestManager.Quests;
+import Play.TheaterEngine.Commands.TheaterEngine;
+import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 
 public class CoolIslandMap extends TileMap {
 
 	private static NPC sparky, squirty, bulby;
 	private static Teleport throughLava, toOtherCorner;
+	
+	private static Trigger cueKillCutscene;
 
 	public CoolIslandMap(Game game) {
 		super(game, Maps.COOL_ISLAND);
@@ -30,6 +37,12 @@ public class CoolIslandMap extends TileMap {
 
 		throughLava = (Teleport) new Teleport(game, true, "throughLava", new Vec2(11, 12), Maps.LOL).setShouldBeDrawn(true).setTransform(20, 24, 10, 5);
 		toOtherCorner = (Teleport) new Teleport(game, false, "Other Corner", new Vec2(49, 49)).setShouldBeDrawn(true).setTransform(2, 2, 1, 1);
+
+		cueKillCutscene = (Trigger) new Trigger(game, "CueKill", true, WillTrigger.FOREVER, new Function() {
+
+			public void run() { TheaterEngine.cueCutscene(Cutscenes.EXAMPLE); }
+
+		}).setShouldBeDrawn(true).setCollisionType(false, false).setTransform(20, 40, 10, 10);
 	}
 
 	public void populateDynamics(ArrayList<Dynamic> entities) {
@@ -38,6 +51,7 @@ public class CoolIslandMap extends TileMap {
 		entities.add(bulby);
 		entities.add(throughLava);
 		entities.add(toOtherCorner);
+		entities.add(cueKillCutscene);
 	}
 
 	public String getDialog(Entity e) {

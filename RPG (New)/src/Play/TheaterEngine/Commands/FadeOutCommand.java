@@ -56,8 +56,8 @@ public class FadeOutCommand extends BaseCommand {
 				stage = Stage.FADE_IN;
 				timeElapsed = 0;
 			}
-			for (BaseCommand c : fadedCommands) {
-				c.tick(deltaTime);
+			for (int i = 0, n = fadedCommands.size(); i < n; i++) {
+				fadedCommands.get(i).tick(deltaTime);
 			}
 		} else if (stage == Stage.FADE_IN) { // If fading back in, calculate alpha based on linear interpolation
 			alpha = (int) Math.max(0, (255.0 - timeElapsed / fadeInLength * 255.0));
@@ -74,8 +74,8 @@ public class FadeOutCommand extends BaseCommand {
 		g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha));
 		g.fillRect(0, 0, game.getWidth(), game.getHeight());
 		if (isHolding()) {
-			for (BaseCommand c : fadedCommands) {
-				c.render(g, ox, oy);
+			for (int i = 0, n = fadedCommands.size(); i < n; i++) {
+				fadedCommands.get(i).render(g, ox, oy);
 			}
 		}
 	}
@@ -85,7 +85,10 @@ public class FadeOutCommand extends BaseCommand {
 	 *
 	 * @param b The command to be performed during the fade out.
 	 */
-	public void addAction(BaseCommand b) { fadedCommands.add(b); }
+	public void addAction(BaseCommand b) {
+		b.group = fadedCommands;
+		fadedCommands.add(b);
+	}
 
 	/**
 	 * Adds a group of commands to be run while in the middle of the fade out period.
