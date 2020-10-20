@@ -12,12 +12,16 @@ import Play.TheaterEngine.Commands.TheaterEngine;
 
 public class NPC extends Creature {
 
+	public static final Vec2 SIZE = new Vec2(0.9, 0.9);
+
 	private LootTable<String> textOptions;
 
 	public NPC(Game game, String name, CharacterSprites spriteName, Vec2 pos) {
 		super(game, name, spriteName, pos);
 		this.textOptions = new LootTable<String>().add("I AM ERROR", 1);
 		relativeHitbox = new fRect(0, 0.5, 1, 0.5);
+		size = SIZE;
+		this.pos = new Vec2(pos.x + (1 - size.x) / 2, pos.y + (1 - size.y) / 2);
 	}
 
 	public void onInteract(Entity e) {

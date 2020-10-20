@@ -22,8 +22,8 @@ import Play.TheaterEngine.Cutscenes.CutsceneManager.Cutscenes;
 public class CoolIslandMap extends TileMap {
 
 	private static NPC sparky, squirty, bulby;
-	private static Teleport throughLava, toOtherCorner;
-	
+	private static Teleport throughLava, toOtherCorner, fromHouse;
+
 	private static Trigger cueKillCutscene;
 
 	public CoolIslandMap(Game game) {
@@ -37,6 +37,7 @@ public class CoolIslandMap extends TileMap {
 
 		throughLava = (Teleport) new Teleport(game, true, "throughLava", new Vec2(11, 12), Maps.LOL).setShouldBeDrawn(true).setTransform(20, 24, 10, 5);
 		toOtherCorner = (Teleport) new Teleport(game, false, "Other Corner", new Vec2(49, 49)).setShouldBeDrawn(true).setTransform(2, 2, 1, 1);
+		fromHouse = (Teleport) new Teleport(game, false, "Into House", new Vec2(4.5, 6), Maps.INSIDE_HOUSE).setTransform(24, 9, 1, 1);
 
 		cueKillCutscene = (Trigger) new Trigger(game, "CueKill", true, WillTrigger.FOREVER, new Function() {
 
@@ -51,6 +52,7 @@ public class CoolIslandMap extends TileMap {
 		entities.add(bulby);
 		entities.add(throughLava);
 		entities.add(toOtherCorner);
+		entities.add(fromHouse);
 		entities.add(cueKillCutscene);
 	}
 

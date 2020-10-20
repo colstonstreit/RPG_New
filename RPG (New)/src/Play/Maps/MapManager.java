@@ -6,7 +6,7 @@ import Engine.Game;
 
 public class MapManager {
 
-	public static enum Maps { LOL, COOL_ISLAND }
+	public static enum Maps { LOL, COOL_ISLAND, INSIDE_HOUSE }
 
 	public static HashMap<Maps, TileMap> mapList = new HashMap<Maps, TileMap>(); // hashMap of maps
 
@@ -27,6 +27,7 @@ public class MapManager {
 	public static void loadMaps(Game game) {
 		mapList.put(Maps.COOL_ISLAND, new CoolIslandMap(game));
 		mapList.put(Maps.LOL, new LolMap(game));
+		mapList.put(Maps.INSIDE_HOUSE, new InsideHouseMap(game));
 	}
 
 }

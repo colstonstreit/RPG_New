@@ -24,6 +24,17 @@ public class AssetManager {
 		tileImages[5] = tileSheet.crop(9, 0, 1, 1); // tree
 		tileImages[6] = tileSheet.crop(10, 0, 1, 1); // sun
 		tileImages[7] = tileSheet.crop(11, 0, 1, 1); // flower
+		tileImages[8] = tileSheet.crop(12, 0, 1, 1); // house door
+		tileImages[9] = tileSheet.crop(13, 0, 1, 1); // house window
+		tileImages[10] = tileSheet.crop(14, 0, 1, 1); // house wall without window
+		tileImages[11] = tileSheet.crop(12, 1, 1, 1); // upper-left blue house roof
+		tileImages[12] = tileSheet.crop(13, 1, 1, 1); // upper-middle blue house roof
+		tileImages[13] = tileSheet.crop(14, 1, 1, 1); // upper-right blue house roof
+		tileImages[14] = tileSheet.crop(12, 2, 1, 1); // lower-left blue house roof
+		tileImages[15] = tileSheet.crop(13, 2, 1, 1); // lower-middle blue house roof
+		tileImages[16] = tileSheet.crop(14, 2, 1, 1); // lower-right blue house roof
+		tileImages[17] = tileSheet.crop(15, 0, 1, 1); // wooden floorboards
+		tileImages[18] = tileSheet.crop(15, 1, 1, 1); // stone brick (for floor?)
 
 		// Load character images
 		Sprite characterSheet = new Sprite("/spritesheets/characterSheet.png", 16);

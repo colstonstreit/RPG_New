@@ -27,7 +27,7 @@ public abstract class Creature extends Dynamic {
 	 */
 	public Creature(Game game, String name, CharacterSprites spriteName, Vec2 pos) {
 		super(game, name);
-		this.pos = pos;
+		this.pos = new Vec2(pos.x + (1 - size.x) / 2, pos.y + (1 - size.y) / 2);
 		setCollisionType(true, true);
 		moving = false;
 		facing = Facing.Down;

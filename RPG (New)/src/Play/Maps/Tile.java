@@ -9,8 +9,8 @@ import Engine.Sprite;
 @SuppressWarnings("unused")
 public class Tile {
 
-	public static final int NORM_GAME_SIZE = 32; // the normal size constant for game mode
-	public static int GAME_SIZE = 32; // the size that tiles should be rendered in game mode
+	public static final int NORM_GAME_SIZE = 48; // the normal size constant for game mode
+	public static int GAME_SIZE = NORM_GAME_SIZE; // the size that tiles should be rendered in game mode
 
 	private static Tile[] tiles = new Tile[256]; // list of all tiles
 	private static final Tile grassTile = new Tile(0);
@@ -21,6 +21,17 @@ public class Tile {
 	private static final Tile treeTile = new Tile(5);
 	private static final Tile sunTile = new Tile(6);
 	private static final Tile flowerTile = new Tile(7);
+	private static final Tile houseDoorTile = new Tile(8);
+	private static final Tile houseWindowTile = new Tile(9);
+	private static final Tile houseWallTile = new Tile(10);
+	private static final Tile upperLeftBlueHouseTile = new Tile(11);
+	private static final Tile upperMiddleBlueHouseTile = new Tile(12);
+	private static final Tile upperRightBlueHouseTile = new Tile(13);
+	private static final Tile lowerLeftBlueHouseTile = new Tile(14);
+	private static final Tile lowerMiddleBlueHouseTile = new Tile(15);
+	private static final Tile lowerRightBlueHouseTile = new Tile(16);
+	private static final Tile woodenFloorboardTile = new Tile(17);
+	private static final Tile stoneBrickTile = new Tile(18);
 
 	protected int id; // id of the tile
 	protected Sprite sprite; // the sprite of the tile (from Assets)

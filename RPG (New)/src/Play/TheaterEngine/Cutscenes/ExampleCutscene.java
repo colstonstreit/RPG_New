@@ -80,13 +80,14 @@ public class ExampleCutscene extends Cutscene {
 			addToEngine = true;
 			addSimultaneousCommands(commands);
 
-			say("Goodbye, Colston.");
+			say("Goodbye.");
 			wait(1000);
 
 			removeEntity(PlayState.player);
 			focusCam(null, false);
 			wait(2000);
-			move(PlayState.player, new Vec2(25, 30), 0);
+			move(PlayState.player, new Vec2(24.5, 26), 0);
+			turn(PlayState.player, Facing.Down);
 
 			fade = fadeOut(1000, 500, 500, Color.black, new Function() {
 

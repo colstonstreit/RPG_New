@@ -39,14 +39,24 @@ public abstract class Dynamic extends Entity {
 			pos.x += v.x;
 
 			if (solidVsStatic) {
-				fRect hitbox = hitbox();
-				double hitboxLeftDistance = hitbox.x - pos.x;
-				double hitboxRightDistance = hitbox.x + hitbox.width - pos.x;
-				for (fRect r : PlayState.map.getColliders()) {
-					if (hitbox.intersects(r)) {
-						if (v.x > 0 && pos.x + hitboxRightDistance > r.x) pos.x = r.x - hitboxRightDistance;
-						else if (v.x < 0 && pos.x + hitboxLeftDistance < r.x + 1) pos.x = r.x + 1 - hitboxLeftDistance;
+				boolean[][] mapSolidData = PlayState.map.getSolidData();
+
+				for (int y = (int) (pos.y - 1.5 * size.y), yMax = (int) (pos.y + 2.5 * size.y); y <= yMax; y++) {
+					System.out.print("y = " + y + " | x = ");
+					for (int x = (int) (pos.x - v.x - 1.5 * size.x), xMax = (int) (pos.x - v.x + 2.5 * size.x); x <= xMax; x++) {
+						System.out.print(x + ", ");
+						if (y < 0 || y >= mapSolidData.length || x < 0 || x >= mapSolidData[y].length) continue;
+						if (!mapSolidData[y][x]) continue;
+						fRect r = new fRect(x, y, 1, 1);
+						fRect hitbox = hitbox();
+						double hitboxLeftDistance = hitbox.x - pos.x;
+						double hitboxRightDistance = hitbox.x + hitbox.width - pos.x;
+						if (hitbox.intersects(r)) {
+							if (v.x > 0 && pos.x + hitboxRightDistance > r.x) pos.x = r.x - hitboxRightDistance;
+							else if (v.x < 0 && pos.x + hitboxLeftDistance < r.x + 1) pos.x = r.x + 1 - hitboxLeftDistance;
+						}
 					}
+					System.out.print("\n");
 				}
 			}
 
@@ -70,13 +80,21 @@ public abstract class Dynamic extends Entity {
 		if (v.y != 0) {
 			pos.y += v.y;
 			if (solidVsStatic) {
-				fRect hitbox = hitbox();
-				double hitboxTopDistance = hitbox.y - pos.y;
-				double hitboxBottomDistance = hitbox.y + hitbox.height - pos.y;
-				for (fRect r : PlayState.map.getColliders()) {
-					if (hitbox.intersects(r)) {
-						if (v.y > 0 && pos.y + hitboxBottomDistance > r.y) pos.y = r.y - hitboxBottomDistance;
-						else if (v.y < 0 && pos.y + hitboxTopDistance < r.y + 1) pos.y = r.y + 1 - hitboxTopDistance;
+
+				boolean[][] mapSolidData = PlayState.map.getSolidData();
+
+				for (int y = (int) (pos.y - v.y - 1.5 * size.y), yMax = (int) (pos.y - v.y + 2.5 * size.y); y <= yMax; y++) {
+					for (int x = (int) (pos.x - 1.5 * size.x), xMax = (int) (pos.x - v.x + 2.5 * size.x); x <= xMax; x++) {
+						if (y < 0 || y >= mapSolidData.length || x < 0 || x >= mapSolidData[y].length) continue;
+						if (!mapSolidData[y][x]) continue;
+						fRect r = new fRect(x, y, 1, 1);
+						fRect hitbox = hitbox();
+						double hitboxTopDistance = hitbox.y - pos.y;
+						double hitboxBottomDistance = hitbox.y + hitbox.height - pos.y;
+						if (hitbox.intersects(r)) {
+							if (v.y > 0 && pos.y + hitboxBottomDistance > r.y) pos.y = r.y - hitboxBottomDistance;
+							else if (v.y < 0 && pos.y + hitboxTopDistance < r.y + 1) pos.y = r.y + 1 - hitboxTopDistance;
+						}
 					}
 				}
 			}

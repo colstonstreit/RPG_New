@@ -8,7 +8,7 @@ import Engine.Tools.Vec2;
 import Engine.Tools.fRect;
 
 public abstract class Entity {
-	
+
 	public static final boolean showHitboxes = false;
 
 	protected final Game game; // instance of the game
@@ -55,10 +55,12 @@ public abstract class Entity {
 	}
 
 	/**
-	 * Returns an fRect containing the Entity's hitbox in world coordinates.
+	 * Returns an fRect containing the Entity's hitbox in world coordinates rounded to the nearest millionth.
 	 */
 	public fRect hitbox() {
-		return new fRect(pos.x + size.x * relativeHitbox.x, pos.y + size.y * relativeHitbox.y, size.x * relativeHitbox.width, size.y * relativeHitbox.height);
+		return Game.round(
+				new fRect(pos.x + size.x * relativeHitbox.x, pos.y + size.y * relativeHitbox.y, size.x * relativeHitbox.width, size.y * relativeHitbox.height),
+				0.000001);
 	}
 
 	/**

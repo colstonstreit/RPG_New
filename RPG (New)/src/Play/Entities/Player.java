@@ -21,10 +21,10 @@ public class Player extends Creature {
 	 */
 	public Player(Game game, Vec2 pos) {
 		super(game, "Player", CharacterSprites.SQUIRTLE, pos);
-		this.pos = pos;
 
 		// Set player defaults
-		size = new Vec2(1, 1);
+		size = NPC.SIZE;
+		this.pos = new Vec2(pos.x + (1 - size.x) / 2, pos.y + (1 - size.y) / 2);
 		relativeHitbox = new fRect(4.0 / 16, 11.0 / 16, 8.0 / 16, 5.0 / 16);
 
 	}

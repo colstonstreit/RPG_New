@@ -39,9 +39,9 @@ public class EditorState extends State {
 	private static final Color highlightButtonColor = new Color(255, 255, 0, 220); // color of buttons that are highlighted or different (yellow)
 
 	// IMPORTANT REGIONS
-	private final fRect tileArea = game.getFRect().getSubRect(0.9, 0, 0.1, 1); // Rectangle containing where the tile selection is drawn
-	private final Rectangle tileSpace = tileArea.getSubRect(0.02, 0.005, 0.96, 0.99).cast(); // space within the tileArea where tiles actually drawn
-	private final fRect buttonArea = game.getFRect().getSubRect(0.70, 0, 0.2, 1); // area within which buttons are placed
+	private final fRect tileArea = game.getFRect().getSubRect(0, 0.8, 1, 0.2); // Rectangle containing where the tile selection is drawn
+	private final Rectangle tileSpace = tileArea.getSubRect(0.005, 0.04, 0.99, 0.92).cast(); // space within the tileArea where tiles actually drawn
+	private final fRect buttonArea = game.getFRect().getSubRect(0.8, 0, 0.2, 1); // area within which buttons are placed
 	private final fRect layerButtonArea = buttonArea.getSubRect(0.1, 0.02, 0.8, 0.13); // area where layer buttons are placed
 
 	// IMPORTANT FLAGS

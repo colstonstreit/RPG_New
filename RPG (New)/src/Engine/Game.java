@@ -20,8 +20,8 @@ public class Game extends Engine {
 	private State currentState;
 
 	public enum States { PLAY, EDITOR };
-	
-	private static final int gameWidth = 800, gameHeight = gameWidth * 3 / 4;
+
+	private static final int gameWidth = 720, gameHeight = gameWidth * 4 / 5;
 
 	public Game(int width, int height, String title) {
 		super(width, height, title);

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import Engine.AssetManager;
 import Engine.Game;
 import Engine.Tools;
-import Engine.Tools.fRect;
 import Play.Entities.Dynamic;
 import Play.Entities.Entity;
 import Play.Maps.MapManager.Maps;
@@ -18,8 +17,6 @@ public class TileMap {
 
 	protected int[][][] tileData; // The tile id data for the map
 	protected boolean[][] solidData; // The solid data for the map
-
-	private ArrayList<fRect> colliders = new ArrayList<fRect>(); // A list of colliders built from the solidData array
 
 	protected int numWide, numTall, numLayers; // Size variables of the map
 
@@ -91,8 +88,6 @@ public class TileMap {
 			}
 		}
 
-		// Add colliders to map
-		collectSolids();
 	}
 
 	public void render(Graphics g, int px, int py) {
@@ -124,7 +119,6 @@ public class TileMap {
 	public TileMap setSolid(int tx, int ty, boolean b) {
 		// Set flag and recollect colliders
 		solidData[ty][tx] = b;
-		collectSolids();
 		return this;
 	}
 
@@ -142,16 +136,9 @@ public class TileMap {
 	}
 
 	/**
-	 * Collects all of the solids and puts new Vec2s into the colliders ArrayList.
+	 * Returns the solid data of this tile map.
 	 */
-	private void collectSolids() {
-		colliders.clear();
-		for (int y = 0; y < numTall; y++) {
-			for (int x = 0; x < numWide; x++) {
-				if (solidData[y][x]) colliders.add(new fRect(x, y, 1, 1));
-			}
-		}
-	}
+	public boolean[][] getSolidData() { return solidData; }
 
 	public void tick(double deltaTime) {}
 
@@ -178,11 +165,6 @@ public class TileMap {
 	 * Resets the tilemap.
 	 */
 	public TileMap reset() { return this; }
-
-	/**
-	 * Returns the list of colliders.
-	 */
-	public ArrayList<fRect> getColliders() { return colliders; }
 
 	/**
 	 * Returns the width of the map in tiles.

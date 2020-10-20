@@ -20,6 +20,8 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
+import Engine.Tools.fRect;
+
 public abstract class Engine extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
@@ -451,6 +453,16 @@ public abstract class Engine extends Canvas implements Runnable {
 	public static double round(double n, double toNearest) { return ((int) ((n + toNearest / 2) / toNearest)) * toNearest; }
 
 	/**
+	 * Rounds each of the values of the given fRect to the nearest given value.
+	 * 
+	 * @param fRect     The fRect to be rounded
+	 * @param toNearest The number that each field should be rounded to.
+	 */
+	public static fRect round(fRect r, double toNearest) {
+		return new fRect(round(r.x, toNearest), round(r.y, toNearest), round(r.width, toNearest), round(r.height, toNearest));
+	}
+
+	/**
 	 * Clamps the given value within two boundaries, min and max in that order.
 	 * 
 	 * @param n
@@ -535,6 +547,9 @@ public abstract class Engine extends Canvas implements Runnable {
 			mouseY = e.getY();
 			wasClicked = true;
 			buttonClicked = e.getButton();
+			if (finalDraggedArea != null) {
+				finalDraggedArea = null;
+			}
 		}
 
 		/**
