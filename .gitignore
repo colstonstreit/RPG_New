@@ -2,5 +2,7 @@
 /Old_Java/.*
 /RPG_Project/Debug/
 /RPG_Project/x64
+/RPG_Project/RPG_Project.vcxproj*
+/.vs/
 
 /RPG_Project/.vs/RPG_Project/v16
