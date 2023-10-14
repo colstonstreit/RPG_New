@@ -5,4 +5,5 @@
 /RPG_Project/RPG_Project.vcxproj*
 /.vs/
 
-/RPG_Project/.vs/RPG_Project/v16
+/RPG_Project/.vs
+/RPG_Project/bin/x64/Release

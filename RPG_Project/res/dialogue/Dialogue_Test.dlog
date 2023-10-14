@@ -1,0 +1,46 @@
+// Intro NPC in Game
+@introNpc dogMissing worldSaved // Game Flags
+&introNpc Player // Entity References
+
+#introNpc_1
+Welcome to [COLOR=blue] Hyrule [COLOR]!
+[ASKONCE=NAME,8] What is your name? 
+There are many [\n] [STYLE=italic]interesting things[STYLE][\n] people here! 
+Talk to me again if you want to hear about them, [$NAME]!
+
+#introNpc_2
+What would you like to hear more about?
+$introNpc_Zelda Zelda
+$introNpc_Link Link
+$introNpc_Ganon Ganon
+
+#introNpc_Zelda_1
+[SPEED=0.5;COLOR=yellow] Zelda [SPEED;COLOR] is the princess of Hyrule.
+[#introNpc]
+
+#introNpc_Zelda_2
+You've already asked about her...[PAUSE=5] Do you have a crush on her? I do.
+
+#introNpc_Link_1
+Link is |AWESOME|!
+[#introNpc]
+
+#introNpc_Ganon_1
+[SIZE=small]Ganon?[SIZE]
+[STEP=BACK][LOOK=LEFT][PAUSE=10][LOOK=RIGHT][PAUSE=10][LOOK=@Player]
+|HE| |IS| |THE| |WORST|!
+Sorry for seeming anxious... [PAUSE=5] He just has minions everywhere.
+
+#introNpc_worldSaved_1
+Nice work, [$NAME]! You've saved us all!
+
+#introNpc_dogMissing_1
+Have you seen my dog?
+$introNpc_dogMissing_Yes Yes
+$introNpc_dogMissing_No No
+
+#introNpc_dogMissing_Yes_1
+Please bring it back for me!
+
+#introNpc_dogMissing_No_1
+If you see it, please let me know.
