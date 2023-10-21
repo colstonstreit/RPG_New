@@ -9,8 +9,10 @@ public:
 
     Shader(const char* vertexShaderPath, const char* fragmentPath);
     ~Shader();
+    Shader(Shader& other) = delete;
+    void operator=(const Shader&) = delete;
 
-    void use();
+    void use() const;
 
     void setUniformBool(const char* name, bool value) const;
     void setUniformInt(const char* name, int value) const;

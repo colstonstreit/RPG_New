@@ -33,8 +33,8 @@ void Game::init() {
 
 void Game::run() {
 
-    // Create shader
-    Shader& shaderProgram = this->resourceManager.getShader(ResourceManager::EShader::DEFAULT);
+    // Get shader
+    const Shader& shaderProgram = this->resourceManager.getShader(ResourceManager::EShader::DEFAULT);
 
     // Create vertices
     float vertices[] = {
@@ -84,8 +84,8 @@ void Game::run() {
     };
 
     // Textures
-    Texture& texture1 = this->resourceManager.getTexture(ResourceManager::ETexture::BOX);
-    Texture& texture2 = this->resourceManager.getTexture(ResourceManager::ETexture::FACE);
+    const Texture& texture1 = this->resourceManager.getTexture(ResourceManager::ETexture::BOX);
+    const Texture& texture2 = this->resourceManager.getTexture(ResourceManager::ETexture::FACE);
 
     glActiveTexture(GL_TEXTURE0);
     texture1.bind();

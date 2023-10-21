@@ -2,8 +2,11 @@
 
 #include <unordered_map>
 
-class Texture;
+#define NUM_SHADERS (1)
+#define NUM_TEXTURES (2)
+
 class Shader;
+class Texture;
 
 class ResourceManager {
 public:
@@ -12,20 +15,24 @@ public:
     enum class EShader { DEFAULT };
     enum class ETexture { FACE, BOX };
 
+    static_assert(static_cast<int>(EShader::DEFAULT) == NUM_SHADERS - 1, "NUM_SHADERS does not match");
+    static_assert(static_cast<int>(ETexture::BOX) == NUM_TEXTURES - 1, "NUM_TEXTURES does not match");
+
+    ResourceManager();
+    ~ResourceManager();
+
     void loadResources();
 
     // Resource fetching methods
-    Shader& getShader(EShader eshader);
-    Texture& getTexture(ETexture texture);
+    const Shader& getShader(EShader eshader);
+    const Texture& getTexture(ETexture texture);
 
 private:
     void loadShaders();
     void loadTextures();
 
 private:
-    std::unordered_map<EShader, Shader> shaderMap;
-    std::unordered_map<ETexture, Texture> textureMap;
-
-
+    Shader* shaderArray;
+    Texture* textureArray;
 };
 

@@ -2,7 +2,10 @@
 class Texture {
 public:
     Texture(const char* path);
-    void bind();
+    Texture(Texture& other) = delete;
+    void operator=(const Texture&) = delete;
+
+    void bind() const;
 
     unsigned int getID() const;
     unsigned int getWidth() const;
