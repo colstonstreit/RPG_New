@@ -1,5 +1,6 @@
-#include "../include/Dialogue.h"
-#include "../include/Game.h"
+#include "Dialogue.h"
+#include "Game.h"
+#include "Scenes/Scene3DTest.h"
 
 #include <iostream>
 #include <string>
@@ -20,6 +21,7 @@ int oldMain(int argc, char** argv) {
 int main(int argc, char** argv) {
     Game game = Game(800, 600, "RPG Version 2");
     game.init();
+    game.changeScene(new Scene3DTest(game));
     game.run();
     return 0;
 }

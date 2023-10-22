@@ -24,8 +24,8 @@ public:
     void loadResources();
 
     // Resource fetching methods
-    const Shader& getShader(EShader eshader);
-    const Texture& getTexture(ETexture texture);
+    const Shader& getShader(EShader eshader) const;
+    const Texture& getTexture(ETexture texture) const;
 
 private:
     void loadShaders();

@@ -1,7 +1,9 @@
-#include "../include/Dialogue.h"
-#include "../include/Util.h"
-#include <iostream>
+#include "Dialogue.h"
+
+#include "Util.h"
+
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 DialogueController* DialogueManager::get(const std::string& name) {

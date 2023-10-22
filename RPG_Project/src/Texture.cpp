@@ -1,4 +1,4 @@
-#include "../include/Texture.h"
+#include "Texture.h"
 
 #include <glad/glad.h>
 #include <stb_image.h>

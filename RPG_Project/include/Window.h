@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 #include <string>
@@ -9,9 +8,11 @@
 
 #define NUM_KEYS (9)
 
-class Window {
-public:
+struct GLFWwindow;
 
+class Window {
+
+public:
     // Keys
     enum class Input {
         FORWARD, BACKWARD, LEFT, RIGHT, CLICK, TOGGLE_DEBUG, QUIT, UP, DOWN
@@ -25,12 +26,12 @@ public:
 
     void initGLFW();
     void update();
-    void swapBuffers();
-    void close();
+    void swapBuffers() const;
+    void close() const;
 
-    bool isKeyPressed(Window::Input input);
-    bool wasKeyClicked(Window::Input input);
-    glm::vec2 getMousePos();
+    bool isKeyPressed(Window::Input input) const;
+    bool wasKeyClicked(Window::Input input) const;
+    glm::vec2 getMousePos() const;
 
     bool shouldClose() const;
     unsigned int getWidth() const;
@@ -68,6 +69,5 @@ private:
     unsigned int width;
     unsigned int height;
     const char* title;
-
 };
 

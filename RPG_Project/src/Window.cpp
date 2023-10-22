@@ -1,9 +1,10 @@
-#include <iostream>
-#include <functional>
+#include "Window.h"
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-#include "../include/Window.h"
+#include <functional>
+#include <iostream>
 
 Window* Window::_instance = nullptr;
 
@@ -26,17 +27,17 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
     memset(this->previousKeyStates, 0, sizeof(bool) * NUM_KEYS);
 }
 
-bool Window::isKeyPressed(Window::Input input) {
+bool Window::isKeyPressed(Window::Input input) const {
     int keyEnumIndex = static_cast<int>(input);
     return this->currentKeyStates[keyEnumIndex];
 }
 
-bool Window::wasKeyClicked(Window::Input input) {
+bool Window::wasKeyClicked(Window::Input input) const {
     int keyEnumIndex = static_cast<int>(input);
     return this->previousKeyStates[keyEnumIndex] && !this->currentKeyStates[keyEnumIndex];
 }
 
-glm::vec2 Window::getMousePos() {
+glm::vec2 Window::getMousePos() const {
     double xpos, ypos;
     glfwGetCursorPos(this->window, &xpos, &ypos);
     return glm::vec2(xpos, ypos);
@@ -125,11 +126,11 @@ void Window::update() {
     glfwPollEvents();
 }
 
-void Window::swapBuffers() {
+void Window::swapBuffers() const {
     glfwSwapBuffers(this->window);
 }
 
-void Window::close() {
+void Window::close() const {
     glfwSetWindowShouldClose(this->window, true);
 }
 

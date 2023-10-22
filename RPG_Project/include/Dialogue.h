@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 class DialogueState;
 
@@ -31,7 +31,7 @@ private:
         int currentState;
     };
     std::unordered_map<std::string, StateContainer> states;
-    
+
 }; // class DialogueController
 
 class DialogueMessage {

@@ -1,6 +1,7 @@
-#include "../include/ResourceManager.h"
-#include "../include/Shader.h"
-#include "../include/Texture.h"
+#include "ResourceManager.h"
+
+#include "Shader.h"
+#include "Texture.h"
 
 void ResourceManager::loadResources() {
     this->loadShaders();
@@ -25,11 +26,11 @@ ResourceManager::~ResourceManager() {
     delete[]((unsigned char*) textureArray);
 }
 
-const Shader& ResourceManager::getShader(EShader eshader) {
+const Shader& ResourceManager::getShader(EShader eshader) const {
     return this->shaderArray[static_cast<int>(eshader)];
 }
 
-const Texture& ResourceManager::getTexture(ETexture etexture) {
+const Texture& ResourceManager::getTexture(ETexture etexture) const {
     return this->textureArray[static_cast<int>(etexture)];
 }
 

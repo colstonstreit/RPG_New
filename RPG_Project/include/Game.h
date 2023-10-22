@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Window.h"
 #include "ResourceManager.h"
 
-#include "Texture.h"
-#include "Shader.h"
+class Scene;
+class Window;
 
 class Game {
 
@@ -14,12 +13,21 @@ public:
 
     void init();
     void run();
-    void update();
-    void render();
     void stop();
+
+    void changeScene(Scene* newScene);
+
+    const Window& getWindow() const;
+    const ResourceManager& getResourceManager() const;
+    const Scene& getCurrentScene() const;
+
+private:
+    void update(double deltaTime);
+    void render();
 
 private:
     Window& window;
     ResourceManager resourceManager;
+    Scene* currentScene = nullptr;
 };
 
