@@ -1,8 +1,8 @@
-#include "Camera.h"
+#include "Camera3D.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, double yaw, double pitch) : movementSpeed(CAM_DEFAULT_SPEED), mouseSensitivity(CAM_DEFAULT_SENSITIVITY), fov(CAM_DEFAULT_FOV) {
+Camera3D::Camera3D(glm::vec3 position, glm::vec3 up, double yaw, double pitch) : movementSpeed(CAM_DEFAULT_SPEED), mouseSensitivity(CAM_DEFAULT_SENSITIVITY), fov(CAM_DEFAULT_FOV) {
     this->position = position;
     this->worldUp = up;
     this->yaw = yaw;
@@ -10,15 +10,15 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, double yaw, double pitch) : mov
     this->updateCameraVectors();
 }
 
-glm::mat4 Camera::getViewMatrix() {
+glm::mat4 Camera3D::getViewMatrix() {
     return glm::lookAt(this->position, this->position + this->front, this->worldUp);
 }
 
-glm::mat4 Camera::getPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar) {
+glm::mat4 Camera3D::getPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar) {
     return glm::perspective(glm::radians(this->fov), aspectRatio, zNear, zFar);
 }
 
-void Camera::processKeyboardInput(CameraDirection direction, double deltaTime) {
+void Camera3D::processKeyboardInput(CameraDirection direction, double deltaTime) {
     float velocity = (float) (this->movementSpeed * deltaTime);
     if (direction == CameraDirection::FORWARD)  this->position += velocity * this->front;
     if (direction == CameraDirection::BACKWARD) this->position -= velocity * this->front;
@@ -28,7 +28,7 @@ void Camera::processKeyboardInput(CameraDirection direction, double deltaTime) {
     if (direction == CameraDirection::DOWN)     this->position -= velocity * this->worldUp;
 }
 
-void Camera::processMouseMovement(double xOffset, double yOffset) {
+void Camera3D::processMouseMovement(double xOffset, double yOffset) {
     xOffset *= this->mouseSensitivity;
     yOffset *= this->mouseSensitivity;
 
@@ -38,11 +38,11 @@ void Camera::processMouseMovement(double xOffset, double yOffset) {
     this->updateCameraVectors();
 }
 
-void Camera::processMouseScroll(double yOffset) {
+void Camera3D::processMouseScroll(double yOffset) {
     this->fov = glm::clamp(this->fov - yOffset, CAM_MIN_FOV, CAM_MAX_FOV);
 }
 
-void Camera::updateCameraVectors() {
+void Camera3D::updateCameraVectors() {
     // Recalculate front from angles
     this->front.x = (float) (cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch)));
     this->front.y = (float) (sin(glm::radians(this->pitch)));

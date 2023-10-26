@@ -1,11 +1,7 @@
 #include "Game.h"
 
-#include "Camera.h"
 #include "Dialogue.h"
 #include "Scene.h"
-#include "Scenes/Scene3DTest.h"
-#include "Shader.h"
-#include "Texture.h"
 #include "Window.h"
 
 #include <glad/glad.h>
@@ -38,7 +34,7 @@ void Game::init() {
 
 void Game::run() {
 
-    const double fps = 10.0;
+    const double fps = 60.0;
     double lastTime = glfwGetTime();
     double secondsPerFrame = 1.0 / fps;
     double delta = 0;
@@ -62,7 +58,10 @@ void Game::run() {
 
 void Game::update(double deltaTime) {
 
-    if (window.wasKeyClicked(Window::Input::TOGGLE_DEBUG)) {
+    if (this->window.isKeyPressed(Window::Input::QUIT))
+        this->window.close();
+
+    if (this->window.wasKeyClicked(Window::Input::TOGGLE_DEBUG)) {
         useWireframe = !useWireframe;
         glPolygonMode(GL_FRONT_AND_BACK, useWireframe ? GL_LINE : GL_FILL);
     }
@@ -96,6 +95,14 @@ void Game::changeScene(Scene* newScene) {
         newScene->init();
         this->currentScene = newScene;
     }
+}
+
+int Game::getWidth() const {
+    return this->window.getWidth();
+}
+
+int Game::getHeight() const {
+    return this->window.getHeight();
 }
 
 const Window& Game::getWindow() const {

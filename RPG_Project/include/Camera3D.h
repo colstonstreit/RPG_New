@@ -21,7 +21,7 @@ enum class CameraDirection {
     DOWN
 };
 
-class Camera {
+class Camera3D {
 
 public:
     glm::vec3 position;
@@ -39,7 +39,7 @@ private:
     double pitch;
 
 public:
-    Camera(glm::vec3 position = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 0), double yaw = CAM_DEFAULT_YAW, double pitch = CAM_DEFAULT_PITCH);
+    Camera3D(glm::vec3 position = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 0), double yaw = CAM_DEFAULT_YAW, double pitch = CAM_DEFAULT_PITCH);
 
     glm::mat4 getViewMatrix();
     glm::mat4 getPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar);

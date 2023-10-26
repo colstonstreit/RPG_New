@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "Camera3D.h"
 
 class Game;
 
@@ -19,5 +20,6 @@ private:
     unsigned int VBO = 0;
     unsigned int EBO = 0;
 
+    Camera3D camera;
 };
 

@@ -1,6 +1,5 @@
 #include "Scenes/Scene3DTest.h"
 
-#include "Camera.h"
 #include "Game.h"
 #include "ResourceManager.h"
 #include "Shader.h"
@@ -11,8 +10,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include <iostream>
 
 static float vertices[] = {
     // xyz                     // rgb                     // st
@@ -109,8 +106,6 @@ void Scene3DTest::update(double deltaTime) {
 
     // Process input
     const Window& window = this->game.getWindow();
-    if (window.isKeyPressed(Window::Input::QUIT))
-        window.close();
 
     if (window.isKeyPressed(Window::Input::FORWARD)) this->camera.processKeyboardInput(CameraDirection::FORWARD, deltaTime);
     if (window.isKeyPressed(Window::Input::BACKWARD)) this->camera.processKeyboardInput(CameraDirection::BACKWARD, deltaTime);
@@ -158,8 +153,6 @@ void Scene3DTest::render() {
 }
 
 void Scene3DTest::teardown() {
-    std::cout << "teardown" << std::endl;
-
     // Free resources
     glDeleteVertexArrays(1, &this->VAO);
     glDeleteBuffers(1, &this->EBO);

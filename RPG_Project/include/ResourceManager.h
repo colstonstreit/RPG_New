@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#define NUM_SHADERS (1)
+#define NUM_SHADERS (2)
 #define NUM_TEXTURES (2)
 
 class Shader;
@@ -12,10 +12,10 @@ class ResourceManager {
 public:
 
     // Enums for shaders and textures in application
-    enum class EShader { DEFAULT };
+    enum class EShader { DEFAULT, TEST_2D };
     enum class ETexture { FACE, BOX };
 
-    static_assert(static_cast<int>(EShader::DEFAULT) == NUM_SHADERS - 1, "NUM_SHADERS does not match");
+    static_assert(static_cast<int>(EShader::TEST_2D) == NUM_SHADERS - 1, "NUM_SHADERS does not match");
     static_assert(static_cast<int>(ETexture::BOX) == NUM_TEXTURES - 1, "NUM_TEXTURES does not match");
 
     ResourceManager();

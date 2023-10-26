@@ -43,6 +43,7 @@ void ResourceManager::loadShaders() {
 
     // Go through and load all shaders
     loadShader(EShader::DEFAULT, "res/shaders/VertexShader.vert", "res/shaders/FragmentShader.frag");
+    loadShader(EShader::TEST_2D, "res/shaders/2DVertexShader.vert", "res/shaders/2DFragmentShader.frag");
 }
 
 void ResourceManager::loadTextures() {

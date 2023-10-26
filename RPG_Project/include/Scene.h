@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Camera.h"
-
 class Game;
 
 class Scene {
@@ -16,6 +14,5 @@ public:
 
 protected:
     Game& game;
-    Camera camera;
 };
 

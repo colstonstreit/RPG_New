@@ -163,11 +163,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Camera2D.cpp" />
+    <ClCompile Include="src\Scenes\Scene2D.cpp" />
     <ClCompile Include="src\Scenes\Scene3DTest.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Game.cpp" />
-    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Camera3D.cpp" />
     <ClCompile Include="src\Dialogue.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Main.cpp" />
@@ -178,8 +180,9 @@
     <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Camera2D.h" />
     <ClInclude Include="include\Game.h" />
-    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Camera3D.h" />
     <ClInclude Include="include\Dialogue.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Util.h" />
@@ -188,9 +191,12 @@
     <ClInclude Include="include\ResourceManager.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Scenes\Scene3DTest.h" />
+    <ClInclude Include="include\Scenes\Scene2D.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dialogue\Dialogue_Test.dlog" />
+    <None Include="res\shaders\2DFragmentShader.frag" />
+    <None Include="res\shaders\2DVertexShader.vert" />
     <None Include="res\shaders\FragmentShader.frag" />
     <None Include="res\shaders\VertexShader.vert" />
   </ItemGroup>

@@ -17,6 +17,9 @@ public:
 
     void changeScene(Scene* newScene);
 
+    int getWidth() const;
+    int getHeight() const;
+
     const Window& getWindow() const;
     const ResourceManager& getResourceManager() const;
     const Scene& getCurrentScene() const;
