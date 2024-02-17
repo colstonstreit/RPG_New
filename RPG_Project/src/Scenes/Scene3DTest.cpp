@@ -88,7 +88,7 @@ void Scene3DTest::init() {
     const ResourceManager& resourceManager = this->game.getResourceManager();
     const Shader& shaderProgram = resourceManager.getShader(ResourceManager::EShader::DEFAULT);
     const Texture& texture1 = resourceManager.getTexture(ResourceManager::ETexture::BOX);
-    const Texture& texture2 = resourceManager.getTexture(ResourceManager::ETexture::FACE);
+    const Texture& texture2 = resourceManager.getTexture(ResourceManager::ETexture::TILE_SHEET);
 
     glActiveTexture(GL_TEXTURE0);
     texture1.bind();

@@ -60,6 +60,9 @@
     <ClCompile Include="src\Camera2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Spritesheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Dialogue.h">
@@ -98,6 +101,9 @@
     <ClInclude Include="include\Camera2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Spritesheet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dialogue\Dialogue_Test.dlog">
@@ -117,6 +123,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\img\awesomeface.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\spritesheets\characterSheet.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\spritesheets\itemSheet.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\spritesheets\tileSheet.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

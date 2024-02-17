@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Spritesheet.cpp" />
     <ClCompile Include="src\Camera2D.cpp" />
     <ClCompile Include="src\Scenes\Scene2D.cpp" />
     <ClCompile Include="src\Scenes\Scene3DTest.cpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera2D.h" />
@@ -192,6 +194,8 @@
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Scenes\Scene3DTest.h" />
     <ClInclude Include="include\Scenes\Scene2D.h" />
+    <ClInclude Include="include\Spritesheet.h" />
+    <ClInclude Include="include\Tile.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dialogue\Dialogue_Test.dlog" />
@@ -203,6 +207,9 @@
   <ItemGroup>
     <Image Include="res\img\awesomeface.png" />
     <Image Include="res\img\container.jpg" />
+    <Image Include="res\spritesheets\characterSheet.png" />
+    <Image Include="res\spritesheets\itemSheet.png" />
+    <Image Include="res\spritesheets\tileSheet.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
