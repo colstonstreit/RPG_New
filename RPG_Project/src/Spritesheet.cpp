@@ -11,7 +11,7 @@ Sprite::Sprite(const Texture& texture, glm::vec2 topLeftUV, glm::vec2 topRightUV
 Spritesheet::Spritesheet(const Texture& texture, unsigned int tileWidth, unsigned int tileHeight)
     : texture(texture), tileWidth(tileWidth), tileHeight(tileHeight) {}
 
-Sprite Spritesheet::crop(unsigned int tileX, unsigned int tileY) {
+Sprite Spritesheet::crop(unsigned int tileX, unsigned int tileY) const {
     const float uvPerTileX = (float) this->tileWidth / this->texture.getWidth();
     const float uvPerTileY = (float) this->tileHeight / this->texture.getHeight();
 

@@ -6,8 +6,6 @@
 #include <unordered_map>
 #include <vector>
 
-#define NUM_KEYS (9)
-
 struct GLFWwindow;
 
 class Window {
@@ -15,7 +13,8 @@ class Window {
 public:
     // Keys
     enum class Input {
-        FORWARD, BACKWARD, LEFT, RIGHT, CLICK, TOGGLE_DEBUG, QUIT, UP, DOWN
+        FORWARD, BACKWARD, LEFT, RIGHT, CLICK, TOGGLE_DEBUG, QUIT, UP, DOWN,
+        NUM_KEYS
     };
 
     // Singleton setup
@@ -58,8 +57,8 @@ private:
 
     // Key management
     std::unordered_map<Window::Input, std::vector<Window::RawInput>> inputMap;
-    bool previousKeyStates[NUM_KEYS];
-    bool currentKeyStates[NUM_KEYS];
+    bool previousKeyStates[static_cast<int>(Input::NUM_KEYS)];
+    bool currentKeyStates[static_cast<int>(Input::NUM_KEYS)];
 
     // Mouse management
     glm::vec2 lastMousePos;

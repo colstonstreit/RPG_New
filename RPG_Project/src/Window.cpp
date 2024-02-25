@@ -9,7 +9,7 @@
 Window* Window::_instance = nullptr;
 
 Window::Window(unsigned int width, unsigned int height, const char* title)
-    : width(width), height(height), title(title), lastMousePos(glm::vec2(0, 0)) {
+    : width(width), height(height), title(title), lastMousePos(glm::vec2(0, 0)), window(nullptr), mouseScroll(0) {
 
     this->inputMap = {
         { Window::Input::LEFT, { RawInput(GLFW_KEY_LEFT), RawInput(GLFW_KEY_A) } },
@@ -23,8 +23,8 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
         { Window::Input::DOWN, { RawInput(GLFW_KEY_LEFT_SHIFT), RawInput(GLFW_KEY_RIGHT_SHIFT) } }
     };
 
-    memset(this->currentKeyStates, 0, sizeof(bool) * NUM_KEYS);
-    memset(this->previousKeyStates, 0, sizeof(bool) * NUM_KEYS);
+    memset(this->currentKeyStates, 0, sizeof(bool) * static_cast<int>(Input::NUM_KEYS));
+    memset(this->previousKeyStates, 0, sizeof(bool) * static_cast<int>(Input::NUM_KEYS));
 }
 
 bool Window::isKeyPressed(Window::Input input) const {
@@ -82,9 +82,10 @@ void Window::initGLFW() {
     // Set viewport and enable depth
     glViewport(0, 0, width, height);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     // Capture cursor
-    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Set callbacks
     glfwSetScrollCallback(this->window, &Window::handleMouseScroll);
@@ -102,8 +103,8 @@ unsigned int Window::getHeight() const {
 void Window::update() {
 
     // Update keyboard (and mouse buttons)
-    memcpy(this->previousKeyStates, this->currentKeyStates, sizeof(bool) * NUM_KEYS);
-    memset(this->currentKeyStates, 0, sizeof(bool) * NUM_KEYS);
+    memcpy(this->previousKeyStates, this->currentKeyStates, sizeof(bool) * static_cast<int>(Input::NUM_KEYS));
+    memset(this->currentKeyStates, 0, sizeof(bool) * static_cast<int>(Input::NUM_KEYS));
 
     for (const auto& element : this->inputMap) {
         int keyEnumIndex = static_cast<int>(element.first);

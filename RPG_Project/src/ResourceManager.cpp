@@ -7,22 +7,23 @@
 void ResourceManager::loadResources() {
     this->loadShaders();
     this->loadTextures();
+    this->loadSpritesheets();
 }
 
 ResourceManager::ResourceManager() {
     // Allocate large byte arrays to store each resource type
-    shaderArray = (Shader*) new unsigned char[sizeof(Shader) * NUM_SHADERS];
-    textureArray = (Texture*) new unsigned char[sizeof(Texture) * NUM_TEXTURES];
-    spritesheetArray = (Spritesheet*) new unsigned char[sizeof(Spritesheet) * NUM_SPRITESHEETS];
+    shaderArray = (Shader*) new unsigned char[sizeof(Shader) * static_cast<int>(EShader::NUM_SHADERS)];
+    textureArray = (Texture*) new unsigned char[sizeof(Texture) * static_cast<int>(ETexture::NUM_TEXTURES)];
+    spritesheetArray = (Spritesheet*) new unsigned char[sizeof(Spritesheet) * static_cast<int>(ESpritesheet::NUM_SPRITESHEETS)];
 }
 
 ResourceManager::~ResourceManager() {
     // Must call destructors manually due to use of placement new() operator
-    for (unsigned int i = 0; i < NUM_SHADERS; i++)
+    for (unsigned int i = 0; i < static_cast<int>(EShader::NUM_SHADERS); i++)
         this->shaderArray[i].~Shader();
-    for (unsigned int i = 0; i < NUM_TEXTURES; i++)
+    for (unsigned int i = 0; i < static_cast<int>(ETexture::NUM_TEXTURES); i++)
         this->textureArray[i].~Texture();
-    for (unsigned int i = 0; i < NUM_SPRITESHEETS; i++)
+    for (unsigned int i = 0; i < static_cast<int>(ESpritesheet::NUM_SPRITESHEETS); i++)
         this->spritesheetArray[i].~Spritesheet();
 
     // Delete overall arrays that were allocated

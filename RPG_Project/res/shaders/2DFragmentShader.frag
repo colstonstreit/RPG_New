@@ -7,9 +7,17 @@ in vec2 texCoords;
 
 uniform float time;
 uniform sampler2D texture1;
-uniform sampler2D texture2;
 
 void main()
 {
-    FragColor = vec4(color, 1.0); // 0.4 * vec4(color.rg, time, 1.0) + 0.3 * texture(texture1, texCoords) + 0.3 * texture(texture2, texCoords);
+    if (texCoords.x == -1.0 && texCoords.y == -1.0f) {
+        FragColor = vec4(color, 1.0);
+    } else {
+        vec4 texColor = texture(texture1, texCoords);
+        if (texColor.a < 0.1)
+            discard;
+        if (texCoords.x < 0 || texCoords.x > 1 || texCoords.y < 0 || texCoords.y > 1)
+            discard;
+        FragColor = texColor;
+    }
 }

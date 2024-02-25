@@ -21,7 +21,7 @@ class Spritesheet {
 
 public:
     Spritesheet(const Texture& texture, unsigned int tileWidth, unsigned int tileHeight);
-    Sprite crop(unsigned int tileX, unsigned int tileY);
+    Sprite crop(unsigned int tileX, unsigned int tileY) const;
 
 private:
     const Texture& texture;

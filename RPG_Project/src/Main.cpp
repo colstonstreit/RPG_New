@@ -20,7 +20,7 @@ int oldMain(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-    Game game = Game(800, 600, "RPG Version 2");
+    Game game = Game(1920, 1080, "RPG Version 2");
     game.init();
     game.changeScene(new Scene2D(game));
     game.run();

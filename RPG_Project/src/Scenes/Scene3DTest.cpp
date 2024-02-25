@@ -86,9 +86,9 @@ void Scene3DTest::init() {
     glEnableVertexAttribArray(2);
 
     const ResourceManager& resourceManager = this->game.getResourceManager();
-    const Shader& shaderProgram = resourceManager.getShader(ResourceManager::EShader::DEFAULT);
-    const Texture& texture1 = resourceManager.getTexture(ResourceManager::ETexture::BOX);
-    const Texture& texture2 = resourceManager.getTexture(ResourceManager::ETexture::TILE_SHEET);
+    const Shader& shaderProgram = resourceManager.getShader(EShader::DEFAULT);
+    const Texture& texture1 = resourceManager.getTexture(ETexture::BOX);
+    const Texture& texture2 = resourceManager.getTexture(ETexture::TILE_SHEET);
 
     glActiveTexture(GL_TEXTURE0);
     texture1.bind();
@@ -126,7 +126,7 @@ void Scene3DTest::update(double deltaTime) {
 void Scene3DTest::render() {
 
     const ResourceManager& resourceManager = this->game.getResourceManager();
-    const Shader& shaderProgram = resourceManager.getShader(ResourceManager::EShader::DEFAULT);
+    const Shader& shaderProgram = resourceManager.getShader(EShader::DEFAULT);
     const Window& window = this->game.getWindow();
 
     double time = glfwGetTime();

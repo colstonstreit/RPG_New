@@ -3,6 +3,7 @@
 #include "Dialogue.h"
 #include "Scene.h"
 #include "Window.h"
+#include "Tile.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -30,6 +31,7 @@ Game::~Game() {
 void Game::init() {
     this->window.initGLFW();
     this->resourceManager.loadResources();
+    Tile::sInitializeTiles(this->resourceManager);
 }
 
 void Game::run() {
@@ -47,6 +49,7 @@ void Game::run() {
         lastTime = now;
 
         this->update(deltaTime);
+        this->render();
 
         if (delta >= 1) {
             delta--;
