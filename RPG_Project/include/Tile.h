@@ -64,6 +64,7 @@ private:
 class TileLayer {
 public:
     TileLayer(Game& game, unsigned int width, unsigned int height, ETile* tileData = nullptr);
+    ~TileLayer();
     void init();
     void update(double deltaTime);
     void render(const glm::mat4& projectionMatrix);
@@ -97,6 +98,7 @@ class TileMap {
 public:
     TileMap(Game& game, unsigned int width, unsigned int height, unsigned int numLayers);
     TileMap(Game& game, const std::string& path);
+    ~TileMap();
 
     void init();
     void update(double deltaTime);
@@ -116,5 +118,9 @@ private:
 
     const Game& game;
     std::vector<TileLayer> tileLayers;
+
+    unsigned int width = 0;
+    unsigned int height = 0;
+    bool* collisions = nullptr;
 
 };

@@ -131,6 +131,12 @@ const Sprite& TileAnimated::getCurrentSprite() const {
 
 TileLayer::TileLayer(Game& game, unsigned int width, unsigned int height, ETile* tileData) : game(game), width(width), height(height), tiles(tileData) {}
 
+TileLayer::~TileLayer() {
+    if (this->tiles) {
+        delete[] this->tiles;
+    }
+}
+
 void TileLayer::init() {
 
     if (tiles == nullptr) {
@@ -300,16 +306,17 @@ void TileLayer::teardown() {
 
 /* ======================================== TileMap ======================================== */
 
-TileMap::TileMap(Game& game, unsigned int width, unsigned int height, unsigned int numLayers) : game(game) {
+TileMap::TileMap(Game& game, unsigned int width, unsigned int height, unsigned int numLayers) : game(game), width(width), height(height) {
     this->tileLayers.reserve(numLayers);
     for (unsigned int i = 0; i < numLayers; i++) {
         this->tileLayers.emplace_back(game, width, height);
     }
+    this->collisions = new bool[width * height] { false };
 }
 
 TileMap::TileMap(Game& game, const std::string& path) : game(game) {
     std::fstream fileStream = std::fstream(path);
-    unsigned int width, height, numLayers;
+    unsigned int numLayers;
     std::string breakToIgnore;
 
     // Read in width, height, and number of layers
@@ -341,8 +348,19 @@ TileMap::TileMap(Game& game, const std::string& path) : game(game) {
 
     }
 
-    // TODO: Add collision handling
+    // Read in collision data (TODO: could make this more space-efficient by packing in 8 bools per byte)
+    this->collisions = new bool[width * height];
+    int collisionValue;
+    for (unsigned int tileDataIndex = 0; tileDataIndex < width * height; tileDataIndex++) {
+        fileStream >> collisionValue;
+        collisions[tileDataIndex] = (collisionValue > 0);
+    }
+}
 
+TileMap::~TileMap() {
+    if (this->collisions) {
+        delete[] this->collisions;
+    }
 }
 
 void TileMap::init() {
