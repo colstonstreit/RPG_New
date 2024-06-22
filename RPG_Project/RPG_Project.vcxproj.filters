@@ -21,12 +21,6 @@
     <ClCompile Include="src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Dialogue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Util.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,14 +60,14 @@
     <ClCompile Include="src\Tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Dialogue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,6 +107,12 @@
     <ClInclude Include="include\Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\dialogue\Dialogue_Test.dlog">
@@ -125,25 +125,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\shaders\2DVertexShader.vert" />
-    <None Include="res\shaders\2DFragmentShader.frag" />
-    <None Include="..\Old_Java\src\Play\Maps\CoolIslandMap.java" />
-    <None Include="..\Old_Java\src\Play\Maps\InsideHouseMap.java" />
-    <None Include="..\Old_Java\src\Play\Maps\LolMap.java" />
-    <None Include="..\Old_Java\src\Play\Maps\MapManager.java" />
-    <None Include="..\Old_Java\src\Play\Maps\Tile.java" />
-    <None Include="..\Old_Java\src\Play\Maps\TileMap.java" />
-    <None Include="..\Old_Java\res\maps\BrookieShowAndTell.map" />
-    <None Include="..\Old_Java\res\maps\COOL_ISLAND.map" />
-    <None Include="..\Old_Java\res\maps\flowers.map" />
-    <None Include="..\Old_Java\res\maps\INSIDE_HOUSE.map" />
-    <None Include="..\Old_Java\res\maps\Island.map" />
-    <None Include="..\Old_Java\res\maps\Land Bridge.map" />
-    <None Include="..\Old_Java\res\maps\Link%27s Awakening MapSize.map" />
-    <None Include="..\Old_Java\res\maps\LOL.map" />
-    <None Include="..\Old_Java\res\maps\marioSunLevel.map" />
-    <None Include="..\Old_Java\res\maps\Square Ponds.map" />
-    <None Include="..\Old_Java\res\maps\suns.map" />
-    <None Include="..\Old_Java\res\maps\Unnecessarily Large Island.map" />
     <None Include="res\maps\BrookieShowAndTell.map" />
     <None Include="res\maps\COOL_ISLAND.map" />
     <None Include="res\maps\flowers.map" />
@@ -156,6 +137,7 @@
     <None Include="res\maps\Square Ponds.map" />
     <None Include="res\maps\suns.map" />
     <None Include="res\maps\Unnecessarily Large Island.map" />
+    <None Include="res\shaders\2DFragmentShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\img\container.jpg">
@@ -173,5 +155,9 @@
     <Image Include="res\spritesheets\tileSheet.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\shaders\QuadBatchShader.frag" />
+    <Text Include="res\shaders\QuadBatchShader.vert" />
   </ItemGroup>
 </Project>

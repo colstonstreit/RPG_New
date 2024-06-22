@@ -10,15 +10,15 @@ Camera3D::Camera3D(glm::vec3 position, glm::vec3 up, double yaw, double pitch) :
     this->updateCameraVectors();
 }
 
-glm::mat4 Camera3D::getViewMatrix() {
+glm::mat4 Camera3D::GetViewMatrix() {
     return glm::lookAt(this->position, this->position + this->front, this->worldUp);
 }
 
-glm::mat4 Camera3D::getPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar) {
+glm::mat4 Camera3D::GetPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar) {
     return glm::perspective(glm::radians(this->fov), aspectRatio, zNear, zFar);
 }
 
-void Camera3D::processKeyboardInput(CameraDirection direction, double deltaTime) {
+void Camera3D::ProcessKeyboardInput(CameraDirection direction, double deltaTime) {
     float velocity = (float) (this->movementSpeed * deltaTime);
     if (direction == CameraDirection::FORWARD)  this->position += velocity * this->front;
     if (direction == CameraDirection::BACKWARD) this->position -= velocity * this->front;
@@ -28,7 +28,7 @@ void Camera3D::processKeyboardInput(CameraDirection direction, double deltaTime)
     if (direction == CameraDirection::DOWN)     this->position -= velocity * this->worldUp;
 }
 
-void Camera3D::processMouseMovement(double xOffset, double yOffset) {
+void Camera3D::ProcessMouseMovement(double xOffset, double yOffset) {
     xOffset *= this->mouseSensitivity;
     yOffset *= this->mouseSensitivity;
 
@@ -38,7 +38,7 @@ void Camera3D::processMouseMovement(double xOffset, double yOffset) {
     this->updateCameraVectors();
 }
 
-void Camera3D::processMouseScroll(double yOffset) {
+void Camera3D::ProcessMouseScroll(double yOffset) {
     this->fov = glm::clamp(this->fov - yOffset, CAM_MIN_FOV, CAM_MAX_FOV);
 }
 

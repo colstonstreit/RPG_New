@@ -2,15 +2,15 @@
 
 #include <glm/glm.hpp>
 
-const double CAM_DEFAULT_YAW = -90.0f;
-const double CAM_DEFAULT_PITCH = 0.0f;
-const double CAM_DEFAULT_SPEED = 2.5f;
-const double CAM_DEFAULT_SENSITIVITY = 0.1f;
-const double CAM_DEFAULT_FOV = 45.0f;
+const double CAM_DEFAULT_YAW = -90.0;
+const double CAM_DEFAULT_PITCH = 0.0;
+const double CAM_DEFAULT_SPEED = 2.5;
+const double CAM_DEFAULT_SENSITIVITY = 0.1;
+const double CAM_DEFAULT_FOV = 45.0;
 
-const double CAM_MAX_PITCH = 89.999f;
-const double CAM_MIN_FOV = 1.0f;
-const double CAM_MAX_FOV = 90.0f;
+const double CAM_MAX_PITCH = 89.999;
+const double CAM_MIN_FOV = 1.0;
+const double CAM_MAX_FOV = 90.0;
 
 enum class CameraDirection {
     FORWARD,
@@ -41,12 +41,12 @@ private:
 public:
     Camera3D(glm::vec3 position = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 0), double yaw = CAM_DEFAULT_YAW, double pitch = CAM_DEFAULT_PITCH);
 
-    glm::mat4 getViewMatrix();
-    glm::mat4 getPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar);
+    glm::mat4 GetViewMatrix();
+    glm::mat4 GetPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar);
 
-    void processKeyboardInput(CameraDirection direction, double deltaTime);
-    void processMouseMovement(double xOffset, double yOffset);
-    void processMouseScroll(double yOffset);
+    void ProcessKeyboardInput(CameraDirection direction, double deltaTime);
+    void ProcessMouseMovement(double xOffset, double yOffset);
+    void ProcessMouseScroll(double yOffset);
 
 private:
     void updateCameraVectors();

@@ -11,18 +11,17 @@ public:
     Game(unsigned int width, unsigned int height, const char* title);
     ~Game();
 
-    void init();
-    void run();
-    void stop();
+    void Init();
+    void Run();
+    void Stop();
 
-    void changeScene(Scene* newScene);
+    void ChangeScene(Scene* newScene);
 
-    int getWidth() const;
-    int getHeight() const;
+    int GetWidth() const;
+    int GetHeight() const;
 
-    const Window& getWindow() const;
-    const ResourceManager& getResourceManager() const;
-    const Scene& getCurrentScene() const;
+    const Window& GetWindow() const;
+    const Scene& GetCurrentScene() const;
 
 private:
     void update(double deltaTime);
@@ -30,7 +29,6 @@ private:
 
 private:
     Window& window;
-    ResourceManager resourceManager;
     Scene* currentScene = nullptr;
 };
 

@@ -4,6 +4,7 @@
 
 #include "Scene.h"
 #include "Camera2D.h"
+#include "Renderer.h"
 #include "Tile.h"
 
 class Game;
@@ -13,10 +14,10 @@ class Scene2D : public Scene {
 public:
     Scene2D(Game& game);
 
-    void init() override;
-    void update(double deltaTime) override;
-    void render() override;
-    void teardown() override;
+    void Init() override;
+    void Update(double deltaTime) override;
+    void Render() override;
+    void Teardown() override;
 
 private:
 
@@ -44,6 +45,7 @@ private:
 
     Camera2D camera;
     TileMap tilemap;
+    Renderer renderer;
 };
 
 

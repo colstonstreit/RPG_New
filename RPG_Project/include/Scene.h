@@ -7,10 +7,10 @@ class Scene {
 public:
     Scene(Game& game);
 
-    virtual void init();
-    virtual void update(double deltaTime) = 0;
-    virtual void render() = 0;
-    virtual void teardown();
+    virtual void Init();
+    virtual void Update(double deltaTime) = 0;
+    virtual void Render() = 0;
+    virtual void Teardown();
 
 protected:
     Game& game;

@@ -4,10 +4,17 @@
 #include "Texture.h"
 #include "Spritesheet.h"
 
-void ResourceManager::loadResources() {
-    this->loadShaders();
-    this->loadTextures();
-    this->loadSpritesheets();
+ResourceManager ResourceManager::s_instance;
+
+ResourceManager& ResourceManager::sGet() {
+    // TODO: insert return statement here
+    return ResourceManager::s_instance;
+}
+
+void ResourceManager::LoadResources() {
+    loadShaders();
+    loadTextures();
+    loadSpritesheets();
 }
 
 ResourceManager::ResourceManager() {
@@ -32,35 +39,38 @@ ResourceManager::~ResourceManager() {
     delete[]((unsigned char*) spritesheetArray);
 }
 
-const Shader& ResourceManager::getShader(EShader eshader) const {
-    return this->shaderArray[static_cast<int>(eshader)];
+const Shader& ResourceManager::GetShader(EShader eshader) {
+    return ResourceManager::sGet().shaderArray[static_cast<int>(eshader)];
 }
 
-const Texture& ResourceManager::getTexture(ETexture etexture) const {
-    return this->textureArray[static_cast<int>(etexture)];
+const Texture& ResourceManager::GetTexture(ETexture etexture) {
+    return ResourceManager::sGet().textureArray[static_cast<int>(etexture)];
 }
 
-const Spritesheet& ResourceManager::getSpritesheet(ESpritesheet espritesheet) const {
-    return this->spritesheetArray[static_cast<int>(espritesheet)];
+const Spritesheet& ResourceManager::GetSpritesheet(ESpritesheet espritesheet) {
+    return ResourceManager::sGet().spritesheetArray[static_cast<int>(espritesheet)];
 }
 
 void ResourceManager::loadShaders() {
     // Lambda function to load a shader with placement new operator
-    auto loadShader = [this](EShader eshader, const char* vertexPath, const char* fragmentPath) {
+    ResourceManager& resourceManager = ResourceManager::sGet();
+    auto loadShader = [&resourceManager](EShader eshader, const char* vertexPath, const char* fragmentPath) {
         int index = static_cast<int>(eshader);
-        new (&(this->shaderArray[index])) Shader(vertexPath, fragmentPath);
+        new (&(resourceManager.shaderArray[index])) Shader(vertexPath, fragmentPath);
     };
 
     // Go through and load all shaders
     loadShader(EShader::DEFAULT, "res/shaders/VertexShader.vert", "res/shaders/FragmentShader.frag");
     loadShader(EShader::TEST_2D, "res/shaders/2DVertexShader.vert", "res/shaders/2DFragmentShader.frag");
+    loadShader(EShader::QUAD_BATCH, "res/shaders/QuadBatchShader.vert", "res/shaders/QuadBatchShader.frag");
 }
 
 void ResourceManager::loadTextures() {
     // Lambda function to load a texture with placement new operator
-    auto loadTexture = [this](ETexture etexture, const char* texturePath) {
+    ResourceManager& resourceManager = ResourceManager::sGet();
+    auto loadTexture = [&resourceManager](ETexture etexture, const char* texturePath) {
         int index = static_cast<int>(etexture);
-        new (&(this->textureArray[index])) Texture(texturePath);
+        new (&(resourceManager.textureArray[index])) Texture(texturePath);
     };
 
     // Go through and load all textures
@@ -73,13 +83,14 @@ void ResourceManager::loadTextures() {
 
 void ResourceManager::loadSpritesheets() {
     // Lambda function to load a spritesheet with placement new operator
-    auto loadSpritesheet = [this](ESpritesheet espritesheet, const Texture& texture, unsigned int tileWidth, unsigned int tileHeight) {
+    ResourceManager& resourceManager = ResourceManager::sGet();
+    auto loadSpritesheet = [&resourceManager](ESpritesheet espritesheet, ETexture texture, unsigned int tileWidth, unsigned int tileHeight) {
         int index = static_cast<int>(espritesheet);
-        new (&(this->spritesheetArray[index])) Spritesheet(texture, tileWidth, tileHeight);
+        new (&(resourceManager.spritesheetArray[index])) Spritesheet(texture, tileWidth, tileHeight);
     };
 
     // Go through and load all spritesheets
-    loadSpritesheet(ESpritesheet::TILE_SHEET, this->getTexture(ETexture::TILE_SHEET), 16, 16);
-    loadSpritesheet(ESpritesheet::ITEM_SHEET, this->getTexture(ETexture::ITEM_SHEET), 16, 16);
-    loadSpritesheet(ESpritesheet::CHARACTER_SHEET, this->getTexture(ETexture::CHARACTER_SHEET), 16, 16);
+    loadSpritesheet(ESpritesheet::TILE_SHEET, ETexture::TILE_SHEET, 16, 16);
+    loadSpritesheet(ESpritesheet::ITEM_SHEET, ETexture::ITEM_SHEET, 16, 16);
+    loadSpritesheet(ESpritesheet::CHARACTER_SHEET, ETexture::CHARACTER_SHEET, 16, 16);
 }

@@ -8,40 +8,36 @@
 Camera2D::Camera2D(Game& game, double offsetX, double offsetY, double unitsPerWindowHeight)
     : game(game), offsetX(offsetX), offsetY(offsetY), unitsPerWindowHeight(unitsPerWindowHeight) {}
 
-void Camera2D::update(double deltaTime) {
+void Camera2D::Update(double deltaTime) {
+    const Window& window = this->game.GetWindow();
+    const double velocity = this->unitsPerWindowHeight / 2.0;
+    const double aspectRatio = (float) this->game.GetWidth() / this->game.GetHeight();
 
-    // Process input
-    const Window& window = this->game.getWindow();
+    if (window.IsKeyPressed(Window::Input::FORWARD)) this->offsetY -= velocity * deltaTime;
+    if (window.IsKeyPressed(Window::Input::BACKWARD)) this->offsetY += velocity * deltaTime;
+    if (window.IsKeyPressed(Window::Input::LEFT)) this->offsetX -= velocity * deltaTime;
+    if (window.IsKeyPressed(Window::Input::RIGHT)) this->offsetX += velocity * deltaTime;
 
-    const double velocity = this->unitsPerWindowHeight / 2.0f;
-    const double aspectRatio = (float) this->game.getWidth() / this->game.getHeight();
-
-    if (window.isKeyPressed(Window::Input::FORWARD)) this->offsetY -= velocity * deltaTime;
-    if (window.isKeyPressed(Window::Input::BACKWARD)) this->offsetY += velocity * deltaTime;
-    if (window.isKeyPressed(Window::Input::LEFT)) this->offsetX -= velocity * deltaTime;
-    if (window.isKeyPressed(Window::Input::RIGHT)) this->offsetX += velocity * deltaTime;
-
-    if (window.isKeyPressed(Window::Input::DOWN) || window.isKeyPressed(Window::Input::UP)) {
-        const double zoomRatio = 0.5f;
+    if (window.IsKeyPressed(Window::Input::DOWN) || window.IsKeyPressed(Window::Input::UP)) {
+        const double zoomRatio = 0.5;
         double deltaY = 0;
-        if (window.isKeyPressed(Window::Input::DOWN)) deltaY = -zoomRatio * this->unitsPerWindowHeight * deltaTime;
-        if (window.isKeyPressed(Window::Input::UP)) deltaY = zoomRatio * this->unitsPerWindowHeight * deltaTime;
-        deltaY = glm::clamp<double>(deltaY, 1.0f - this->unitsPerWindowHeight, 2000.0f - this->unitsPerWindowHeight);
+        if (window.IsKeyPressed(Window::Input::DOWN)) deltaY = -zoomRatio * this->unitsPerWindowHeight * deltaTime;
+        if (window.IsKeyPressed(Window::Input::UP)) deltaY = zoomRatio * this->unitsPerWindowHeight * deltaTime;
+        deltaY = glm::clamp<double>(deltaY, 1.0 - this->unitsPerWindowHeight, 2000.0 - this->unitsPerWindowHeight);
         this->unitsPerWindowHeight += deltaY;
-        this->offsetY -= deltaY / 2.0f;
-        this->offsetX -= deltaY * aspectRatio / 2.0f;
+        this->offsetY -= deltaY / 2.0;
+        this->offsetX -= deltaY * aspectRatio / 2.0;
     }
-
 }
 
-glm::vec2 Camera2D::getScreenCenter() {
-    const float aspectRatio = (float) this->game.getWidth() / this->game.getHeight();
-    float centerX = this->offsetX + aspectRatio * this->unitsPerWindowHeight / 2.0f;
-    float centerY = this->offsetY + this->unitsPerWindowHeight / 2.0f;
+glm::vec2 Camera2D::GetScreenCenter() {
+    const float aspectRatio = (float) this->game.GetWidth() / this->game.GetHeight();
+    float centerX = this->offsetX + aspectRatio * this->unitsPerWindowHeight / 2.0;
+    float centerY = this->offsetY + this->unitsPerWindowHeight / 2.0;
     return glm::vec2(centerX, centerY);
 }
 
-glm::mat4 Camera2D::getWorldToScreenMatrix() {
-    const float aspectRatio = (float) this->game.getWidth() / this->game.getHeight();
+glm::mat4 Camera2D::GetWorldToScreenMatrix() {
+    const float aspectRatio = (float) this->game.GetWidth() / this->game.GetHeight();
     return glm::ortho(this->offsetX, this->offsetX + this->unitsPerWindowHeight * aspectRatio, this->offsetY + this->unitsPerWindowHeight, this->offsetY);
 }

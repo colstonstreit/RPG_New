@@ -18,25 +18,25 @@ public:
     };
 
     // Singleton setup
-    static Window& get();
-    static Window& get(unsigned int width, unsigned int height, const char* title);
+    static Window& sGet();
+    static Window& sGet(unsigned int width, unsigned int height, const char* title);
     Window(Window& other) = delete;
     void operator=(const Window&) = delete;
 
-    void initGLFW();
-    void update();
-    void swapBuffers() const;
-    void close() const;
+    void InitGLFW();
+    void Update();
+    void SwapBuffers() const;
+    void Close() const;
 
-    bool isKeyPressed(Window::Input input) const;
-    bool wasKeyClicked(Window::Input input) const;
-    glm::vec2 getMousePos() const;
+    bool IsKeyPressed(Window::Input input) const;
+    bool WasKeyClicked(Window::Input input) const;
+    glm::vec2 GetMousePos() const;
 
-    bool shouldClose() const;
-    unsigned int getWidth() const;
-    unsigned int getHeight() const;
-    glm::vec2 getLastMousePos() const;
-    glm::vec2 getMouseScroll() const;
+    bool ShouldClose() const;
+    unsigned int GetWidth() const;
+    unsigned int GetHeight() const;
+    glm::vec2 GetLastMousePos() const;
+    glm::vec2 GetMouseScroll() const;
 
 private:
     struct RawInput {

@@ -27,17 +27,17 @@ Window::Window(unsigned int width, unsigned int height, const char* title)
     memset(this->previousKeyStates, 0, sizeof(bool) * static_cast<int>(Input::NUM_KEYS));
 }
 
-bool Window::isKeyPressed(Window::Input input) const {
+bool Window::IsKeyPressed(Window::Input input) const {
     int keyEnumIndex = static_cast<int>(input);
     return this->currentKeyStates[keyEnumIndex];
 }
 
-bool Window::wasKeyClicked(Window::Input input) const {
+bool Window::WasKeyClicked(Window::Input input) const {
     int keyEnumIndex = static_cast<int>(input);
     return this->previousKeyStates[keyEnumIndex] && !this->currentKeyStates[keyEnumIndex];
 }
 
-glm::vec2 Window::getMousePos() const {
+glm::vec2 Window::GetMousePos() const {
     double xpos, ypos;
     glfwGetCursorPos(this->window, &xpos, &ypos);
     return glm::vec2(xpos, ypos);
@@ -47,18 +47,18 @@ Window::~Window() {
     glfwTerminate();
 }
 
-Window& Window::get() {
+Window& Window::sGet() {
     return *Window::_instance;
 }
 
-Window& Window::get(unsigned int width, unsigned int height, const char* title) {
+Window& Window::sGet(unsigned int width, unsigned int height, const char* title) {
     if (Window::_instance == nullptr) {
         Window::_instance = new Window(width, height, title);
     }
     return *Window::_instance;
 }
 
-void Window::initGLFW() {
+void Window::InitGLFW() {
     /* Initialize GLFW */
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -92,15 +92,15 @@ void Window::initGLFW() {
     glfwSetFramebufferSizeCallback(this->window, &Window::handleWindowResize);
 }
 
-unsigned int Window::getWidth() const {
+unsigned int Window::GetWidth() const {
     return this->width;
 }
 
-unsigned int Window::getHeight() const {
+unsigned int Window::GetHeight() const {
     return this->height;
 }
 
-void Window::update() {
+void Window::Update() {
 
     // Update keyboard (and mouse buttons)
     memcpy(this->previousKeyStates, this->currentKeyStates, sizeof(bool) * static_cast<int>(Input::NUM_KEYS));
@@ -120,27 +120,27 @@ void Window::update() {
     }
 
     // Update mouse position and scroll
-    this->lastMousePos = this->getMousePos();
+    this->lastMousePos = this->GetMousePos();
     this->mouseScroll = glm::vec2(0, 0);
 
     // Poll new events
     glfwPollEvents();
 }
 
-void Window::swapBuffers() const {
+void Window::SwapBuffers() const {
     glfwSwapBuffers(this->window);
 }
 
-void Window::close() const {
+void Window::Close() const {
     glfwSetWindowShouldClose(this->window, true);
 }
 
-bool Window::shouldClose() const {
+bool Window::ShouldClose() const {
     return glfwWindowShouldClose(this->window);
 }
 
 void Window::handleMouseScroll(GLFWwindow* window, double xOffset, double yOffset) {
-    Window& windowInstance = Window::get();
+    Window& windowInstance = Window::sGet();
     windowInstance.mouseScroll += glm::vec2(xOffset, yOffset);
 }
 
@@ -150,11 +150,11 @@ void Window::handleWindowResize(GLFWwindow* window, int newWidth, int newHeight)
     Window::_instance->height = newHeight;
 }
 
-glm::vec2 Window::getLastMousePos() const {
+glm::vec2 Window::GetLastMousePos() const {
     return this->lastMousePos;
 }
 
-glm::vec2 Window::getMouseScroll() const {
+glm::vec2 Window::GetMouseScroll() const {
     return this->mouseScroll;
 }
 

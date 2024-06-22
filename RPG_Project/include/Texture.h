@@ -7,16 +7,15 @@ public:
     Texture(Texture& other) = delete;
     void operator=(const Texture&) = delete;
 
-    void bind() const;
+    void Bind() const;
 
-    unsigned int getID() const;
-    unsigned int getWidth() const;
-    unsigned int getHeight() const;
+    unsigned int GetID() const;
+    unsigned int GetWidth() const;
+    unsigned int GetHeight() const;
 
 private:
     unsigned int id;
     unsigned int width;
     unsigned int height;
-
 };
 

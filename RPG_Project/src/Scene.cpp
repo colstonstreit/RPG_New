@@ -2,6 +2,6 @@
 
 Scene::Scene(Game& game) : game(game) {}
 
-void Scene::init() {}
+void Scene::Init() {}
 
-void Scene::teardown() {}
+void Scene::Teardown() {}

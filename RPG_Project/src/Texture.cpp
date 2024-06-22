@@ -44,18 +44,18 @@ Texture::Texture(const char* path) {
     }
 }
 
-void Texture::bind() const {
+void Texture::Bind() const {
     glBindTexture(GL_TEXTURE_2D, this->id);
 }
 
-unsigned int Texture::getID() const {
+unsigned int Texture::GetID() const {
     return this->id;
 }
 
-unsigned int Texture::getWidth() const {
+unsigned int Texture::GetWidth() const {
     return this->width;
 }
 
-unsigned int Texture::getHeight() const {
+unsigned int Texture::GetHeight() const {
     return this->height;
 }

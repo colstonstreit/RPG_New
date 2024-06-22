@@ -9,22 +9,29 @@ class Spritesheet;
 class ResourceManager {
 public:
 
+    // Singleton setup
+    static ResourceManager& sGet();
+    ResourceManager(ResourceManager& other) = delete;
+    void operator=(const ResourceManager&) = delete;
+
+    static void LoadResources();
+
+    // Resource fetching methods
+    static const Shader& GetShader(EShader eshader);
+    static const Texture& GetTexture(ETexture etexture);
+    static const Spritesheet& GetSpritesheet(ESpritesheet espritesheet);
+
+private:
     ResourceManager();
     ~ResourceManager();
 
-    void loadResources();
-
-    // Resource fetching methods
-    const Shader& getShader(EShader eshader) const;
-    const Texture& getTexture(ETexture etexture) const;
-    const Spritesheet& getSpritesheet(ESpritesheet espritesheet) const;
+    static void loadShaders();
+    static void loadTextures();
+    static void loadSpritesheets();
 
 private:
-    void loadShaders();
-    void loadTextures();
-    void loadSpritesheets();
+    static ResourceManager s_instance;
 
-private:
     Shader* shaderArray;
     Texture* textureArray;
     Spritesheet* spritesheetArray;

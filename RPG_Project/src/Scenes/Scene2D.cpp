@@ -16,28 +16,39 @@
 
 #include <iostream>
 
+#include "Entity.h"
+
 Scene2D::Scene2D(Game& game) : Scene(game), camera(game), tilemap(game, "res/maps/LOL.map") {}
 
-void Scene2D::init() {
-    tilemap.init();
+void Scene2D::Init() {
+    tilemap.Init();
+
+    for (int i = 0; i < 10000; i++) {
+        float x = i % 100;
+        float y = i / 100;
+        renderer.AddQuad(new VisibleEntity("Entity", { x, y }, { 0.5f, 1.0f }, new Sprite(ResourceManager::GetSpritesheet(ESpritesheet::TILE_SHEET).Crop(0, 0)), { 1.0f, x / 100.0f, y / 100.0f }));
+        renderer.AddQuad(new VisibleEntity("Entity", { x + 0.5f, y }, { 0.5f, 1.0f }, new Sprite(ETexture::NUM_TEXTURES), { 1.0f, x / 100.0f, y / 100.0f }));
+    }
+
 }
 
-void Scene2D::update(double deltaTime) {
+void Scene2D::Update(double deltaTime) {
 
     this->timeElapsed += (float) deltaTime;
-    this->camera.update(deltaTime);
+    this->camera.Update(deltaTime);
 
     Tile::sUpdateTiles(deltaTime);
 
-    tilemap.update(deltaTime);
+    tilemap.Update(deltaTime);
 }
 
-void Scene2D::render() {
-    glm::mat4 projection = this->camera.getWorldToScreenMatrix();
-    tilemap.render(projection);
+void Scene2D::Render() {
+    glm::mat4 projection = this->camera.GetWorldToScreenMatrix();
+    //tilemap.Render(projection);
+    renderer.Render(projection);
 }
 
-void Scene2D::teardown() {
+void Scene2D::Teardown() {
     // Free resources
-    tilemap.teardown();
+    tilemap.Teardown();
 }

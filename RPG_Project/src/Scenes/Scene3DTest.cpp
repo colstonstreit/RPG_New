@@ -59,7 +59,7 @@ static glm::vec3 cubePositions[] = {
 
 Scene3DTest::Scene3DTest(Game& game) : Scene(game) {}
 
-void Scene3DTest::init() {
+void Scene3DTest::Init() {
 
     // VAO
     glGenVertexArrays(1, &this->VAO);
@@ -85,59 +85,57 @@ void Scene3DTest::init() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    const ResourceManager& resourceManager = this->game.getResourceManager();
-    const Shader& shaderProgram = resourceManager.getShader(EShader::DEFAULT);
-    const Texture& texture1 = resourceManager.getTexture(ETexture::BOX);
-    const Texture& texture2 = resourceManager.getTexture(ETexture::TILE_SHEET);
+    const Shader& shaderProgram = ResourceManager::GetShader(EShader::DEFAULT);
+    const Texture& texture1 = ResourceManager::GetTexture(ETexture::BOX);
+    const Texture& texture2 = ResourceManager::GetTexture(ETexture::TILE_SHEET);
 
     glActiveTexture(GL_TEXTURE0);
-    texture1.bind();
+    texture1.Bind();
     glActiveTexture(GL_TEXTURE1);
-    texture2.bind();
+    texture2.Bind();
 
     // Set shader and texture units
-    shaderProgram.use();
-    shaderProgram.setUniformInt("texture1", 0);
-    shaderProgram.setUniformInt("texture2", 1);
+    shaderProgram.Use();
+    shaderProgram.SetUniformInt("texture1", 0);
+    shaderProgram.SetUniformInt("texture2", 1);
 
 }
 
-void Scene3DTest::update(double deltaTime) {
+void Scene3DTest::Update(double deltaTime) {
 
     // Process input
-    const Window& window = this->game.getWindow();
+    const Window& window = this->game.GetWindow();
 
-    if (window.isKeyPressed(Window::Input::FORWARD)) this->camera.processKeyboardInput(CameraDirection::FORWARD, deltaTime);
-    if (window.isKeyPressed(Window::Input::BACKWARD)) this->camera.processKeyboardInput(CameraDirection::BACKWARD, deltaTime);
-    if (window.isKeyPressed(Window::Input::LEFT)) this->camera.processKeyboardInput(CameraDirection::LEFT, deltaTime);
-    if (window.isKeyPressed(Window::Input::RIGHT)) this->camera.processKeyboardInput(CameraDirection::RIGHT, deltaTime);
-    if (window.isKeyPressed(Window::Input::UP)) this->camera.processKeyboardInput(CameraDirection::UP, deltaTime);
-    if (window.isKeyPressed(Window::Input::DOWN)) this->camera.processKeyboardInput(CameraDirection::DOWN, deltaTime);
+    if (window.IsKeyPressed(Window::Input::FORWARD)) this->camera.ProcessKeyboardInput(CameraDirection::FORWARD, deltaTime);
+    if (window.IsKeyPressed(Window::Input::BACKWARD)) this->camera.ProcessKeyboardInput(CameraDirection::BACKWARD, deltaTime);
+    if (window.IsKeyPressed(Window::Input::LEFT)) this->camera.ProcessKeyboardInput(CameraDirection::LEFT, deltaTime);
+    if (window.IsKeyPressed(Window::Input::RIGHT)) this->camera.ProcessKeyboardInput(CameraDirection::RIGHT, deltaTime);
+    if (window.IsKeyPressed(Window::Input::UP)) this->camera.ProcessKeyboardInput(CameraDirection::UP, deltaTime);
+    if (window.IsKeyPressed(Window::Input::DOWN)) this->camera.ProcessKeyboardInput(CameraDirection::DOWN, deltaTime);
 
-    glm::vec2 mousePos = window.getMousePos();
-    glm::vec2 prevMousePos = window.getLastMousePos();
+    glm::vec2 mousePos = window.GetMousePos();
+    glm::vec2 prevMousePos = window.GetLastMousePos();
     glm::vec2 mouseMoved = glm::vec2(mousePos.x - prevMousePos.x, prevMousePos.y - mousePos.y);
-    this->camera.processMouseMovement(mouseMoved.x, mouseMoved.y);
+    this->camera.ProcessMouseMovement(mouseMoved.x, mouseMoved.y);
 
-    glm::vec2 mouseScroll = window.getMouseScroll();
-    this->camera.processMouseScroll(mouseScroll.y);
+    glm::vec2 mouseScroll = window.GetMouseScroll();
+    this->camera.ProcessMouseScroll(mouseScroll.y);
 }
 
-void Scene3DTest::render() {
+void Scene3DTest::Render() {
 
-    const ResourceManager& resourceManager = this->game.getResourceManager();
-    const Shader& shaderProgram = resourceManager.getShader(EShader::DEFAULT);
-    const Window& window = this->game.getWindow();
+    const Shader& shaderProgram = ResourceManager::GetShader(EShader::DEFAULT);
+    const Window& window = this->game.GetWindow();
 
     double time = glfwGetTime();
-    glm::mat4 view = this->camera.getViewMatrix();
+    glm::mat4 view = this->camera.GetViewMatrix();
 
-    glm::mat4 projection = this->camera.getPerspectiveProjectionMatrix((float) window.getWidth() / window.getHeight(), 0.1f, 100.0f);
+    glm::mat4 projection = this->camera.GetPerspectiveProjectionMatrix((float) window.GetWidth() / window.GetHeight(), 0.1f, 100.0f);
     //projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 
-    shaderProgram.setUniformFloat("time", sin(3.1415f * (float) time) / 2.0f + 0.5f);
-    shaderProgram.setUniformMat4("view", view);
-    shaderProgram.setUniformMat4("projection", projection);
+    shaderProgram.SetUniformFloat("time", sin(3.1415f * (float) time) / 2.0f + 0.5f);
+    shaderProgram.SetUniformMat4("view", view);
+    shaderProgram.SetUniformMat4("projection", projection);
 
     glBindVertexArray(this->VAO);
 
@@ -147,12 +145,12 @@ void Scene3DTest::render() {
         if (i % 2 == 0) {
             model = glm::rotate(model, (float) (time + i), glm::vec3(1.0f, 0.3f, 0.5f));
         }
-        shaderProgram.setUniformMat4("model", model);
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(float), GL_UNSIGNED_INT, 0);
+        shaderProgram.SetUniformMat4("model", model);
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
     }
 }
 
-void Scene3DTest::teardown() {
+void Scene3DTest::Teardown() {
     // Free resources
     glDeleteVertexArrays(1, &this->VAO);
     glDeleteBuffers(1, &this->EBO);

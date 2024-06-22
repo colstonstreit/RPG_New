@@ -1,6 +1,5 @@
 #include "Game.h"
 
-#include "Dialogue.h"
 #include "Scene.h"
 #include "Window.h"
 #include "Tile.h"
@@ -17,31 +16,31 @@
 static bool useWireframe = false;
 
 Game::Game(unsigned int width, unsigned int height, const char* title) :
-    window(Window::get(width, height, title)) {
+    window(Window::sGet(width, height, title)) {
 
 }
 
 Game::~Game() {
     if (this->currentScene) {
-        this->currentScene->teardown();
+        this->currentScene->Teardown();
         delete this->currentScene;
     }
 }
 
-void Game::init() {
-    this->window.initGLFW();
-    this->resourceManager.loadResources();
-    Tile::sInitializeTiles(this->resourceManager);
+void Game::Init() {
+    this->window.InitGLFW();
+    ResourceManager::LoadResources();
+    Tile::sInitializeTiles();
 }
 
-void Game::run() {
+void Game::Run() {
 
     const double fps = 60.0;
     double lastTime = glfwGetTime();
     double secondsPerFrame = 1.0 / fps;
     double delta = 0;
 
-    while (!this->window.shouldClose()) {
+    while (!this->window.ShouldClose()) {
 
         double now = glfwGetTime();
         double deltaTime = now - lastTime;
@@ -61,16 +60,18 @@ void Game::run() {
 
 void Game::update(double deltaTime) {
 
-    if (this->window.isKeyPressed(Window::Input::QUIT))
-        this->window.close();
+    this->window.Update();
 
-    if (this->window.wasKeyClicked(Window::Input::TOGGLE_DEBUG)) {
+    if (this->window.IsKeyPressed(Window::Input::QUIT))
+        this->window.Close();
+
+    if (this->window.WasKeyClicked(Window::Input::TOGGLE_DEBUG)) {
         useWireframe = !useWireframe;
         glPolygonMode(GL_FRONT_AND_BACK, useWireframe ? GL_LINE : GL_FILL);
     }
 
-    this->currentScene->update(deltaTime);
-    this->window.update();
+    this->currentScene->Update(deltaTime);
+
 }
 
 void Game::render() {
@@ -79,43 +80,39 @@ void Game::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Actual rendering code
-    this->currentScene->render();
+    this->currentScene->Render();
 
     // Swap buffer
-    this->window.swapBuffers();
+    this->window.SwapBuffers();
 }
 
-void Game::stop() {
-    this->window.close();
+void Game::Stop() {
+    this->window.Close();
 }
 
-void Game::changeScene(Scene* newScene) {
+void Game::ChangeScene(Scene* newScene) {
     if (newScene) {
         if (this->currentScene) {
-            this->currentScene->teardown();
+            this->currentScene->Teardown();
             delete this->currentScene;
         }
-        newScene->init();
+        newScene->Init();
         this->currentScene = newScene;
     }
 }
 
-int Game::getWidth() const {
-    return this->window.getWidth();
+int Game::GetWidth() const {
+    return this->window.GetWidth();
 }
 
-int Game::getHeight() const {
-    return this->window.getHeight();
+int Game::GetHeight() const {
+    return this->window.GetHeight();
 }
 
-const Window& Game::getWindow() const {
+const Window& Game::GetWindow() const {
     return this->window;
 }
 
-const ResourceManager& Game::getResourceManager() const {
-    return this->resourceManager;
-}
-
-const Scene& Game::getCurrentScene() const {
+const Scene& Game::GetCurrentScene() const {
     return *(this->currentScene);
 }

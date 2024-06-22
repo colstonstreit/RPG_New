@@ -17,7 +17,7 @@
 std::vector<Tile*> Tile::s_Tiles = std::vector<Tile*>(static_cast<int>(ETile::NUM_TILES), nullptr);
 bool Tile::s_IsDirty = true;
 
-void Tile::sInitializeTiles(const ResourceManager& resourceManager) {
+void Tile::sInitializeTiles() {
 
     // Lambda function to load tiles more easily
     auto loadStaticTile = [](ETile tileType, Sprite* sprite) {
@@ -31,41 +31,41 @@ void Tile::sInitializeTiles(const ResourceManager& resourceManager) {
     };
 
     // Grab needed spritesheets
-    const Spritesheet& tileSheet = resourceManager.getSpritesheet(ESpritesheet::TILE_SHEET);
+    const Spritesheet& tileSheet = ResourceManager::GetSpritesheet(ESpritesheet::TILE_SHEET);
 
     // Actually load tiles
-    loadStaticTile(ETile::GRASS, new Sprite(tileSheet.crop(0, 0)));
-    loadStaticTile(ETile::SAND, new Sprite(tileSheet.crop(1, 0)));
-    loadStaticTile(ETile::BRICK, new Sprite(tileSheet.crop(2, 0)));
+    loadStaticTile(ETile::GRASS, new Sprite(tileSheet.Crop(0, 0)));
+    loadStaticTile(ETile::SAND, new Sprite(tileSheet.Crop(1, 0)));
+    loadStaticTile(ETile::BRICK, new Sprite(tileSheet.Crop(2, 0)));
     loadAnimatedTile(ETile::WATER, new Sprite[4] {
-        tileSheet.crop(3, 0),
-        tileSheet.crop(4, 0),
-        tileSheet.crop(5, 0),
-        tileSheet.crop(4, 0)
+        tileSheet.Crop(3, 0),
+        tileSheet.Crop(4, 0),
+        tileSheet.Crop(5, 0),
+        tileSheet.Crop(4, 0)
                      }, 4, 0.75f);
     loadAnimatedTile(ETile::LAVA, new Sprite[4] {
-        tileSheet.crop(6, 0),
-        tileSheet.crop(7, 0),
-        tileSheet.crop(8, 0),
-        tileSheet.crop(7, 0)
+        tileSheet.Crop(6, 0),
+        tileSheet.Crop(7, 0),
+        tileSheet.Crop(8, 0),
+        tileSheet.Crop(7, 0)
                      }, 4, 0.75f);
-    loadStaticTile(ETile::TREE, new Sprite(tileSheet.crop(9, 0)));
-    loadStaticTile(ETile::SUN, new Sprite(tileSheet.crop(10, 0)));
-    loadStaticTile(ETile::FLOWER, new Sprite(tileSheet.crop(11, 0)));
-    loadStaticTile(ETile::HOUSE_DOOR, new Sprite(tileSheet.crop(12, 0)));
-    loadStaticTile(ETile::HOUSE_WINDOW, new Sprite(tileSheet.crop(13, 0)));
-    loadStaticTile(ETile::HOUSE_WALL, new Sprite(tileSheet.crop(14, 0)));
-    loadStaticTile(ETile::BLUE_HOUSE_UPPER_LEFT, new Sprite(tileSheet.crop(12, 1)));
-    loadStaticTile(ETile::BLUE_HOUSE_UPPER_MID, new Sprite(tileSheet.crop(13, 1)));
-    loadStaticTile(ETile::BLUE_HOUSE_UPPER_RIGHT, new Sprite(tileSheet.crop(14, 1)));
-    loadStaticTile(ETile::BLUE_HOUSE_LOWER_LEFT, new Sprite(tileSheet.crop(12, 2)));
-    loadStaticTile(ETile::BLUE_HOUSE_LOWER_MID, new Sprite(tileSheet.crop(13, 2)));
-    loadStaticTile(ETile::BLUE_HOUSE_LOWER_RIGHT, new Sprite(tileSheet.crop(14, 2)));
-    loadStaticTile(ETile::WOOD_FLOORBOARD, new Sprite(tileSheet.crop(15, 0)));
-    loadStaticTile(ETile::STONE_BRICK, new Sprite(tileSheet.crop(15, 1)));
+    loadStaticTile(ETile::TREE, new Sprite(tileSheet.Crop(9, 0)));
+    loadStaticTile(ETile::SUN, new Sprite(tileSheet.Crop(10, 0)));
+    loadStaticTile(ETile::FLOWER, new Sprite(tileSheet.Crop(11, 0)));
+    loadStaticTile(ETile::HOUSE_DOOR, new Sprite(tileSheet.Crop(12, 0)));
+    loadStaticTile(ETile::HOUSE_WINDOW, new Sprite(tileSheet.Crop(13, 0)));
+    loadStaticTile(ETile::HOUSE_WALL, new Sprite(tileSheet.Crop(14, 0)));
+    loadStaticTile(ETile::BLUE_HOUSE_UPPER_LEFT, new Sprite(tileSheet.Crop(12, 1)));
+    loadStaticTile(ETile::BLUE_HOUSE_UPPER_MID, new Sprite(tileSheet.Crop(13, 1)));
+    loadStaticTile(ETile::BLUE_HOUSE_UPPER_RIGHT, new Sprite(tileSheet.Crop(14, 1)));
+    loadStaticTile(ETile::BLUE_HOUSE_LOWER_LEFT, new Sprite(tileSheet.Crop(12, 2)));
+    loadStaticTile(ETile::BLUE_HOUSE_LOWER_MID, new Sprite(tileSheet.Crop(13, 2)));
+    loadStaticTile(ETile::BLUE_HOUSE_LOWER_RIGHT, new Sprite(tileSheet.Crop(14, 2)));
+    loadStaticTile(ETile::WOOD_FLOORBOARD, new Sprite(tileSheet.Crop(15, 0)));
+    loadStaticTile(ETile::STONE_BRICK, new Sprite(tileSheet.Crop(15, 1)));
 
     // Empty Tile - use invalid crop indices to generate out-of-bound UVs, which will be discarded in shader
-    loadStaticTile(ETile::NULL_EMPTY, new Sprite(tileSheet.crop(-1, -1)));
+    loadStaticTile(ETile::NULL_EMPTY, new Sprite(tileSheet.Crop(-1, -1)));
 }
 
 void Tile::sUpdateTiles(double deltaTime) {
@@ -101,7 +101,7 @@ TileStatic::~TileStatic() {
 
 bool TileStatic::update(double deltaTime) { return false; }
 
-const Sprite& TileStatic::getCurrentSprite() const {
+const Sprite& TileStatic::GetCurrentSprite() const {
     return *(this->sprite);
 }
 
@@ -122,7 +122,7 @@ bool TileAnimated::update(double deltaTime) {
     return false;
 }
 
-const Sprite& TileAnimated::getCurrentSprite() const {
+const Sprite& TileAnimated::GetCurrentSprite() const {
     return this->animationFrames[this->currentFrameIndex];
 }
 
@@ -137,7 +137,7 @@ TileLayer::~TileLayer() {
     }
 }
 
-void TileLayer::init() {
+void TileLayer::Init() {
 
     if (tiles == nullptr) {
         tiles = new ETile[width * height];
@@ -157,39 +157,39 @@ void TileLayer::init() {
 
     unsigned int staticIndex = 0;
     unsigned int dynamicIndex = 0;
-    for (int y = 0; y < this->height; y++) {
-        for (int x = 0; x < this->width; x++) {
+    for (unsigned int y = 0; y < this->height; y++) {
+        for (unsigned int x = 0; x < this->width; x++) {
 
             ETile type = tiles[y * this->width + x];
             const Tile* tile = Tile::sGetTile(type);
-            const Sprite& currentSprite = tile->getCurrentSprite();
+            const Sprite& currentSprite = tile->GetCurrentSprite();
 
-            staticData[staticIndex++] = x;
-            staticData[staticIndex++] = y;
+            staticData[staticIndex++] = (float) x;
+            staticData[staticIndex++] = (float) y;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             dynamicData[dynamicIndex++] = currentSprite.topLeftUV.s;
             dynamicData[dynamicIndex++] = currentSprite.topLeftUV.t;
 
-            staticData[staticIndex++] = x + 1.0f;
-            staticData[staticIndex++] = y;
+            staticData[staticIndex++] = (float) x + 1.0f;
+            staticData[staticIndex++] = (float) y;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             dynamicData[dynamicIndex++] = currentSprite.topRightUV.s;
             dynamicData[dynamicIndex++] = currentSprite.topRightUV.t;
 
-            staticData[staticIndex++] = x;
-            staticData[staticIndex++] = y + 1.0f;
+            staticData[staticIndex++] = (float) x;
+            staticData[staticIndex++] = (float) y + 1.0f;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             dynamicData[dynamicIndex++] = currentSprite.bottomLeftUV.s;
             dynamicData[dynamicIndex++] = currentSprite.bottomLeftUV.t;
 
-            staticData[staticIndex++] = x + 1.0f;
-            staticData[staticIndex++] = y + 1.0f;
+            staticData[staticIndex++] = (float) x + 1.0f;
+            staticData[staticIndex++] = (float) y + 1.0f;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
             staticData[staticIndex++] = 1.0f;
@@ -202,8 +202,8 @@ void TileLayer::init() {
     // Construct indices
     unsigned int indicesIndex = 0;
     unsigned int* indices = new unsigned int[6 * this->width * this->height];
-    for (int y = 0; y < this->height; y++) {
-        for (int x = 0; x < this->width; x++) {
+    for (unsigned int y = 0; y < this->height; y++) {
+        for (unsigned int x = 0; x < this->width; x++) {
             unsigned int tileBase = 4 * (y * this->width + x);
             indices[indicesIndex++] = tileBase;
             indices[indicesIndex++] = tileBase + 1;
@@ -241,29 +241,29 @@ void TileLayer::init() {
     glEnableVertexAttribArray(2);
 
     // Bind texture
-    const Texture& tileTexture = this->game.getResourceManager().getTexture(ETexture::TILE_SHEET);
+    const Texture& tileTexture = ResourceManager::GetTexture(ETexture::TILE_SHEET);
     glActiveTexture(GL_TEXTURE0);
-    tileTexture.bind();
+    tileTexture.Bind();
 
     // Bind shader
-    const Shader& shaderProgram = this->game.getResourceManager().getShader(EShader::TEST_2D);
-    shaderProgram.use();
+    const Shader& shaderProgram = ResourceManager::GetShader(EShader::TEST_2D);
+    shaderProgram.Use();
 
 }
 
-void TileLayer::update(double deltaTime) {
+void TileLayer::Update(double deltaTime) {
     bool needsToRefresh = Tile::sTileIsDirty();
     if (needsToRefresh) {
         Tile::sCleanDirtyTile();
 
         float* dynamicData = new float[this->width * this->height * 2 * 4];
         unsigned int dynamicIndex = 0;
-        for (int y = 0; y < this->height; y++) {
-            for (int x = 0; x < this->width; x++) {
+        for (unsigned int y = 0; y < this->height; y++) {
+            for (unsigned int x = 0; x < this->width; x++) {
 
                 ETile type = tiles[y * this->width + x];
                 const Tile* tile = Tile::sGetTile(type);
-                const Sprite& currentSprite = tile->getCurrentSprite();
+                const Sprite& currentSprite = tile->GetCurrentSprite();
 
                 dynamicData[dynamicIndex++] = currentSprite.topLeftUV.s;
                 dynamicData[dynamicIndex++] = currentSprite.topLeftUV.t;
@@ -286,17 +286,16 @@ void TileLayer::update(double deltaTime) {
     }
 }
 
-void TileLayer::render(const glm::mat4& projectionMatrix) {
-    const ResourceManager& resourceManager = this->game.getResourceManager();
-    const Shader& shaderProgram = resourceManager.getShader(EShader::TEST_2D);
+void TileLayer::Render(const glm::mat4& projectionMatrix) {
+    const Shader& shaderProgram = ResourceManager::GetShader(EShader::TEST_2D);
 
-    shaderProgram.setUniformMat4("projection", projectionMatrix);
+    shaderProgram.SetUniformMat4("projection", projectionMatrix);
 
     glBindVertexArray(this->VAO);
     glDrawElements(GL_TRIANGLES, 6 * this->width * this->height, GL_UNSIGNED_INT, 0);
 }
 
-void TileLayer::teardown() {
+void TileLayer::Teardown() {
     // Free resources
     glDeleteVertexArrays(1, &this->VAO);
     glDeleteBuffers(1, &this->EBO);
@@ -363,26 +362,26 @@ TileMap::~TileMap() {
     }
 }
 
-void TileMap::init() {
+void TileMap::Init() {
     for (auto& layer : this->tileLayers) {
-        layer.init();
+        layer.Init();
     }
 }
 
-void TileMap::update(double deltaTime) {
+void TileMap::Update(double deltaTime) {
     for (auto& layer : this->tileLayers) {
-        layer.update(deltaTime);
+        layer.Update(deltaTime);
     }
 }
 
-void TileMap::render(const glm::mat4& projectionMatrix) {
+void TileMap::Render(const glm::mat4& projectionMatrix) {
     for (auto& layer : this->tileLayers) {
-        layer.render(projectionMatrix);
+        layer.Render(projectionMatrix);
     }
 }
 
-void TileMap::teardown() {
+void TileMap::Teardown() {
     for (auto& layer : this->tileLayers) {
-        layer.teardown();
+        layer.Teardown();
     }
 }

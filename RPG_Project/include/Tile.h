@@ -13,14 +13,14 @@ class Tile {
 
 public:
 
-    static void sInitializeTiles(const ResourceManager& resourceManager);
+    static void sInitializeTiles();
     static void sUpdateTiles(double deltaTime);
     static const Tile* sGetTile(ETile tileType);
     static bool sTileIsDirty();
     static void sCleanDirtyTile();
 
     Tile(ETile tileType);
-    virtual const Sprite& getCurrentSprite() const = 0;
+    virtual const Sprite& GetCurrentSprite() const = 0;
 
 protected:
     ETile tileType;
@@ -36,7 +36,7 @@ class TileStatic : public Tile {
 public:
     TileStatic(ETile tileType, Sprite* sprite);
     ~TileStatic();
-    const Sprite& getCurrentSprite() const override;
+    const Sprite& GetCurrentSprite() const override;
 
 private:
     bool update(double deltaTime) override;
@@ -48,7 +48,7 @@ class TileAnimated : public Tile {
 public:
     TileAnimated(ETile tileType, Sprite* animationFrames, unsigned int numberOfFrames, float secondsPerFrame);
     ~TileAnimated();
-    const Sprite& getCurrentSprite() const override;
+    const Sprite& GetCurrentSprite() const override;
 
 private:
     bool update(double deltaTime) override;
@@ -65,10 +65,10 @@ class TileLayer {
 public:
     TileLayer(Game& game, unsigned int width, unsigned int height, ETile* tileData = nullptr);
     ~TileLayer();
-    void init();
-    void update(double deltaTime);
-    void render(const glm::mat4& projectionMatrix);
-    void teardown();
+    void Init();
+    void Update(double deltaTime);
+    void Render(const glm::mat4& projectionMatrix);
+    void Teardown();
 
 private:
     struct Vertex {
@@ -100,10 +100,10 @@ public:
     TileMap(Game& game, const std::string& path);
     ~TileMap();
 
-    void init();
-    void update(double deltaTime);
-    void render(const glm::mat4& projectionMatrix);
-    void teardown();
+    void Init();
+    void Update(double deltaTime);
+    void Render(const glm::mat4& projectionMatrix);
+    void Teardown();
 
 private:
     struct Vertex {

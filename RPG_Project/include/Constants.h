@@ -4,6 +4,7 @@
 enum class EShader : unsigned char {
     DEFAULT,
     TEST_2D,
+    QUAD_BATCH,
 
     NUM_SHADERS
 };
