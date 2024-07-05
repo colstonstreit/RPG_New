@@ -3,13 +3,9 @@
 #include "Scene.h"
 #include "Camera3D.h"
 
-class Game;
-
 class Scene3DTest : public Scene {
 
 public:
-    Scene3DTest(Game& game);
-
     void Init() override;
     void Update(double deltaTime) override;
     void Render() override;

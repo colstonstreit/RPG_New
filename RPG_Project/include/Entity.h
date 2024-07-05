@@ -4,6 +4,8 @@
 
 #include "Constants.h"
 
+struct Sprite;
+
 struct Transform {
     glm::vec2 position;
     glm::vec2 scale;
@@ -26,8 +28,6 @@ protected:
     const char* name;
 
 };
-
-struct Sprite;
 
 class VisibleEntity : public Entity {
 public:

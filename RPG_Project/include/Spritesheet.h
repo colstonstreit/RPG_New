@@ -6,8 +6,6 @@
 
 #include <vector>
 
-class Texture;
-
 struct Sprite {
     const ETexture texture;
     const glm::vec2 topLeftUV;

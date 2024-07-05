@@ -1,5 +1,6 @@
 #include "Spritesheet.h"
 
+#include "Game.h"
 #include "ResourceManager.h"
 #include "Texture.h"
 
@@ -13,7 +14,7 @@ Spritesheet::Spritesheet(ETexture texture, unsigned int tileWidth, unsigned int 
     : texture(texture), tileWidth(tileWidth), tileHeight(tileHeight) {}
 
 Sprite Spritesheet::Crop(unsigned int tileX, unsigned int tileY) const {
-    const Texture& texture = ResourceManager::GetTexture(this->texture);
+    const Texture& texture = Game::GetResourceManager().GetTexture(this->texture);
     const float uvPerTileX = (float) this->tileWidth / texture.GetWidth();
     const float uvPerTileY = (float) this->tileHeight / texture.GetHeight();
 

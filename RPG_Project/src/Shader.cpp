@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 
+unsigned int Shader::s_boundShaderID = 0;
+
 Shader::Shader(const char* vertexShaderPath, const char* fragmentPath) {
 
     // Get the source code from filepaths
@@ -79,7 +81,6 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentPath) {
     // Free unnecessary memory
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
 }
 
 Shader::~Shader() {
@@ -87,7 +88,10 @@ Shader::~Shader() {
 }
 
 void Shader::Use() const {
-    glUseProgram(this->id);
+    if (this->id != Shader::s_boundShaderID) {
+        glUseProgram(this->id);
+        Shader::s_boundShaderID = this->id;
+    }
 }
 
 void Shader::SetUniformBool(const char* name, bool value) const {

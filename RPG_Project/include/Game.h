@@ -1,34 +1,44 @@
 #pragma once
 
 #include "ResourceManager.h"
+#include "Window.h"
 
 class Scene;
-class Window;
 
 class Game {
 
 public:
-    Game(unsigned int width, unsigned int height, const char* title);
+
+    // Singleton setup
+    static void Initialize(unsigned int width, unsigned int height, const char* title);
+    static Game& GetInstance();
+    Game(Game& other) = delete;
+    void operator=(const Game&) = delete;
+
     ~Game();
 
-    void Init();
-    void Run();
-    void Stop();
+    static void Run();
+    static void Stop();
 
-    void ChangeScene(Scene* newScene);
+    static void ChangeScene(Scene* newScene);
 
-    int GetWidth() const;
-    int GetHeight() const;
+    static int GetWidth();
+    static int GetHeight();
 
-    const Window& GetWindow() const;
-    const Scene& GetCurrentScene() const;
-
-private:
-    void update(double deltaTime);
-    void render();
+    static Window& GetWindow();
+    static Scene& GetCurrentScene();
+    static ResourceManager& GetResourceManager();
 
 private:
-    Window& window;
+    Game(unsigned int width, unsigned int height, const char* title);
+    static void update(double deltaTime);
+    static void render();
+
+private:
+    static Game* s_instance;
+
+    Window window;
+    ResourceManager resourceManager;
     Scene* currentScene = nullptr;
 };
 

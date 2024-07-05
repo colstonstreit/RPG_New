@@ -31,7 +31,7 @@ void Tile::sInitializeTiles() {
     };
 
     // Grab needed spritesheets
-    const Spritesheet& tileSheet = ResourceManager::GetSpritesheet(ESpritesheet::TILE_SHEET);
+    const Spritesheet& tileSheet = Game::GetResourceManager().GetSpritesheet(ESpritesheet::TILE_SHEET);
 
     // Actually load tiles
     loadStaticTile(ETile::GRASS, new Sprite(tileSheet.Crop(0, 0)));
@@ -129,7 +129,7 @@ const Sprite& TileAnimated::GetCurrentSprite() const {
 
 /* ======================================== TileLayer ======================================== */
 
-TileLayer::TileLayer(Game& game, unsigned int width, unsigned int height, ETile* tileData) : game(game), width(width), height(height), tiles(tileData) {}
+TileLayer::TileLayer(unsigned int width, unsigned int height, ETile* tileData) : width(width), height(height), tiles(tileData) {}
 
 TileLayer::~TileLayer() {
     if (this->tiles) {
@@ -240,13 +240,14 @@ void TileLayer::Init() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
     glEnableVertexAttribArray(2);
 
-    // Bind texture
-    const Texture& tileTexture = ResourceManager::GetTexture(ETexture::TILE_SHEET);
+    // Bind texture and shader
+    const ResourceManager& resourceManager = Game::GetResourceManager();
+
+    const Texture& tileTexture = resourceManager.GetTexture(ETexture::TILE_SHEET);
     glActiveTexture(GL_TEXTURE0);
     tileTexture.Bind();
 
-    // Bind shader
-    const Shader& shaderProgram = ResourceManager::GetShader(EShader::TEST_2D);
+    const Shader& shaderProgram = resourceManager.GetShader(EShader::TEST_2D);
     shaderProgram.Use();
 
 }
@@ -287,7 +288,7 @@ void TileLayer::Update(double deltaTime) {
 }
 
 void TileLayer::Render(const glm::mat4& projectionMatrix) {
-    const Shader& shaderProgram = ResourceManager::GetShader(EShader::TEST_2D);
+    const Shader& shaderProgram = Game::GetResourceManager().GetShader(EShader::TEST_2D);
 
     shaderProgram.SetUniformMat4("projection", projectionMatrix);
 
@@ -305,15 +306,15 @@ void TileLayer::Teardown() {
 
 /* ======================================== TileMap ======================================== */
 
-TileMap::TileMap(Game& game, unsigned int width, unsigned int height, unsigned int numLayers) : game(game), width(width), height(height) {
+TileMap::TileMap(unsigned int width, unsigned int height, unsigned int numLayers) : width(width), height(height) {
     this->tileLayers.reserve(numLayers);
     for (unsigned int i = 0; i < numLayers; i++) {
-        this->tileLayers.emplace_back(game, width, height);
+        this->tileLayers.emplace_back(width, height);
     }
     this->collisions = new bool[width * height] { false };
 }
 
-TileMap::TileMap(Game& game, const std::string& path) : game(game) {
+TileMap::TileMap(const std::string& path) {
     std::fstream fileStream = std::fstream(path);
     unsigned int numLayers;
     std::string breakToIgnore;
@@ -339,7 +340,7 @@ TileMap::TileMap(Game& game, const std::string& path) : game(game) {
         }
 
         // Push new tile layer
-        this->tileLayers.emplace_back(game, width, height, tileLayerData);
+        this->tileLayers.emplace_back(width, height, tileLayerData);
 
         // Ignore break
         std::getline(fileStream, breakToIgnore);

@@ -6,7 +6,7 @@
 #include <functional>
 #include <iostream>
 
-Window* Window::_instance = nullptr;
+#include "Game.h"
 
 Window::Window(unsigned int width, unsigned int height, const char* title)
     : width(width), height(height), title(title), lastMousePos(glm::vec2(0, 0)), window(nullptr), mouseScroll(0) {
@@ -45,17 +45,6 @@ glm::vec2 Window::GetMousePos() const {
 
 Window::~Window() {
     glfwTerminate();
-}
-
-Window& Window::sGet() {
-    return *Window::_instance;
-}
-
-Window& Window::sGet(unsigned int width, unsigned int height, const char* title) {
-    if (Window::_instance == nullptr) {
-        Window::_instance = new Window(width, height, title);
-    }
-    return *Window::_instance;
 }
 
 void Window::InitGLFW() {
@@ -140,14 +129,15 @@ bool Window::ShouldClose() const {
 }
 
 void Window::handleMouseScroll(GLFWwindow* window, double xOffset, double yOffset) {
-    Window& windowInstance = Window::sGet();
-    windowInstance.mouseScroll += glm::vec2(xOffset, yOffset);
+    Window& gameWindow = Game::GetWindow();
+    gameWindow.mouseScroll += glm::vec2(xOffset, yOffset);
 }
 
 void Window::handleWindowResize(GLFWwindow* window, int newWidth, int newHeight) {
     glViewport(0, 0, newWidth, newHeight);
-    Window::_instance->width = newWidth;
-    Window::_instance->height = newHeight;
+    Window& gameWindow = Game::GetWindow();
+    gameWindow.width = newWidth;
+    gameWindow.height = newHeight;
 }
 
 glm::vec2 Window::GetLastMousePos() const {

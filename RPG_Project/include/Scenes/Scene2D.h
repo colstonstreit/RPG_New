@@ -7,12 +7,10 @@
 #include "Renderer.h"
 #include "Tile.h"
 
-class Game;
-
 class Scene2D : public Scene {
 
 public:
-    Scene2D(Game& game);
+    Scene2D();
 
     void Init() override;
     void Update(double deltaTime) override;

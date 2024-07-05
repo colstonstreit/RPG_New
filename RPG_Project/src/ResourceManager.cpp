@@ -4,13 +4,6 @@
 #include "Texture.h"
 #include "Spritesheet.h"
 
-ResourceManager ResourceManager::s_instance;
-
-ResourceManager& ResourceManager::sGet() {
-    // TODO: insert return statement here
-    return ResourceManager::s_instance;
-}
-
 void ResourceManager::LoadResources() {
     loadShaders();
     loadTextures();
@@ -39,24 +32,23 @@ ResourceManager::~ResourceManager() {
     delete[]((unsigned char*) spritesheetArray);
 }
 
-const Shader& ResourceManager::GetShader(EShader eshader) {
-    return ResourceManager::sGet().shaderArray[static_cast<int>(eshader)];
+const Shader& ResourceManager::GetShader(EShader eshader) const {
+    return this->shaderArray[static_cast<int>(eshader)];
 }
 
-const Texture& ResourceManager::GetTexture(ETexture etexture) {
-    return ResourceManager::sGet().textureArray[static_cast<int>(etexture)];
+const Texture& ResourceManager::GetTexture(ETexture etexture) const {
+    return this->textureArray[static_cast<int>(etexture)];
 }
 
-const Spritesheet& ResourceManager::GetSpritesheet(ESpritesheet espritesheet) {
-    return ResourceManager::sGet().spritesheetArray[static_cast<int>(espritesheet)];
+const Spritesheet& ResourceManager::GetSpritesheet(ESpritesheet espritesheet) const {
+    return this->spritesheetArray[static_cast<int>(espritesheet)];
 }
 
 void ResourceManager::loadShaders() {
     // Lambda function to load a shader with placement new operator
-    ResourceManager& resourceManager = ResourceManager::sGet();
-    auto loadShader = [&resourceManager](EShader eshader, const char* vertexPath, const char* fragmentPath) {
+    auto loadShader = [this](EShader eshader, const char* vertexPath, const char* fragmentPath) {
         int index = static_cast<int>(eshader);
-        new (&(resourceManager.shaderArray[index])) Shader(vertexPath, fragmentPath);
+        new (&(this->shaderArray[index])) Shader(vertexPath, fragmentPath);
     };
 
     // Go through and load all shaders
@@ -67,10 +59,9 @@ void ResourceManager::loadShaders() {
 
 void ResourceManager::loadTextures() {
     // Lambda function to load a texture with placement new operator
-    ResourceManager& resourceManager = ResourceManager::sGet();
-    auto loadTexture = [&resourceManager](ETexture etexture, const char* texturePath) {
+    auto loadTexture = [this](ETexture etexture, const char* texturePath) {
         int index = static_cast<int>(etexture);
-        new (&(resourceManager.textureArray[index])) Texture(texturePath);
+        new (&(this->textureArray[index])) Texture(texturePath);
     };
 
     // Go through and load all textures
@@ -83,10 +74,9 @@ void ResourceManager::loadTextures() {
 
 void ResourceManager::loadSpritesheets() {
     // Lambda function to load a spritesheet with placement new operator
-    ResourceManager& resourceManager = ResourceManager::sGet();
-    auto loadSpritesheet = [&resourceManager](ESpritesheet espritesheet, ETexture texture, unsigned int tileWidth, unsigned int tileHeight) {
+    auto loadSpritesheet = [this](ESpritesheet espritesheet, ETexture texture, unsigned int tileWidth, unsigned int tileHeight) {
         int index = static_cast<int>(espritesheet);
-        new (&(resourceManager.spritesheetArray[index])) Spritesheet(texture, tileWidth, tileHeight);
+        new (&(this->spritesheetArray[index])) Spritesheet(texture, tileWidth, tileHeight);
     };
 
     // Go through and load all spritesheets

@@ -17,11 +17,8 @@ public:
         NUM_KEYS
     };
 
-    // Singleton setup
-    static Window& sGet();
-    static Window& sGet(unsigned int width, unsigned int height, const char* title);
-    Window(Window& other) = delete;
-    void operator=(const Window&) = delete;
+    Window(unsigned int width, unsigned int height, const char* title);
+    ~Window();
 
     void InitGLFW();
     void Update();
@@ -45,14 +42,10 @@ private:
         bool typeIsKey; // true if key, false if mouse
     };
 
-    Window(unsigned int width, unsigned int height, const char* title);
-    ~Window();
     static void handleMouseScroll(GLFWwindow* window, double xOffset, double yOffset);
     static void handleWindowResize(GLFWwindow* window, int newWidth, int newHeight);
 
 private:
-    static Window* _instance;
-
     GLFWwindow* window;
 
     // Key management

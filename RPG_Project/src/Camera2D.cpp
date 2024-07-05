@@ -5,13 +5,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera2D::Camera2D(Game& game, double offsetX, double offsetY, double unitsPerWindowHeight)
-    : game(game), offsetX(offsetX), offsetY(offsetY), unitsPerWindowHeight(unitsPerWindowHeight) {}
+Camera2D::Camera2D(double offsetX, double offsetY, double unitsPerWindowHeight)
+    : offsetX(offsetX), offsetY(offsetY), unitsPerWindowHeight(unitsPerWindowHeight) {}
 
 void Camera2D::Update(double deltaTime) {
-    const Window& window = this->game.GetWindow();
+    const Window& window = Game::GetWindow();
     const double velocity = this->unitsPerWindowHeight / 2.0;
-    const double aspectRatio = (float) this->game.GetWidth() / this->game.GetHeight();
+    const double aspectRatio = (float) Game::GetWidth() / Game::GetHeight();
 
     if (window.IsKeyPressed(Window::Input::FORWARD)) this->offsetY -= velocity * deltaTime;
     if (window.IsKeyPressed(Window::Input::BACKWARD)) this->offsetY += velocity * deltaTime;
@@ -31,13 +31,13 @@ void Camera2D::Update(double deltaTime) {
 }
 
 glm::vec2 Camera2D::GetScreenCenter() {
-    const float aspectRatio = (float) this->game.GetWidth() / this->game.GetHeight();
+    const float aspectRatio = (float) Game::GetWidth() / Game::GetHeight();
     float centerX = this->offsetX + aspectRatio * this->unitsPerWindowHeight / 2.0;
     float centerY = this->offsetY + this->unitsPerWindowHeight / 2.0;
     return glm::vec2(centerX, centerY);
 }
 
 glm::mat4 Camera2D::GetWorldToScreenMatrix() {
-    const float aspectRatio = (float) this->game.GetWidth() / this->game.GetHeight();
+    const float aspectRatio = (float) Game::GetWidth() / Game::GetHeight();
     return glm::ortho(this->offsetX, this->offsetX + this->unitsPerWindowHeight * aspectRatio, this->offsetY + this->unitsPerWindowHeight, this->offsetY);
 }

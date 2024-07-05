@@ -6,9 +6,8 @@
 #include <string>
 
 int main(int argc, char** argv) {
-    Game game = Game(900, 900, "RPG Version 2");
-    game.Init();
-    game.ChangeScene(new Scene2D(game));
-    game.Run();
+    Game::Initialize(900, 900, "RPG Project V2");
+    Game::ChangeScene(new Scene2D());
+    Game::Run();
     return 0;
 }

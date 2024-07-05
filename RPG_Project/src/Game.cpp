@@ -12,12 +12,23 @@
 #include <iostream>
 #include <windows.h>
 
+Game* Game::s_instance = nullptr;
 
 static bool useWireframe = false;
 
-Game::Game(unsigned int width, unsigned int height, const char* title) :
-    window(Window::sGet(width, height, title)) {
+Game::Game(unsigned int width, unsigned int height, const char* title) : window(width, height, title) {}
 
+void Game::Initialize(unsigned int width, unsigned int height, const char* title) {
+    if (Game::s_instance == nullptr) {
+        Game::s_instance = new Game(width, height, title);
+        Game::s_instance->GetWindow().InitGLFW();
+        Game::s_instance->resourceManager.LoadResources();
+        Tile::sInitializeTiles();
+    }
+}
+
+Game& Game::GetInstance() {
+    return *Game::s_instance;
 }
 
 Game::~Game() {
@@ -27,12 +38,6 @@ Game::~Game() {
     }
 }
 
-void Game::Init() {
-    this->window.InitGLFW();
-    ResourceManager::LoadResources();
-    Tile::sInitializeTiles();
-}
-
 void Game::Run() {
 
     const double fps = 60.0;
@@ -40,19 +45,19 @@ void Game::Run() {
     double secondsPerFrame = 1.0 / fps;
     double delta = 0;
 
-    while (!this->window.ShouldClose()) {
+    while (!Game::GetWindow().ShouldClose()) {
 
         double now = glfwGetTime();
         double deltaTime = now - lastTime;
         delta += deltaTime / secondsPerFrame;
         lastTime = now;
 
-        this->update(deltaTime);
-        this->render();
+        Game::update(deltaTime);
+        Game::render();
 
         if (delta >= 1) {
             delta--;
-            this->render();
+            Game::render();
         }
 
     }
@@ -60,17 +65,19 @@ void Game::Run() {
 
 void Game::update(double deltaTime) {
 
-    this->window.Update();
+    Window& window = Game::GetWindow();
 
-    if (this->window.IsKeyPressed(Window::Input::QUIT))
-        this->window.Close();
+    window.Update();
 
-    if (this->window.WasKeyClicked(Window::Input::TOGGLE_DEBUG)) {
+    if (window.IsKeyPressed(Window::Input::QUIT))
+        window.Close();
+
+    if (window.WasKeyClicked(Window::Input::TOGGLE_DEBUG)) {
         useWireframe = !useWireframe;
         glPolygonMode(GL_FRONT_AND_BACK, useWireframe ? GL_LINE : GL_FILL);
     }
 
-    this->currentScene->Update(deltaTime);
+    Game::GetCurrentScene().Update(deltaTime);
 
 }
 
@@ -80,39 +87,44 @@ void Game::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Actual rendering code
-    this->currentScene->Render();
+    Game::GetCurrentScene().Render();
 
     // Swap buffer
-    this->window.SwapBuffers();
+    Game::GetWindow().SwapBuffers();
 }
 
 void Game::Stop() {
-    this->window.Close();
+    Game::GetWindow().Close();
 }
 
 void Game::ChangeScene(Scene* newScene) {
     if (newScene) {
-        if (this->currentScene) {
-            this->currentScene->Teardown();
-            delete this->currentScene;
+        Game& game = Game::GetInstance();
+        if (game.currentScene) {
+            game.currentScene->Teardown();
+            delete game.currentScene;
         }
         newScene->Init();
-        this->currentScene = newScene;
+        game.currentScene = newScene;
     }
 }
 
-int Game::GetWidth() const {
-    return this->window.GetWidth();
+int Game::GetWidth() {
+    return Game::GetWindow().GetWidth();
 }
 
-int Game::GetHeight() const {
-    return this->window.GetHeight();
+int Game::GetHeight() {
+    return Game::GetWindow().GetHeight();
 }
 
-const Window& Game::GetWindow() const {
-    return this->window;
+Window& Game::GetWindow() {
+    return Game::GetInstance().window;
 }
 
-const Scene& Game::GetCurrentScene() const {
-    return *(this->currentScene);
+Scene& Game::GetCurrentScene() {
+    return *Game::GetInstance().currentScene;
+}
+
+ResourceManager& Game::GetResourceManager() {
+    return Game::GetInstance().resourceManager;
 }

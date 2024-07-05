@@ -6,13 +6,9 @@
 #include <string>
 #include <vector>
 
-class Game;
-class ResourceManager;
-
 class Tile {
 
 public:
-
     static void sInitializeTiles();
     static void sUpdateTiles(double deltaTime);
     static const Tile* sGetTile(ETile tileType);
@@ -63,7 +59,7 @@ private:
 
 class TileLayer {
 public:
-    TileLayer(Game& game, unsigned int width, unsigned int height, ETile* tileData = nullptr);
+    TileLayer(unsigned int width, unsigned int height, ETile* tileData = nullptr);
     ~TileLayer();
     void Init();
     void Update(double deltaTime);
@@ -81,8 +77,6 @@ private:
         float v;
     };
 
-    const Game& game;
-
     unsigned int VAO = 0;
     unsigned int VBOStatic = 0;
     unsigned int VBODynamic = 0;
@@ -96,8 +90,8 @@ private:
 
 class TileMap {
 public:
-    TileMap(Game& game, unsigned int width, unsigned int height, unsigned int numLayers);
-    TileMap(Game& game, const std::string& path);
+    TileMap(unsigned int width, unsigned int height, unsigned int numLayers);
+    TileMap(const std::string& path);
     ~TileMap();
 
     void Init();
@@ -116,11 +110,9 @@ private:
         float v;
     };
 
-    const Game& game;
     std::vector<TileLayer> tileLayers;
 
     unsigned int width = 0;
     unsigned int height = 0;
     bool* collisions = nullptr;
-
 };

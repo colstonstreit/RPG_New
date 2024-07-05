@@ -28,5 +28,7 @@ public:
     void SetUniformMat4(const char* name, const glm::mat4& matrix) const;
 
 private:
+    static unsigned int s_boundShaderID;
+
     unsigned int id;
 };

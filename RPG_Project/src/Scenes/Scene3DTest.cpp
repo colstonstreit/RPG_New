@@ -57,8 +57,6 @@ static glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-Scene3DTest::Scene3DTest(Game& game) : Scene(game) {}
-
 void Scene3DTest::Init() {
 
     // VAO
@@ -85,9 +83,10 @@ void Scene3DTest::Init() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    const Shader& shaderProgram = ResourceManager::GetShader(EShader::DEFAULT);
-    const Texture& texture1 = ResourceManager::GetTexture(ETexture::BOX);
-    const Texture& texture2 = ResourceManager::GetTexture(ETexture::TILE_SHEET);
+    const ResourceManager& resourceManager = Game::GetResourceManager();
+    const Shader& shaderProgram = resourceManager.GetShader(EShader::DEFAULT);
+    const Texture& texture1 = resourceManager.GetTexture(ETexture::BOX);
+    const Texture& texture2 = resourceManager.GetTexture(ETexture::TILE_SHEET);
 
     glActiveTexture(GL_TEXTURE0);
     texture1.Bind();
@@ -98,13 +97,12 @@ void Scene3DTest::Init() {
     shaderProgram.Use();
     shaderProgram.SetUniformInt("texture1", 0);
     shaderProgram.SetUniformInt("texture2", 1);
-
 }
 
 void Scene3DTest::Update(double deltaTime) {
 
     // Process input
-    const Window& window = this->game.GetWindow();
+    const Window& window = Game::GetWindow();
 
     if (window.IsKeyPressed(Window::Input::FORWARD)) this->camera.ProcessKeyboardInput(CameraDirection::FORWARD, deltaTime);
     if (window.IsKeyPressed(Window::Input::BACKWARD)) this->camera.ProcessKeyboardInput(CameraDirection::BACKWARD, deltaTime);
@@ -124,8 +122,8 @@ void Scene3DTest::Update(double deltaTime) {
 
 void Scene3DTest::Render() {
 
-    const Shader& shaderProgram = ResourceManager::GetShader(EShader::DEFAULT);
-    const Window& window = this->game.GetWindow();
+    const Shader& shaderProgram = Game::GetResourceManager().GetShader(EShader::DEFAULT);
+    const Window& window = Game::GetWindow();
 
     double time = glfwGetTime();
     glm::mat4 view = this->camera.GetViewMatrix();

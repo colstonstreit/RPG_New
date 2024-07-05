@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Entity.h"
+#include "Game.h"
 #include "ResourceManager.h"
 #include "Shader.h"
 #include "Spritesheet.h"
@@ -110,11 +111,13 @@ bool QuadBatch::AddQuad(VisibleEntity* quad) {
 
 void QuadBatch::Render(const glm::mat4& projectionMatrix) {
 
+    const ResourceManager& resourceManager = Game::GetResourceManager();
+
     if (this->isDirty()) {
         this->regenerateVertices();
     }
 
-    const Shader& shaderProgram = ResourceManager::GetShader(EShader::QUAD_BATCH);
+    const Shader& shaderProgram = resourceManager.GetShader(EShader::QUAD_BATCH);
     shaderProgram.Use();
 
     shaderProgram.SetUniformMat4("projection", projectionMatrix);
@@ -122,7 +125,7 @@ void QuadBatch::Render(const glm::mat4& projectionMatrix) {
     static int textureSlots[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
     for (unsigned int i = 0; i < this->usedTextures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
-        ResourceManager::GetTexture(this->usedTextures[i]).Bind();
+        resourceManager.GetTexture(this->usedTextures[i]).Bind();
     }
     shaderProgram.SetUniformIntArray("uTextures", textureSlots, sizeof(textureSlots) / sizeof(int));
 
