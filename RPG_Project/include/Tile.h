@@ -6,56 +6,38 @@
 #include <string>
 #include <vector>
 
+struct TileData {
+    const std::vector<ESprite> Sprites;
+    const double SecondsPerFrame;
+};
+
 class Tile {
 
 public:
     static void sInitializeTiles();
     static void sUpdateTiles(double deltaTime);
-    static const Tile* sGetTile(ETile tileType);
+    static const Tile& sGetTile(ETile tileType);
     static bool sTileIsDirty();
     static void sCleanDirtyTile();
 
-    Tile(ETile tileType);
-    virtual const Sprite& GetCurrentSprite() const = 0;
+    Tile();
+    Tile(const std::vector<ESprite>& esprites, double secondsPerFrame);
 
-protected:
-    ETile tileType;
-
-private:
-    virtual bool update(double deltaTime) = 0;
-    static std::vector<Tile*> s_Tiles;
-    static bool s_IsDirty;
-};
-
-class TileStatic : public Tile {
-
-public:
-    TileStatic(ETile tileType, Sprite* sprite);
-    ~TileStatic();
-    const Sprite& GetCurrentSprite() const override;
+    const Sprite& GetCurrentSprite() const;
 
 private:
-    bool update(double deltaTime) override;
-    Sprite* sprite;
-};
+    static TileData s_tileData[];
+    static Tile s_tiles[static_cast<size_t>(ETile::NUM_TILES_OR_EMPTY)];
+    static bool s_isDirty;
 
-class TileAnimated : public Tile {
+    bool update(double deltaTime);
 
-public:
-    TileAnimated(ETile tileType, Sprite* animationFrames, unsigned int numberOfFrames, float secondsPerFrame);
-    ~TileAnimated();
-    const Sprite& GetCurrentSprite() const override;
-
-private:
-    bool update(double deltaTime) override;
-
+    std::vector<const Sprite*> sprites;
+    size_t currentFrameIndex = 0;
+    double secondsPerFrame = 0;
     double elapsedTime = 0.0;
-    unsigned int currentFrameIndex = 0;
-    float secondsPerFrame;
-    unsigned int numberOfFrames;
-    Sprite* animationFrames;
-};
 
+};
 
 class TileLayer {
 public:
@@ -64,7 +46,7 @@ public:
     void Init();
     void Update(double deltaTime);
     void Render(const glm::mat4& projectionMatrix);
-    void Teardown();
+    void Teardown() const;
 
 private:
     struct Vertex {

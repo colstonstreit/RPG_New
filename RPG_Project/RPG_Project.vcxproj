@@ -186,9 +186,9 @@
     <ClCompile Include="src\Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Constants.h" />
     <ClInclude Include="include\Entity.h" />
     <ClInclude Include="include\Camera2D.h" />
-    <ClInclude Include="include\Constants.h" />
     <ClInclude Include="include\Game.h" />
     <ClInclude Include="include\Camera3D.h" />
     <ClInclude Include="include\Shader.h" />
@@ -204,9 +204,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="res\**">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-</ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\textures\Container.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -22,7 +22,7 @@ void Game::Initialize(unsigned int width, unsigned int height, const char* title
     if (Game::s_instance == nullptr) {
         Game::s_instance = new Game(width, height, title);
         Game::s_instance->GetWindow().InitGLFW();
-        Game::s_instance->resourceManager.LoadResources();
+        //Game::s_instance->resourceManager.LoadResources();
         Tile::sInitializeTiles();
     }
 }

@@ -12,7 +12,7 @@
 #include "Spritesheet.h"
 #include "Texture.h"
 
-QuadBatch::QuadBatch(unsigned int maxQuads) : maxQuads(maxQuads) {
+QuadBatch::QuadBatch(size_t maxQuads) : maxQuads(maxQuads) {
 
     // Generate VAO
     glGenVertexArrays(1, &this->VAO);
@@ -27,9 +27,9 @@ QuadBatch::QuadBatch(unsigned int maxQuads) : maxQuads(maxQuads) {
 
     // Construct indices
     this->indices = new unsigned int[maxQuads * 6];
-    unsigned int indicesIndex = 0;
-    for (unsigned int i = 0; i < maxQuads; i++) {
-        unsigned int tileBase = 4 * i;
+    size_t indicesIndex = 0;
+    for (size_t i = 0; i < maxQuads; i++) {
+        unsigned int tileBase = (unsigned int) 4 * i;
         this->indices[indicesIndex++] = tileBase;
         this->indices[indicesIndex++] = tileBase + 1;
         this->indices[indicesIndex++] = tileBase + 2;
@@ -92,7 +92,7 @@ bool QuadBatch::AddQuad(VisibleEntity* quad) {
         && (
             this->usedTextures.size() < this->maxTextures
             || std::find(this->usedTextures.begin(), this->usedTextures.end(), quad->GetSprite()->texture) != this->usedTextures.end()
-            || quad->GetTexture() == ETexture::NUM_TEXTURES
+            || quad->GetTexture() == ETexture::NUM_TEXTURES_OR_INVALID
             )
         );
 
@@ -102,7 +102,7 @@ bool QuadBatch::AddQuad(VisibleEntity* quad) {
     this->quads.push_back(quad);
 
     ETexture texture = quad->GetTexture();
-    if (texture != ETexture::NUM_TEXTURES && std::find(this->usedTextures.begin(), this->usedTextures.end(), quad->GetSprite()->texture) == this->usedTextures.end()) {
+    if (texture != ETexture::NUM_TEXTURES_OR_INVALID && std::find(this->usedTextures.begin(), this->usedTextures.end(), quad->GetSprite()->texture) == this->usedTextures.end()) {
         this->usedTextures.push_back(texture);
     }
 
@@ -123,7 +123,7 @@ void QuadBatch::Render(const glm::mat4& projectionMatrix) {
     shaderProgram.SetUniformMat4("projection", projectionMatrix);
 
     static int textureSlots[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-    for (unsigned int i = 0; i < this->usedTextures.size(); i++) {
+    for (size_t i = 0; i < this->usedTextures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         resourceManager.GetTexture(this->usedTextures[i]).Bind();
     }
@@ -135,7 +135,7 @@ void QuadBatch::Render(const glm::mat4& projectionMatrix) {
 
 void QuadBatch::regenerateVertices() {
     std::unordered_map<ETexture, int> textureToIndexMap;
-    unsigned int index = 0;
+    size_t index = 0;
 
     for (auto quad : this->quads) {
         // Grab Quad data
@@ -146,7 +146,7 @@ void QuadBatch::regenerateVertices() {
 
         // Find texture ID
         int textureID = 0;
-        if (texture == ETexture::NUM_TEXTURES) {
+        if (texture == ETexture::NUM_TEXTURES_OR_INVALID) {
             textureID = -1;
         } else if (textureToIndexMap.count(texture) != 0) {
             textureID = textureToIndexMap[texture];
@@ -168,7 +168,7 @@ void QuadBatch::regenerateVertices() {
         this->vertices[index++] = color.b;
         this->vertices[index++] = sprite->topLeftUV.s;
         this->vertices[index++] = sprite->topLeftUV.t;
-        this->vertices[index++] = textureID;
+        this->vertices[index++] = (float) textureID;
 
         // Top Right vertex
         this->vertices[index++] = transform.position.x + transform.scale.x;
@@ -178,7 +178,7 @@ void QuadBatch::regenerateVertices() {
         this->vertices[index++] = color.b;
         this->vertices[index++] = sprite->topRightUV.s;
         this->vertices[index++] = sprite->topRightUV.t;
-        this->vertices[index++] = textureID;
+        this->vertices[index++] = (float) textureID;
 
         // Bottom Left vertex
         this->vertices[index++] = transform.position.x;
@@ -188,7 +188,7 @@ void QuadBatch::regenerateVertices() {
         this->vertices[index++] = color.b;
         this->vertices[index++] = sprite->bottomLeftUV.s;
         this->vertices[index++] = sprite->bottomLeftUV.t;
-        this->vertices[index++] = textureID;
+        this->vertices[index++] = (float) textureID;
 
         // Bottom Right vertex
         this->vertices[index++] = transform.position.x + transform.scale.x;
@@ -198,7 +198,7 @@ void QuadBatch::regenerateVertices() {
         this->vertices[index++] = color.b;
         this->vertices[index++] = sprite->bottomRightUV.s;
         this->vertices[index++] = sprite->bottomRightUV.t;
-        this->vertices[index++] = textureID;
+        this->vertices[index++] = (float) textureID;
 
         // Remove dirty flag
         quad->SetIsDirty(false);

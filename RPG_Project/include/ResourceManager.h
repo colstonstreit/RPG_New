@@ -2,29 +2,59 @@
 
 #include "Constants.h"
 
-class Shader;
-class Texture;
-class Spritesheet;
+#include <unordered_map>
+
+#include "Shader.h"
+#include "Spritesheet.h"
+#include "Texture.h"
+
+struct ShaderData {
+    const char* VertexShaderPath;
+    const char* FragmentShaderPath;
+};
+
+struct TextureData {
+    const char* FilePath;
+};
+
+struct SpritesheetData {
+    const ETexture ETexture;
+    const unsigned int TileWidth;
+    const unsigned int TileHeight;
+};
+
+struct SpriteData {
+    const ESpritesheet ESpritesheet;
+    const unsigned int TileX;
+    const unsigned int TileY;
+};
 
 class ResourceManager {
 public:
-    ResourceManager();
-    ~ResourceManager();
     void LoadResources();
 
     // Resource fetching methods
     const Shader& GetShader(EShader eshader) const;
     const Texture& GetTexture(ETexture etexture) const;
-    const Spritesheet& GetSpritesheet(ESpritesheet espritesheet) const;
+    const Sprite& GetSprite(ESprite esprite) const;
 
 private:
-    void loadShaders();
-    void loadTextures();
-    void loadSpritesheets();
+    const Spritesheet& getSpritesheet(ESpritesheet espritesheet) const;
+
+    void loadShaders() const;
+    void loadTextures() const;
+    void loadSpritesheets() const;
+    void loadSprites() const;
 
 private:
-    Shader* shaderArray;
-    Texture* textureArray;
-    Spritesheet* spritesheetArray;
+    mutable std::unordered_map<EShader, Shader> loadedShaders;
+    mutable std::unordered_map<ETexture, Texture> loadedTextures;
+    mutable std::unordered_map<ESpritesheet, Spritesheet> loadedSpritesheets;
+    mutable std::unordered_map<ESprite, Sprite> loadedSprites;
+
+    static const ShaderData s_shaderData[];
+    static const TextureData s_textureData[];
+    static const SpritesheetData s_spritesheetData[];
+    static const SpriteData s_spriteData[];
 };
 

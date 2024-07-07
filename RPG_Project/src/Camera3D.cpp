@@ -10,7 +10,7 @@ Camera3D::Camera3D(glm::vec3 position, glm::vec3 up, double yaw, double pitch) :
     this->updateCameraVectors();
 }
 
-glm::mat4 Camera3D::GetViewMatrix() {
+glm::mat4 Camera3D::GetViewMatrix() const {
     return glm::lookAt(this->position, this->position + this->front, this->worldUp);
 }
 

@@ -44,7 +44,7 @@ void VisibleEntity::SetSprite(Sprite* sprite) {
 ETexture VisibleEntity::GetTexture() const {
     Sprite* sprite = this->GetSprite();
     if (sprite == nullptr)
-        return ETexture::NUM_TEXTURES;
+        return ETexture::NUM_TEXTURES_OR_INVALID;
     return sprite->texture;
 }
 

@@ -19,10 +19,10 @@ class VisibleEntity;
 class QuadBatch {
 
 public:
-    const unsigned int maxQuads = 1000;
-    const unsigned int maxTextures = 16;
+    const size_t maxQuads = 1000;
+    const size_t maxTextures = 16;
 
-    QuadBatch(unsigned int maxQuads);
+    QuadBatch(size_t maxQuads);
     QuadBatch(QuadBatch&& other) noexcept;
     ~QuadBatch();
 

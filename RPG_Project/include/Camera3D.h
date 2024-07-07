@@ -41,7 +41,7 @@ private:
 public:
     Camera3D(glm::vec3 position = glm::vec3(0, 0, 0), glm::vec3 up = glm::vec3(0, 1, 0), double yaw = CAM_DEFAULT_YAW, double pitch = CAM_DEFAULT_PITCH);
 
-    glm::mat4 GetViewMatrix();
+    glm::mat4 GetViewMatrix() const;
     glm::mat4 GetPerspectiveProjectionMatrix(double aspectRatio, double zNear, double zFar);
 
     void ProcessKeyboardInput(CameraDirection direction, double deltaTime);

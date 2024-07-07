@@ -25,13 +25,13 @@ void Scene2D::Init() {
 
     const ResourceManager& resourceManager = Game::GetResourceManager();
 
-    Sprite* grassSprite = new Sprite(resourceManager.GetSpritesheet(ESpritesheet::TILE_SHEET).Crop(0, 0));
-    Sprite* emptySprite = new Sprite(ETexture::NUM_TEXTURES);
+    const Sprite* grassSprite = &resourceManager.GetSprite(ESprite::TILE_GRASS);
+    Sprite* emptySprite = new Sprite(ETexture::NUM_TEXTURES_OR_INVALID);
 
     for (int i = 0; i < 10000; i++) {
-        float x = i % 100;
-        float y = i / 100;
-        renderer.AddQuad(new VisibleEntity("Entity", { x, y }, { 0.5f, 1.0f }, grassSprite, { 1.0f, x / 100.0f, y / 100.0f }));
+        float x = (float) (i % 100);
+        float y = (float) (i / 100);
+        renderer.AddQuad(new VisibleEntity("Entity", { x, y }, { 0.5f, 1.0f }, const_cast<Sprite*> (grassSprite), { 1.0f, x / 100.0f, y / 100.0f }));
         renderer.AddQuad(new VisibleEntity("Entity", { x + 0.5f, y }, { 0.5f, 1.0f }, emptySprite, { 1.0f, x / 100.0f, y / 100.0f }));
     }
 

@@ -31,9 +31,9 @@ void Camera2D::Update(double deltaTime) {
 }
 
 glm::vec2 Camera2D::GetScreenCenter() {
-    const float aspectRatio = (float) Game::GetWidth() / Game::GetHeight();
-    float centerX = this->offsetX + aspectRatio * this->unitsPerWindowHeight / 2.0;
-    float centerY = this->offsetY + this->unitsPerWindowHeight / 2.0;
+    const double aspectRatio = (double) Game::GetWidth() / Game::GetHeight();
+    double centerX = this->offsetX + aspectRatio * this->unitsPerWindowHeight / 2.0;
+    double centerY = this->offsetY + this->unitsPerWindowHeight / 2.0;
     return glm::vec2(centerX, centerY);
 }
 

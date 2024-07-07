@@ -4,83 +4,82 @@
 #include "Texture.h"
 #include "Spritesheet.h"
 
+const ShaderData ResourceManager::s_shaderData[] = { SHADER_DATA(SHADER_TO_TABLE) };
+const TextureData ResourceManager::s_textureData[] = { TEXTURE_DATA(TEXTURE_TO_TABLE) };
+const SpritesheetData ResourceManager::s_spritesheetData[] = { SPRITESHEET_DATA(SPRITESHEET_TO_TABLE) };
+const SpriteData ResourceManager::s_spriteData[] = { SPRITE_DATA(SPRITE_TO_TABLE) };
+
 void ResourceManager::LoadResources() {
     loadShaders();
     loadTextures();
     loadSpritesheets();
-}
-
-ResourceManager::ResourceManager() {
-    // Allocate large byte arrays to store each resource type
-    shaderArray = (Shader*) new unsigned char[sizeof(Shader) * static_cast<int>(EShader::NUM_SHADERS)];
-    textureArray = (Texture*) new unsigned char[sizeof(Texture) * static_cast<int>(ETexture::NUM_TEXTURES)];
-    spritesheetArray = (Spritesheet*) new unsigned char[sizeof(Spritesheet) * static_cast<int>(ESpritesheet::NUM_SPRITESHEETS)];
-}
-
-ResourceManager::~ResourceManager() {
-    // Must call destructors manually due to use of placement new() operator
-    for (unsigned int i = 0; i < static_cast<int>(EShader::NUM_SHADERS); i++)
-        this->shaderArray[i].~Shader();
-    for (unsigned int i = 0; i < static_cast<int>(ETexture::NUM_TEXTURES); i++)
-        this->textureArray[i].~Texture();
-    for (unsigned int i = 0; i < static_cast<int>(ESpritesheet::NUM_SPRITESHEETS); i++)
-        this->spritesheetArray[i].~Spritesheet();
-
-    // Delete overall arrays that were allocated
-    delete[]((unsigned char*) shaderArray);
-    delete[]((unsigned char*) textureArray);
-    delete[]((unsigned char*) spritesheetArray);
+    loadSprites();
 }
 
 const Shader& ResourceManager::GetShader(EShader eshader) const {
-    return this->shaderArray[static_cast<int>(eshader)];
+    auto result = this->loadedShaders.find(eshader);
+    if (result == this->loadedShaders.end()) {
+        const ShaderData& shaderData = ResourceManager::s_shaderData[static_cast<size_t>(eshader)];
+        this->loadedShaders.try_emplace(eshader, shaderData.VertexShaderPath, shaderData.FragmentShaderPath);
+        return this->loadedShaders.at(eshader);
+    } else {
+        return result->second;
+    }
 }
 
 const Texture& ResourceManager::GetTexture(ETexture etexture) const {
-    return this->textureArray[static_cast<int>(etexture)];
+    auto result = this->loadedTextures.find(etexture);
+    if (result == this->loadedTextures.end()) {
+        const TextureData& textureData = ResourceManager::s_textureData[static_cast<size_t>(etexture)];
+        this->loadedTextures.try_emplace(etexture, textureData.FilePath);
+        return this->loadedTextures.at(etexture);
+    } else {
+        return result->second;
+    }
 }
 
-const Spritesheet& ResourceManager::GetSpritesheet(ESpritesheet espritesheet) const {
-    return this->spritesheetArray[static_cast<int>(espritesheet)];
+const Spritesheet& ResourceManager::getSpritesheet(ESpritesheet espritesheet) const {
+    auto result = this->loadedSpritesheets.find(espritesheet);
+    if (result == this->loadedSpritesheets.end()) {
+        const SpritesheetData& spritesheetData = ResourceManager::s_spritesheetData[static_cast<size_t>(espritesheet)];
+        this->loadedSpritesheets.try_emplace(espritesheet, spritesheetData.ETexture, spritesheetData.TileWidth, spritesheetData.TileHeight);
+        return this->loadedSpritesheets.at(espritesheet);
+    } else {
+        return result->second;
+    }
 }
 
-void ResourceManager::loadShaders() {
-    // Lambda function to load a shader with placement new operator
-    auto loadShader = [this](EShader eshader, const char* vertexPath, const char* fragmentPath) {
-        int index = static_cast<int>(eshader);
-        new (&(this->shaderArray[index])) Shader(vertexPath, fragmentPath);
-    };
-
-    // Go through and load all shaders
-    loadShader(EShader::DEFAULT, "res/shaders/VertexShader.vert", "res/shaders/FragmentShader.frag");
-    loadShader(EShader::TEST_2D, "res/shaders/2DVertexShader.vert", "res/shaders/2DFragmentShader.frag");
-    loadShader(EShader::QUAD_BATCH, "res/shaders/QuadBatchShader.vert", "res/shaders/QuadBatchShader.frag");
+const Sprite& ResourceManager::GetSprite(ESprite esprite) const {
+    auto result = this->loadedSprites.find(esprite);
+    if (result == this->loadedSprites.end()) {
+        const SpriteData& spriteData = ResourceManager::s_spriteData[static_cast<size_t>(esprite)];
+        this->loadedSprites.try_emplace(esprite, ResourceManager::getSpritesheet(spriteData.ESpritesheet).Crop(spriteData.TileX, spriteData.TileY));
+        return this->loadedSprites.at(esprite);
+    } else {
+        return result->second;
+    }
 }
 
-void ResourceManager::loadTextures() {
-    // Lambda function to load a texture with placement new operator
-    auto loadTexture = [this](ETexture etexture, const char* texturePath) {
-        int index = static_cast<int>(etexture);
-        new (&(this->textureArray[index])) Texture(texturePath);
-    };
-
-    // Go through and load all textures
-    loadTexture(ETexture::FACE, "res/img/awesomeface.png");
-    loadTexture(ETexture::BOX, "res/img/container.jpg");
-    loadTexture(ETexture::TILE_SHEET, "res/spritesheets/tileSheet.png");
-    loadTexture(ETexture::ITEM_SHEET, "res/spritesheets/itemSheet.png");
-    loadTexture(ETexture::CHARACTER_SHEET, "res/spritesheets/characterSheet.png");
+void ResourceManager::loadShaders() const {
+    for (size_t i = 0; i < static_cast<size_t>(EShader::NUM_SHADERS_OR_INVALID); i++) {
+        this->GetShader(static_cast<EShader>(i));
+    }
 }
 
-void ResourceManager::loadSpritesheets() {
-    // Lambda function to load a spritesheet with placement new operator
-    auto loadSpritesheet = [this](ESpritesheet espritesheet, ETexture texture, unsigned int tileWidth, unsigned int tileHeight) {
-        int index = static_cast<int>(espritesheet);
-        new (&(this->spritesheetArray[index])) Spritesheet(texture, tileWidth, tileHeight);
-    };
+void ResourceManager::loadTextures() const {
+    for (size_t i = 0; i < static_cast<size_t>(ETexture::NUM_TEXTURES_OR_INVALID); i++) {
+        this->GetTexture(static_cast<ETexture>(i));
+    }
+}
 
-    // Go through and load all spritesheets
-    loadSpritesheet(ESpritesheet::TILE_SHEET, ETexture::TILE_SHEET, 16, 16);
-    loadSpritesheet(ESpritesheet::ITEM_SHEET, ETexture::ITEM_SHEET, 16, 16);
-    loadSpritesheet(ESpritesheet::CHARACTER_SHEET, ETexture::CHARACTER_SHEET, 16, 16);
+void ResourceManager::loadSpritesheets() const {
+    for (size_t i = 0; i < static_cast<size_t>(ESpritesheet::NUM_SPRITESHEETS_OR_INVALID); i++) {
+        this->getSpritesheet(static_cast<ESpritesheet>(i));
+    }
+}
+
+void ResourceManager::loadSprites() const {
+    for (size_t i = 0; i < static_cast<size_t>(ESprite::NUM_SPRITES_OR_INVALID); i++) {
+        this->GetSprite(static_cast<ESprite>(i));
+    }
 }

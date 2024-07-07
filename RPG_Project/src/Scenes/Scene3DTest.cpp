@@ -85,7 +85,7 @@ void Scene3DTest::Init() {
 
     const ResourceManager& resourceManager = Game::GetResourceManager();
     const Shader& shaderProgram = resourceManager.GetShader(EShader::DEFAULT);
-    const Texture& texture1 = resourceManager.GetTexture(ETexture::BOX);
+    const Texture& texture1 = resourceManager.GetTexture(ETexture::CONTAINER);
     const Texture& texture2 = resourceManager.GetTexture(ETexture::TILE_SHEET);
 
     glActiveTexture(GL_TEXTURE0);
