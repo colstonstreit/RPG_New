@@ -18,23 +18,27 @@
 
 #include "Entity.h"
 
-Scene2D::Scene2D() : tilemap("res/maps/LOL.map") {}
+// This is making copy of const reference currently
+Scene2D::Scene2D() : tilemap(Game::GetResourceManager().GetMap(EMap::FLOWERS)) {}
 
 void Scene2D::Init() {
     tilemap.Init();
 
     const ResourceManager& resourceManager = Game::GetResourceManager();
 
-    const Sprite* grassSprite = &resourceManager.GetSprite(ESprite::TILE_GRASS);
+    Sprite* grassSprite = const_cast<Sprite*>(&resourceManager.GetSprite(ESprite::TILE_GRASS));
+    Sprite* appleSprite = const_cast<Sprite*>(&resourceManager.GetSprite(ESprite::ITEM_APPLE));
+    Sprite* playerSprite = const_cast<Sprite*>(&resourceManager.GetSprite(ESprite::CHAR_PIKACHU_DOWN_IDLE));
     Sprite* emptySprite = new Sprite(ETexture::NUM_TEXTURES_OR_INVALID);
 
     for (int i = 0; i < 10000; i++) {
         float x = (float) (i % 100);
         float y = (float) (i / 100);
-        renderer.AddQuad(new VisibleEntity("Entity", { x, y }, { 0.5f, 1.0f }, const_cast<Sprite*> (grassSprite), { 1.0f, x / 100.0f, y / 100.0f }));
-        renderer.AddQuad(new VisibleEntity("Entity", { x + 0.5f, y }, { 0.5f, 1.0f }, emptySprite, { 1.0f, x / 100.0f, y / 100.0f }));
+        renderer.AddQuad(new VisibleEntity("Entity", { x, y }, { 0.5f, 0.5f }, playerSprite, { 1.0f, x / 100.0f, y / 100.0f }));
+        renderer.AddQuad(new VisibleEntity("Entity", { x + 0.5f, y }, { 0.5f, 0.5f }, appleSprite, { 1.0f, x / 100.0f, y / 100.0f }));
+        renderer.AddQuad(new VisibleEntity("Entity", { x, y + 0.5f }, { 0.5f, 0.5f }, emptySprite, { 1.0f, x / 100.0f, y / 100.0f }));
+        renderer.AddQuad(new VisibleEntity("Entity", { x + 0.5f, y + 0.5f }, { 0.5f, 0.5f }, grassSprite, { 1.0f, x / 100.0f, y / 100.0f }));
     }
-
 }
 
 void Scene2D::Update(double deltaTime) {

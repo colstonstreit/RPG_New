@@ -199,16 +199,6 @@ void TileLayer::Init() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
     glEnableVertexAttribArray(2);
 
-    // Bind texture and shader
-    const ResourceManager& resourceManager = Game::GetResourceManager();
-
-    const Texture& tileTexture = resourceManager.GetTexture(ETexture::TILE_SHEET);
-    glActiveTexture(GL_TEXTURE0);
-    tileTexture.Bind();
-
-    const Shader& shaderProgram = resourceManager.GetShader(EShader::TEST_2D);
-    shaderProgram.Use();
-
 }
 
 void TileLayer::Update(double deltaTime) {
@@ -254,10 +244,19 @@ void TileLayer::Update(double deltaTime) {
 }
 
 void TileLayer::Render(const glm::mat4& projectionMatrix) {
-    const Shader& shaderProgram = Game::GetResourceManager().GetShader(EShader::TEST_2D);
 
+    // Bind texture and shader
+    const ResourceManager& resourceManager = Game::GetResourceManager();
+
+    const Texture& tileTexture = resourceManager.GetTexture(ETexture::TILE_SHEET);
+    glActiveTexture(GL_TEXTURE0);
+    tileTexture.Bind();
+
+    const Shader& shaderProgram = resourceManager.GetShader(EShader::TEST_2D);
+    shaderProgram.Use();
     shaderProgram.SetUniformMat4("projection", projectionMatrix);
 
+    // Draw
     glBindVertexArray(this->VAO);
     glDrawElements(GL_TRIANGLES, 6 * this->width * this->height, GL_UNSIGNED_INT, 0);
 }

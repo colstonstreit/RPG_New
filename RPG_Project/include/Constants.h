@@ -17,6 +17,30 @@ enum class EShader : unsigned char {
     NUM_SHADERS_OR_INVALID
 };
 
+/*********************** Maps *********************/
+
+#define MAP_TO_ENUM(ENUM_NAME, FILE_NAME) ENUM_NAME,
+#define MAP_TO_TABLE(ENUM_NAME, FILE_NAME) { STRINGIZE(res/maps/ ## FILE_NAME ## .map) },
+
+#define MAP_DATA(MACRO) \
+    MACRO(BROOKIE_SHOW_AND_TELL, BrookieShowAndTell) \
+    MACRO(COOL_ISLAND, CoolIsland) \
+    MACRO(FLOWERS, Flowers) \
+    MACRO(INSIDE_HOUSE, InsideHouse) \
+    MACRO(ISLAND, Island) \
+    MACRO(LAND_BRIDGE, LandBridge) \
+    MACRO(LINKS_AWAKENING_MAP_SIZE, LinksAwakeningMapSize) \
+    MACRO(LOL, Lol) \
+    MACRO(MARIO_SUN_LEVEL, MarioSunLevel) \
+    MACRO(SQUARE_PONDS, SquarePonds) \
+    MACRO(SUNS, Suns) \
+    MACRO(UNNECESSARILY_LARGE_ISLAND, UnnecessarilyLargeIsland) \
+
+enum class EMap : unsigned char {
+    MAP_DATA(MAP_TO_ENUM)
+    NUM_MAPS_OR_INVALID
+};
+
 /*********************** Textures *********************/
 
 #define TEXTURE_TO_ENUM(ENUM_NAME, FILE_NAME) ENUM_NAME,

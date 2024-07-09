@@ -8,12 +8,14 @@ const ShaderData ResourceManager::s_shaderData[] = { SHADER_DATA(SHADER_TO_TABLE
 const TextureData ResourceManager::s_textureData[] = { TEXTURE_DATA(TEXTURE_TO_TABLE) };
 const SpritesheetData ResourceManager::s_spritesheetData[] = { SPRITESHEET_DATA(SPRITESHEET_TO_TABLE) };
 const SpriteData ResourceManager::s_spriteData[] = { SPRITE_DATA(SPRITE_TO_TABLE) };
+const MapData ResourceManager::s_mapData[] = { MAP_DATA(MAP_TO_TABLE) };
 
 void ResourceManager::LoadResources() {
     loadShaders();
     loadTextures();
     loadSpritesheets();
     loadSprites();
+    loadMaps();
 }
 
 const Shader& ResourceManager::GetShader(EShader eshader) const {
@@ -60,6 +62,17 @@ const Sprite& ResourceManager::GetSprite(ESprite esprite) const {
     }
 }
 
+const TileMap& ResourceManager::GetMap(EMap emap) const {
+    auto result = this->loadedMaps.find(emap);
+    if (result == this->loadedMaps.end()) {
+        const MapData& mapData = ResourceManager::s_mapData[static_cast<size_t>(emap)];
+        this->loadedMaps.try_emplace(emap, mapData.FilePath);
+        return this->loadedMaps.at(emap);
+    } else {
+        return result->second;
+    }
+}
+
 void ResourceManager::loadShaders() const {
     for (size_t i = 0; i < static_cast<size_t>(EShader::NUM_SHADERS_OR_INVALID); i++) {
         this->GetShader(static_cast<EShader>(i));
@@ -81,5 +94,11 @@ void ResourceManager::loadSpritesheets() const {
 void ResourceManager::loadSprites() const {
     for (size_t i = 0; i < static_cast<size_t>(ESprite::NUM_SPRITES_OR_INVALID); i++) {
         this->GetSprite(static_cast<ESprite>(i));
+    }
+}
+
+void ResourceManager::loadMaps() const {
+    for (size_t i = 0; i < static_cast<size_t>(EMap::NUM_MAPS_OR_INVALID); i++) {
+        this->GetMap(static_cast<EMap>(i));
     }
 }
