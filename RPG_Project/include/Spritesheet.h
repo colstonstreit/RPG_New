@@ -13,7 +13,7 @@ struct Sprite {
     const glm::vec2 bottomLeftUV;
     const glm::vec2 bottomRightUV;
 
-    Sprite(ETexture texture);
+    Sprite(ETexture texture = ETexture::NUM_TEXTURES_OR_INVALID);
     Sprite(ETexture texture, glm::vec2 topLeftUV, glm::vec2 topRightUV, glm::vec2 bottomLeftUV, glm::vec2 bottomRightUV);
 };
 

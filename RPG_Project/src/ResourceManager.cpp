@@ -62,12 +62,12 @@ const Sprite& ResourceManager::GetSprite(ESprite esprite) const {
     }
 }
 
-const TileMap& ResourceManager::GetMap(EMap emap) const {
-    auto result = this->loadedMaps.find(emap);
-    if (result == this->loadedMaps.end()) {
+const TileMapData& ResourceManager::GetMapData(EMap emap) const {
+    auto result = this->loadedMapDatas.find(emap);
+    if (result == this->loadedMapDatas.end()) {
         const MapData& mapData = ResourceManager::s_mapData[static_cast<size_t>(emap)];
-        this->loadedMaps.try_emplace(emap, mapData.FilePath);
-        return this->loadedMaps.at(emap);
+        this->loadedMapDatas.try_emplace(emap, mapData.FilePath);
+        return this->loadedMapDatas.at(emap);
     } else {
         return result->second;
     }
@@ -99,6 +99,6 @@ void ResourceManager::loadSprites() const {
 
 void ResourceManager::loadMaps() const {
     for (size_t i = 0; i < static_cast<size_t>(EMap::NUM_MAPS_OR_INVALID); i++) {
-        this->GetMap(static_cast<EMap>(i));
+        this->GetMapData(static_cast<EMap>(i));
     }
 }

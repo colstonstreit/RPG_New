@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <assert.h>
 #include <fstream>
 #include <iostream>
 
@@ -57,6 +58,7 @@ Tile::Tile(const std::vector<ESprite>& esprites, double secondsPerFrame) : secon
 }
 
 const Sprite& Tile::GetCurrentSprite() const {
+    assert(this->sprites.size() > 0);
     return *this->sprites[this->currentFrameIndex];
 }
 
@@ -77,25 +79,8 @@ bool Tile::update(double deltaTime) {
 
 /* ======================================== TileLayer ======================================== */
 
-TileLayer::TileLayer(unsigned int width, unsigned int height, ETile* tileData) : width(width), height(height), tiles(tileData) {}
-
-TileLayer::~TileLayer() {
-    if (this->tiles) {
-        delete[] this->tiles;
-    }
-}
-
-void TileLayer::Init() {
-
+TileLayer::TileLayer(size_t width, size_t height, ETile* tileData) : width(width), height(height), tiles(tileData) {
     size_t numTiles = (size_t) this->width * this->height;
-
-    if (tiles == nullptr) {
-        tiles = new ETile[numTiles];
-        for (size_t i = 0; i < numTiles; i++) {
-            int remainder = i % static_cast<int>(ETile::NUM_TILES_OR_EMPTY);
-            tiles[i] = static_cast<ETile>(remainder);
-        }
-    }
 
     // Generate VAO
     glGenVertexArrays(1, &this->VAO);
@@ -198,7 +183,29 @@ void TileLayer::Init() {
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
     glEnableVertexAttribArray(2);
+}
 
+TileLayer::TileLayer(TileLayer&& rhs) noexcept {
+    this->EBO = rhs.EBO;
+    this->VAO = rhs.VAO;
+    this->VBOStatic = rhs.VBOStatic;
+    this->VBODynamic = rhs.VBODynamic;
+    this->width = rhs.width;
+    this->height = rhs.height;
+    this->tiles = rhs.tiles;
+    rhs.EBO = 0;
+    rhs.VAO = 0;
+    rhs.VBOStatic = 0;
+    rhs.VBODynamic = 0;
+    rhs.tiles = nullptr;
+}
+
+TileLayer::~TileLayer() {
+    // Free resources
+    glDeleteVertexArrays(1, &this->VAO);
+    glDeleteBuffers(1, &this->EBO);
+    glDeleteBuffers(1, &this->VBOStatic);
+    glDeleteBuffers(1, &this->VBODynamic);
 }
 
 void TileLayer::Update(double deltaTime) {
@@ -206,7 +213,7 @@ void TileLayer::Update(double deltaTime) {
     if (needsToRefresh) {
         Tile::sCleanDirtyTile();
 
-        size_t numTiles = (size_t) this->width * this->height;
+        size_t numTiles = this->width * this->height;
 
         float* dynamicData = new float[numTiles * 2 * 4];
         size_t dynamicIndex = 0;
@@ -261,76 +268,11 @@ void TileLayer::Render(const glm::mat4& projectionMatrix) {
     glDrawElements(GL_TRIANGLES, 6 * this->width * this->height, GL_UNSIGNED_INT, 0);
 }
 
-void TileLayer::Teardown() const {
-    // Free resources
-    glDeleteVertexArrays(1, &this->VAO);
-    glDeleteBuffers(1, &this->EBO);
-    glDeleteBuffers(1, &this->VBOStatic);
-    glDeleteBuffers(1, &this->VBODynamic);
-}
-
 /* ======================================== TileMap ======================================== */
 
-TileMap::TileMap(unsigned int width, unsigned int height, unsigned int numLayers) : width(width), height(height) {
-    this->tileLayers.reserve(numLayers);
-    for (size_t i = 0; i < numLayers; i++) {
-        this->tileLayers.emplace_back(width, height);
-    }
-    this->collisions = new bool[width * height] { false };
-}
-
-TileMap::TileMap(const std::string& path) {
-    std::fstream fileStream = std::fstream(path);
-    unsigned int numLayers;
-    std::string breakToIgnore;
-
-    // Read in width, height, and number of layers
-    fileStream >> width >> height >> numLayers;
-    std::getline(fileStream, breakToIgnore);
-    std::getline(fileStream, breakToIgnore);
-    size_t numTiles = (size_t) width * height;
-
-    // Read in data for each layer
-    this->tileLayers.reserve(numLayers);
-    for (size_t i = 0; i < numLayers; i++) {
-        // Read in actual data
-        int tileID;
-        ETile* tileLayerData = new ETile[numTiles];
-        for (size_t tileDataIndex = 0; tileDataIndex < numTiles; tileDataIndex++) {
-            fileStream >> tileID;
-            if (tileID < 0) {
-                tileLayerData[tileDataIndex] = ETile::NUM_TILES_OR_EMPTY;
-            } else {
-                tileLayerData[tileDataIndex] = static_cast<ETile>(tileID);
-            }
-        }
-
-        // Push new tile layer
-        this->tileLayers.emplace_back(width, height, tileLayerData);
-
-        // Ignore break
-        std::getline(fileStream, breakToIgnore);
-        std::getline(fileStream, breakToIgnore);
-    }
-
-    // Read in collision data (TODO: could make this more space-efficient by packing in 8 bools per byte)
-    this->collisions = new bool[numTiles];
-    int collisionValue;
-    for (size_t tileDataIndex = 0; tileDataIndex < numTiles; tileDataIndex++) {
-        fileStream >> collisionValue;
-        collisions[tileDataIndex] = (collisionValue > 0);
-    }
-}
-
-TileMap::~TileMap() {
-    if (this->collisions) {
-        delete[] this->collisions;
-    }
-}
-
-void TileMap::Init() {
-    for (auto& layer : this->tileLayers) {
-        layer.Init();
+TileMap::TileMap(EMap emap) : mapData(Game::GetResourceManager().GetMapData(emap)) {
+    for (ETile* layerData : this->mapData.TileData) {
+        this->tileLayers.emplace_back(this->mapData.Width, this->mapData.Height, layerData);
     }
 }
 
@@ -346,8 +288,84 @@ void TileMap::Render(const glm::mat4& projectionMatrix) {
     }
 }
 
-void TileMap::Teardown() {
-    for (auto& layer : this->tileLayers) {
-        layer.Teardown();
+TileMapData::TileMapData(size_t width, size_t height, size_t numLayers) : Width(width), Height(height) {
+    size_t numTiles = width * height;
+    for (size_t i = 0; i < numLayers; i++) {
+        ETile* layerData = new ETile[numTiles];
+        memset(layerData, 0, sizeof(ETile) * numTiles);
+        this->TileData.push_back(layerData);
     }
+    this->CollisionData = new bool[numTiles];
+    memset(this->CollisionData, 0, sizeof(bool) * numTiles);
+}
+
+TileMapData::TileMapData(const std::string& filepath) {
+
+    std::fstream fileStream = std::fstream(filepath);
+    std::string breakToIgnore;
+
+    // Read in width, height, and number of layers
+    size_t numLayers = 0;
+    fileStream >> this->Width >> this->Height >> numLayers;
+    std::getline(fileStream, breakToIgnore);
+    std::getline(fileStream, breakToIgnore);
+    size_t numTiles = this->Width * this->Height;
+
+    // Allocate data for each layer
+    this->TileData.reserve(numLayers);
+    for (size_t i = 0; i < numLayers; i++) {
+        // Read in actual data
+        int tileID;
+        ETile* tileLayerData = new ETile[numTiles];
+        for (size_t tileDataIndex = 0; tileDataIndex < numTiles; tileDataIndex++) {
+            fileStream >> tileID;
+            if (tileID < 0) {
+                tileLayerData[tileDataIndex] = ETile::NUM_TILES_OR_EMPTY;
+            } else {
+                tileLayerData[tileDataIndex] = static_cast<ETile>(tileID);
+            }
+        }
+
+        // Push new tile layer
+        this->TileData.push_back(tileLayerData);
+
+        // Ignore break
+        std::getline(fileStream, breakToIgnore);
+        std::getline(fileStream, breakToIgnore);
+    }
+
+    // Read in collision data (TODO: could make this more space-efficient by packing in 8 bools per byte)
+    this->CollisionData = new bool[numTiles];
+    int collisionValue;
+    for (size_t tileDataIndex = 0; tileDataIndex < numTiles; tileDataIndex++) {
+        fileStream >> collisionValue;
+        this->CollisionData[tileDataIndex] = (collisionValue > 0);
+    }
+}
+
+TileMapData::TileMapData(const TileMapData& other) {
+    // Copy size
+    this->Width = other.Width;
+    this->Height = other.Height;
+    this->TileData.reserve(other.TileData.size());
+
+    size_t numTiles = this->Width * this->Height;
+
+    // Copy tile data
+    for (ETile* otherLayerData : other.TileData) {
+        ETile* layerDataCopy = new ETile[numTiles];
+        memcpy(layerDataCopy, otherLayerData, sizeof(ETile) * numTiles);
+        this->TileData.push_back(layerDataCopy);
+    }
+
+    // Copy collision data
+    this->CollisionData = new bool[numTiles];
+    memcpy(this->CollisionData, other.CollisionData, sizeof(bool) * numTiles);
+}
+
+TileMapData::~TileMapData() {
+    for (ETile* layerData : this->TileData) {
+        delete[] layerData;
+    }
+    delete[] this->CollisionData;
 }

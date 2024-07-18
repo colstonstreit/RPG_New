@@ -18,18 +18,13 @@
 
 #include "Entity.h"
 
-// This is making copy of const reference currently
-Scene2D::Scene2D() : tilemap(Game::GetResourceManager().GetMap(EMap::FLOWERS)) {}
-
-void Scene2D::Init() {
-    tilemap.Init();
-
+Scene2D::Scene2D() : tilemap(EMap::COOL_ISLAND) {
     const ResourceManager& resourceManager = Game::GetResourceManager();
 
     Sprite* grassSprite = const_cast<Sprite*>(&resourceManager.GetSprite(ESprite::TILE_GRASS));
     Sprite* appleSprite = const_cast<Sprite*>(&resourceManager.GetSprite(ESprite::ITEM_APPLE));
     Sprite* playerSprite = const_cast<Sprite*>(&resourceManager.GetSprite(ESprite::CHAR_PIKACHU_DOWN_IDLE));
-    Sprite* emptySprite = new Sprite(ETexture::NUM_TEXTURES_OR_INVALID);
+    Sprite* emptySprite = new Sprite();
 
     for (int i = 0; i < 10000; i++) {
         float x = (float) (i % 100);
@@ -41,6 +36,8 @@ void Scene2D::Init() {
     }
 }
 
+Scene2D::~Scene2D() {}
+
 void Scene2D::Update(double deltaTime) {
 
     this->timeElapsed += (float) deltaTime;
@@ -49,15 +46,11 @@ void Scene2D::Update(double deltaTime) {
     Tile::sUpdateTiles(deltaTime);
 
     tilemap.Update(deltaTime);
+
 }
 
 void Scene2D::Render() {
     glm::mat4 projection = this->camera.GetWorldToScreenMatrix();
     renderer.Render(projection);
     tilemap.Render(projection);
-}
-
-void Scene2D::Teardown() {
-    // Free resources
-    tilemap.Teardown();
 }

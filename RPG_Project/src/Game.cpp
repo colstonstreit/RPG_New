@@ -33,7 +33,6 @@ Game& Game::GetInstance() {
 
 Game::~Game() {
     if (this->currentScene) {
-        this->currentScene->Teardown();
         delete this->currentScene;
     }
 }
@@ -101,10 +100,8 @@ void Game::ChangeScene(Scene* newScene) {
     if (newScene) {
         Game& game = Game::GetInstance();
         if (game.currentScene) {
-            game.currentScene->Teardown();
             delete game.currentScene;
         }
-        newScene->Init();
         game.currentScene = newScene;
     }
 }

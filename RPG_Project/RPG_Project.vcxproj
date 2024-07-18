@@ -173,7 +173,6 @@
     <ClCompile Include="src\Camera2D.cpp" />
     <ClCompile Include="src\Scenes\Scene2D.cpp" />
     <ClCompile Include="src\Scenes\Scene3DTest.cpp" />
-    <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Camera3D.cpp" />

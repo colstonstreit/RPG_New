@@ -42,7 +42,7 @@ public:
     const Shader& GetShader(EShader eshader) const;
     const Texture& GetTexture(ETexture etexture) const;
     const Sprite& GetSprite(ESprite esprite) const;
-    const TileMap& GetMap(EMap emap) const;
+    const TileMapData& GetMapData(EMap emap) const;
 
 private:
     const Spritesheet& getSpritesheet(ESpritesheet espritesheet) const;
@@ -58,7 +58,7 @@ private:
     mutable std::unordered_map<ETexture, Texture> loadedTextures;
     mutable std::unordered_map<ESpritesheet, Spritesheet> loadedSpritesheets;
     mutable std::unordered_map<ESprite, Sprite> loadedSprites;
-    mutable std::unordered_map<EMap, TileMap> loadedMaps;
+    mutable std::unordered_map<EMap, TileMapData> loadedMapDatas;
 
     static const ShaderData s_shaderData[];
     static const TextureData s_textureData[];

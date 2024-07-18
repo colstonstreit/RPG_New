@@ -57,8 +57,7 @@ static glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-void Scene3DTest::Init() {
-
+Scene3DTest::Scene3DTest() {
     // VAO
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(this->VAO);
@@ -97,6 +96,13 @@ void Scene3DTest::Init() {
     shaderProgram.Use();
     shaderProgram.SetUniformInt("texture1", 0);
     shaderProgram.SetUniformInt("texture2", 1);
+}
+
+Scene3DTest::~Scene3DTest() {
+    // Free resources
+    glDeleteVertexArrays(1, &this->VAO);
+    glDeleteBuffers(1, &this->EBO);
+    glDeleteBuffers(1, &this->VBO);
 }
 
 void Scene3DTest::Update(double deltaTime) {
@@ -146,11 +152,4 @@ void Scene3DTest::Render() {
         shaderProgram.SetUniformMat4("model", model);
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
     }
-}
-
-void Scene3DTest::Teardown() {
-    // Free resources
-    glDeleteVertexArrays(1, &this->VAO);
-    glDeleteBuffers(1, &this->EBO);
-    glDeleteBuffers(1, &this->VBO);
 }

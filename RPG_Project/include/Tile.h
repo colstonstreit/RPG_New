@@ -11,6 +11,19 @@ struct TileData {
     const double SecondsPerFrame;
 };
 
+struct TileMapData {
+
+    TileMapData(size_t width = 1, size_t height = 1, size_t numLayers = 1);
+    TileMapData(const std::string& filepath);
+    TileMapData(const TileMapData& other);
+    ~TileMapData();
+
+    size_t Width;
+    size_t Height;
+    std::vector<ETile*> TileData;
+    bool* CollisionData;
+};
+
 class Tile {
 
 public:
@@ -41,12 +54,11 @@ private:
 
 class TileLayer {
 public:
-    TileLayer(unsigned int width, unsigned int height, ETile* tileData = nullptr);
+    TileLayer(size_t width, size_t height, ETile* tileData);
+    TileLayer(TileLayer&& rhs) noexcept;
     ~TileLayer();
-    void Init();
     void Update(double deltaTime);
     void Render(const glm::mat4& projectionMatrix);
-    void Teardown() const;
 
 private:
     struct Vertex {
@@ -64,22 +76,17 @@ private:
     unsigned int VBODynamic = 0;
     unsigned int EBO = 0;
 
-    unsigned int width = 0;
-    unsigned int height = 0;
+    size_t width = 0;
+    size_t height = 0;
     ETile* tiles = nullptr;
 
 };
 
 class TileMap {
 public:
-    TileMap(unsigned int width, unsigned int height, unsigned int numLayers);
-    TileMap(const std::string& path);
-    ~TileMap();
-
-    void Init();
+    TileMap(EMap emap);
     void Update(double deltaTime);
     void Render(const glm::mat4& projectionMatrix);
-    void Teardown();
 
 private:
     struct Vertex {
@@ -92,9 +99,6 @@ private:
         float v;
     };
 
+    TileMapData mapData;
     std::vector<TileLayer> tileLayers;
-
-    unsigned int width = 0;
-    unsigned int height = 0;
-    bool* collisions = nullptr;
 };
